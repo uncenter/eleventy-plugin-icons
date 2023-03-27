@@ -4,6 +4,8 @@ layout: base.njk
 
 ## Plugin Test Page
 
+{% icon "tabler:activity" %}
+
 Cupcake ipsum dolor. Sit amet I love I love I love. I love pudding dragée. Halvah macaroon halvah I love jujubes bonbon I love pie. Bonbon gingerbread bonbon I love. Tootsie roll chocolate sweet jelly-o lemon drops cotton candy gummies.
 
 Marshmallow macaroon cupcake I love I love jelly beans pudding pastry pie. Macaroon marzipan dragée cake marshmallow I love wafer oat cake. Cake marshmallow muffin cupcake danish. Chocolate cake croissant tiramisu lollipop jelly lollipop cookie caramels cookie. Fruitcake soufflé bonbon cupcake gingerbread I love jelly beans ice cream bonbon. Sugar plum marshmallow marshmallow cake apple pie marzipan sweet tootsie roll croissant.
@@ -32,3 +34,5 @@ Sugar plum jelly sesame snaps I love powder. Chocolate sesame snaps cake. Pastry
 Chocolate bar pudding ice cream. Jelly-o tootsie roll pie gingerbread candy jelly beans cupcake donut lollipop. Croissant topping cake apple pie gummi bears gingerbread donut croissant tiramisu. Gummies chupa chups donut caramels gummies cotton candy cookie muffin pudding. Chocolate cake dessert bonbon I love. Marzipan jujubes jelly beans. I love wafer cookie carrot cake caramels sesame snaps cotton candy marshmallow.
 
 Gummies toffee I love danish I love macaroon sesame snaps cookie. Macaroon lollipop apple pie powder marzipan bonbon brownie sweet roll I love. Gummi bears ice cream pie oat cake cupcake wafer sesame snaps. Sweet brownie icing. Tart sweet sugar plum danish cupcake I love. Fruitcake tart sweet roll soufflé. Muffin ice cream I love I love sugar plum jujubes carrot cake wafer I love. Icing brownie cake I love sugar plum I love cake.
+
+{% spriteSheet %}
