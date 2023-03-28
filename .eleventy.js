@@ -58,6 +58,9 @@ module.exports = (eleventyConfig, options) => {
             throw new Error(`Invalid option for eleventy-plugin-icons: ${key}=${value}`);
         }
     });
+    if (settings.mode === 'inline' && !settings.insertSpriteSheet.override) {
+        console.warn(Chalk.yellow("The sprite sheet is useless in inline mode. Set the mode to 'sprite' to use the sprite sheet or set `insertSpriteSheet.override` to `true` to hide this warning and insert the sprite sheet anyway."));
+    }
 
     function parseIconSource(string){
         if (typeof settings.default === "string" && !string.includes(":")) { // If the source is set and the string doesn't contain a source.
@@ -118,7 +121,6 @@ module.exports = (eleventyConfig, options) => {
 
     const insertSpriteSheet = function () {
         if (settings.mode === 'inline' && !settings.insertSpriteSheet.override) {
-            console.warn(Chalk.yellow("The sprite sheet is useless in inline mode. Set the mode to 'sprite' to use the sprite sheet or set `insertSpriteSheet.override` to `true` to hide this warning and insert the sprite sheet anyway."));
             return "";
         }
         const pageIcons = this.page.icons || [];
