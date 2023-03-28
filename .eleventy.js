@@ -16,7 +16,7 @@ module.exports = (eleventyConfig, options) => {
             return typeof value === "object";
         },
         enable: function (value, options) {
-            return Array.isArray(value) && value.every((source) => options.sources.includes(source));
+            return Array.isArray(value) && value.every((source) => Object.keys(options.sources).includes(source));
         },
         insertIcon: {
             shortcode: function (value, options) {
@@ -83,7 +83,20 @@ module.exports = (eleventyConfig, options) => {
         removeAttributes: ['class', 'width', 'height', 'xlmns'], // Attributes to remove from the source SVGs.
     };
 
-    const settings = Object.assign({}, defaults, options);
+    const settings = Object.entries(defaults).reduce((acc, [key, value]) => {
+        if (options === undefined) {
+            acc[key] = value;
+        } else if (options[key] !== undefined) {
+            if (value.constructor === Object) {
+                acc[key] = Object.assign({}, value, options[key]);
+            } else {
+                acc[key] = options[key];
+            }
+        } else {
+            acc[key] = value;
+        }
+        return acc;
+    }, {});
     const defaultSources = Object.keys(defaults.sources);
     if (settings.enable.length > 0) {
         Object.keys(settings.sources).forEach((key) => {
