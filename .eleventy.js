@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const Chalk = require("chalk");
+const { delimiter } = require("path");
 
 module.exports = (eleventyConfig, options) => {
     const validOptions = {
@@ -18,10 +19,10 @@ module.exports = (eleventyConfig, options) => {
             return Array.isArray(value);
         },
         insertIcon: function (value, options) {
-            return typeof value === "object";
+            return typeof value === "object" && typeof value.shortcode === "string" && value.shortcode.length > 0 && typeof value.delimiter === "string" && value.delimiter.length === 1 && ["!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", ":", ";", "<", ">", ".", "?", "/", "~"].includes(value.delimiter) && typeof value.class === ("function" || "string") && typeof value.id === ("function" || "string") && typeof value.override === "boolean";
         },
         insertSpriteSheet: function (value, options) {
-            return typeof value === "object";
+            return typeof value === "object" && typeof value.shortcode === "string" && value.shortcode.length > 0 && typeof value.class === "string" && typeof value.styles === "string" && typeof value.override === "boolean";
         },
         removeAttributes: function (value, options) {
             return Array.isArray(value);
@@ -35,10 +36,11 @@ module.exports = (eleventyConfig, options) => {
             lucide: "node_modules/lucide-static/icons",
             feather: "node_modules/feather-icons/dist/icons",
         },
-        enable: [], // The sources to enable. Can be "tabler", "lucide", "feather" or a custom source.
+        enable: ["tabler"], // The sources to enable. Can be "tabler", "lucide", "feather" or a custom source.
         default: false, // The default source for icons without a source (e.g. "activity" instead of "feather:activity"). Can be false, "feather", "tabler", "lucide" or a 
         insertIcon: {
             shortcode: "icon", // The shortcode to insert the icon.
+            delimiter: "@", // The delimiter between the source and the icon name (e.g. "feather:activity"). Must be a single character. Must be in ["!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", ":", ";", "<", ">", ".", "?", "/", "~"].
             class: function(name, source) { // The class of the inserted icon (e.g. "icon icon-activity") on either the sprite or the inline icon.
                 return `icon icon-${name}`;
             },
@@ -82,25 +84,27 @@ module.exports = (eleventyConfig, options) => {
     
     Object.entries(settings).forEach(([key, value]) => {
         if (!validOptions[key](value, settings)) {
-            throw new Error(`Invalid option for eleventy-plugin-icons: ${key}=${value}`);
+            console.error(Chalk.red(`Invalid option for eleventy-plugin-icons: ${key}=${value}`));
         }
     });
 
     function parseIconSource(string, page){
-        if (typeof settings.default === "string" && !string.includes(":")) { // If the source is set and the string doesn't contain a source.
+        const delimiter = settings.insertIcon.delimiter;
+        if (typeof settings.default === "string" && !string.includes(delimiter)) { // If the source is set and the string doesn't contain a source.
             return [settings.sources[settings.default], string];
-        } else if (settings.default === false && !string.includes(":")) { // If the source is not set and the string doesn't contain a source.
-            throw new Error(`No source specified for icon: ${string} (page: ${page.inputPath}).`);
-        } else if (string.includes(":") && settings.sources[(string.split(":")[0])] === undefined) { // If the string contains a source but the source is invalid.
-            if (settings.sources[string.split(":")[0]] === undefined && defaultSources.includes(string.split(":")[0])) {
-                console.error(Chalk.red(`Source is not enabled: ${string.split(":")[0]}`));
+        } else if (settings.default === false && !string.includes(delimiter)) { // If the source is not set and the string doesn't contain a source.
+            console.error(Chalk.red(`No source specified for icon: ${string} (page: ${page.inputPath}). Make sure you are using the correct delimiter (current delimiter: ${delimiter}).`));
+            process.exit(1);
+        } else if (string.includes(delimiter) && settings.sources[(string.split(delimiter)[0])] === undefined) { // If the string contains a source but the source is invalid.
+            if (settings.sources[string.split(delimiter)[0]] === undefined && defaultSources.includes(string.split(delimiter)[0])) {
+                console.error(Chalk.red(`Source is not enabled: ${string.split(delimiter)[0]}`));
                 process.exit(1);
             } else {
                 console.error(Chalk.red(`Invalid source specified: "${string}" (page: ${page.inputPath}). Did you forget to define the source in the sources option?`));
                 process.exit(1);
             }
         }
-        const [source, name] = string.split(":"); // If the string contains a source (e.g. "feather:activity").
+        const [source, name] = string.split(delimiter); // If the string contains a source (e.g. "feather:activity").
         if (settings.sources[source] !== undefined) { // If the source is valid.
             return [settings.sources[source], name];
         }

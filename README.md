@@ -84,8 +84,9 @@ The default source for icons without a specified source (e.g. "activity" instead
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `shortcode` | `string` | `icon` | The shortcode name (e.g. `{% icon %}`) to insert the icon. |
-| `class` | `string` or `function` | `icon icon-{name}` | The class of the inserted icon (e.g. `class="icon icon-activity"`) on either the sprite or the inline icon. If a function is used, it will be passed the icon name and source. |
-| `id` | `string` or `function` | `icon-{name}` | The ID/link of sprite icons (e.g. `id="icon-activity"`) or the `href` of sprite references (e.g. `href="#icon-activity"`). If a function is used, it will be passed the icon name and source. |
+| `delimiter` | `string` | `:` | The delimiter between the source and icon name (e.g. `tabler:activity`). Must be one of `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `=`, `|`, `:`, `;`, `<`, `>`, `.`, `?`, `/`, or `~`. |
+| `class` | `string` or `function` | `icon icon-<name>` | The class of the inserted icon (e.g. `class="icon icon-activity"`) on either the sprite or the inline icon. If a function is used, it will be passed the icon name and source. |
+| `id` | `string` or `function` | `icon-<name>` | The ID/link of sprite icons (e.g. `id="icon-activity"`) or the `href` of sprite references (e.g. `href="#icon-activity"`). If a function is used, it will be passed the icon name and source. |
 | override | `boolean` | `false` | Whether to continue even if an icon is not found (typically used for debugging). |
 
 The `insertIcon` shortcode can be used to insert an icon into a page. It takes a single argument, the icon source (e.g. `tabler`) and the icon name (e.g. `activity`).
@@ -95,10 +96,10 @@ For example, to insert the `activity` icon from the `tabler` source, you would u
 {% icon "tabler:activity" %}
 ```
 
-Alternatively, you can use the `source` option to set a default source. If you set the `source` option to `tabler`, you can then use the shortcode like this to insert the Tabler `activity` icon:
+Alternatively, you can use the `default` option to set a default source. If you set the `default` option to `tabler`, you can then use the shortcode like this to insert the `activity` icon from the `tabler` source:
 
 ```twig
-{% icon activity %}
+{% icon "activity" %}
 ```
 
 ### insertSpriteSheet
@@ -135,6 +136,7 @@ module.exports = (eleventyConfig) => {
         default: false,
         insertIcon: {
             shortcode: "icon",
+            delimiter: ":",
             class: function(name, source) {
                 return `icon icon-${name}`;
             },
