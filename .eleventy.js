@@ -15,13 +15,38 @@ module.exports = (eleventyConfig, options) => {
             return typeof value === "object";
         },
         enable: function (value, options) {
-            return Array.isArray(value);
+            return Array.isArray(value) && value.every((source) => source in options.sources);
         },
-        insertIcon: function (value, options) {
-            return typeof value === "object" && typeof value.shortcode === "string" && value.shortcode.length > 0 && typeof value.delimiter === "string" && value.delimiter.length === 1 && ["!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", ":", ";", "<", ">", ".", "?", "/", "~"].includes(value.delimiter) && typeof value.class === ("function" || "string") && typeof value.id === ("function" || "string") && typeof value.override === "boolean";
+        insertIcon: {
+            shortcode: function (value, options) {
+                return typeof value === "string" && value.length > 0;
+            },
+            delimiter: function (value, options) {
+                return typeof value === "string" && value.length === 1 && ["!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", ":", ";", "<", ">", ".", "?", "/", "~"].includes(value);
+            },
+            class: function (value, options) {
+                return typeof value === "function" || typeof value === "string";
+            },
+            id: function (value, options) {
+                return typeof value === "function" || typeof value === "string";
+            },
+            override: function (value, options) {
+                return typeof value === "boolean";
+            }
         },
-        insertSpriteSheet: function (value, options) {
-            return typeof value === "object" && typeof value.shortcode === "string" && value.shortcode.length > 0 && typeof value.class === "string" && typeof value.styles === "string" && typeof value.override === "boolean";
+        insertSpriteSheet: {
+            shortcode: function (value, options) {
+                return typeof value === "string" && value.length > 0;
+            },
+            class: function (value, options) {
+                return typeof value === "string";
+            },
+            styles: function (value, options) {
+                return typeof value === "string";
+            },
+            override: function (value, options) {
+                return typeof value === "boolean";
+            }
         },
         removeAttributes: function (value, options) {
             return Array.isArray(value);
@@ -82,8 +107,17 @@ module.exports = (eleventyConfig, options) => {
     }
     
     Object.entries(settings).forEach(([key, value]) => {
-        if (!validOptions[key](value, settings)) {
+        console.log(key, value);
+        if (value.constructor === Object && typeof validOptions[key] === "object") {
+            Object.entries(value).forEach(([subKey, subValue]) => {
+                if (!validOptions[key][subKey](subValue, settings)) {
+                    console.error(Chalk.red(`Invalid option for eleventy-plugin-icons: ${key}.${subKey}=${subValue}`));
+                    process.exit(1);
+                }
+            });
+        } else if (!validOptions[key](value, settings)) {
             console.error(Chalk.red(`Invalid option for eleventy-plugin-icons: ${key}=${value}`));
+            process.exit(1);
         }
     });
 
