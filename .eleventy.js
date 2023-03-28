@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 
 const Chalk = require("chalk");
-const { delimiter } = require("path");
 
 module.exports = (eleventyConfig, options) => {
     const validOptions = {
@@ -36,11 +35,11 @@ module.exports = (eleventyConfig, options) => {
             lucide: "node_modules/lucide-static/icons",
             feather: "node_modules/feather-icons/dist/icons",
         },
-        enable: ["tabler"], // The sources to enable. Can be "tabler", "lucide", "feather" or a custom source.
+        enable: [], // The sources to enable. Can be "tabler", "lucide", "feather" or a custom source.
         default: false, // The default source for icons without a source (e.g. "activity" instead of "feather:activity"). Can be false, "feather", "tabler", "lucide" or a 
         insertIcon: {
             shortcode: "icon", // The shortcode to insert the icon.
-            delimiter: "@", // The delimiter between the source and the icon name (e.g. "feather:activity"). Must be a single character. Must be in ["!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", ":", ";", "<", ">", ".", "?", "/", "~"].
+            delimiter: ":", // The delimiter between the source and the icon name (e.g. "feather:activity"). Must be a single character. Must be in ["!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", ":", ";", "<", ">", ".", "?", "/", "~"].
             class: function(name, source) { // The class of the inserted icon (e.g. "icon icon-activity") on either the sprite or the inline icon.
                 return `icon icon-${name}`;
             },
@@ -165,7 +164,7 @@ module.exports = (eleventyConfig, options) => {
     const insertSpriteSheet = function () {
         const page = this.page;
         if (settings.mode === 'inline' && !settings.insertSpriteSheet.override && !warnedSpriteSheet) {
-            console.warn(Chalk.yellow(`\nIt looks like you are using the {% ${settings.insertSpriteSheet.shortcode} %} shortcode in 'inline' mode. Set the mode to 'sprite' to use the sprite sheet or set ${Chalk.magenta('insertSpriteSheet.override')} to ${Chalk.blue('true')} to hide this warning and insert the sprite sheet anyway.\n`));
+            console.warn(Chalk.yellow(`\nIt looks like you are using the ${Chalk.magenta(`{% ${settings.insertSpriteSheet.shortcode} %}`)} shortcode in 'inline' mode. Set the mode to 'sprite' to use the sprite sheet or set ${Chalk.magenta('insertSpriteSheet.override')} to ${Chalk.blue('true')} to hide this warning and insert the sprite sheet anyway.\n`));
             warnedSpriteSheet = true;
         }
         if (settings.mode === 'inline' && !settings.insertSpriteSheet.override) {
