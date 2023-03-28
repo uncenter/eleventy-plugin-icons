@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const prettier = require("prettier");
 
 const Chalk = require("chalk");
 
@@ -107,7 +108,6 @@ module.exports = (eleventyConfig, options) => {
     }
     
     Object.entries(settings).forEach(([key, value]) => {
-        console.log(key, value);
         if (value.constructor === Object && typeof validOptions[key] === "object") {
             Object.entries(value).forEach(([subKey, subValue]) => {
                 if (!validOptions[key][subKey](subValue, settings)) {
@@ -126,7 +126,7 @@ module.exports = (eleventyConfig, options) => {
         if (typeof settings.default === "string" && !string.includes(delimiter)) { // If the source is set and the string doesn't contain a source.
             return [settings.sources[settings.default], string];
         } else if (settings.default === false && !string.includes(delimiter)) { // If the source is not set and the string doesn't contain a source.
-            console.error(Chalk.red(`No source specified for icon: ${string} (page: ${page.inputPath}). Make sure you are using the correct delimiter (current delimiter: ${delimiter}).`));
+            console.error(Chalk.red(`No source specified for icon: ${string} (page: ${page.inputPath}). Make sure you are using the correct delimiter (current delimiter: "${delimiter}").`));
             process.exit(1);
         } else if (string.includes(delimiter) && settings.sources[(string.split(delimiter)[0])] === undefined) { // If the string contains a source but the source is invalid.
             if (settings.sources[string.split(delimiter)[0]] === undefined && defaultSources.includes(string.split(delimiter)[0])) {
@@ -146,7 +146,13 @@ module.exports = (eleventyConfig, options) => {
     function getIconContent(name, source, page) {
         const iconPath = path.join(source, `${name}.svg`); // Path to the icon (e.g. "./lib/feather/activity.svg")
         if (fs.existsSync(iconPath)) {
-            const content = fs.readFileSync(iconPath, "utf8");
+            const content = prettier.format(fs.readFileSync(iconPath, "utf8"),{
+                tabWidth: 2,
+                printWidth: 1000,
+                trailingComma: "all",
+                semi: true,
+                parser: "babel",
+            });
             let attributes = content.match(/<svg ([^>]+)>/)[1]; // Get the attributes of the <svg> tag.
             attributes = attributes.match(/(\w-?)+="[^"]+"/g);
             attributes = attributes.filter((attribute) => {
