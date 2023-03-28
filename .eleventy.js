@@ -68,7 +68,7 @@ module.exports = (eleventyConfig, options) => {
         }
     });
     if (settings.mode === 'inline' && !settings.insertSpriteSheet.override) {
-        console.warn(Chalk.yellow("The sprite sheet is useless in inline mode. Set the mode to 'sprite' to use the sprite sheet or set `insertSpriteSheet.override` to `true` to hide this warning and insert the sprite sheet anyway."));
+        console.warn(Chalk.yellow(`It looks like you are using the {% ${settings.insertSpriteSheet.shortcode} %} shortcode in 'inline' mode. Set the mode to 'sprite' to use the sprite sheet or set ${Chalk.white.bold('`insertSpriteSheet.override`')} to ${Chalk.white.bold('true')} to hide this warning and insert the sprite sheet anyway.`));
     }
 
     function parseIconSource(string){
