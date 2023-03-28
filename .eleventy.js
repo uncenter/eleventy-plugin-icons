@@ -86,17 +86,17 @@ module.exports = (eleventyConfig, options) => {
         }
     });
 
-    function parseIconSource(string){
+    function parseIconSource(string, page){
         if (typeof settings.default === "string" && !string.includes(":")) { // If the source is set and the string doesn't contain a source.
             return [settings.sources[settings.default], string];
         } else if (settings.default === false && !string.includes(":")) { // If the source is not set and the string doesn't contain a source.
-            throw new Error(`No source specified for icon: ${string}`);
+            throw new Error(`No source specified for icon: ${string} (page: ${page.inputPath}).`);
         } else if (string.includes(":") && settings.sources[(string.split(":")[0])] === undefined) { // If the string contains a source but the source is invalid.
             if (settings.sources[string.split(":")[0]] === undefined && defaultSources.includes(string.split(":")[0])) {
                 console.error(Chalk.red(`Source is not enabled: ${string.split(":")[0]}`));
                 process.exit(1);
             } else {
-                console.error(Chalk.red(`Invalid source specified for icon: ${string}. Did you forget to define the source in the sources option?`));
+                console.error(Chalk.red(`Invalid source specified: "${string}" (page: ${page.inputPath}). Did you forget to define the source in the sources option?`));
                 process.exit(1);
             }
         }
@@ -106,7 +106,7 @@ module.exports = (eleventyConfig, options) => {
         }
     }
 
-    function getIconContent(name, source) {
+    function getIconContent(name, source, page) {
         const iconPath = path.join(source, `${name}.svg`); // Path to the icon (e.g. "./lib/feather/activity.svg")
         if (fs.existsSync(iconPath)) {
             const content = fs.readFileSync(iconPath, "utf8");
@@ -119,21 +119,21 @@ module.exports = (eleventyConfig, options) => {
             return { content, attributes };
         } else {
             if (settings.insertIcon.override) {
-                console.warn(Chalk.yellow(`Could not find icon: "${name}" in source: "${Object.keys(settings.sources).find(key => settings.sources[key] === source)}" ("${source}").`));
+                console.warn(Chalk.yellow(`Could not find icon: "${name}" in source: "${Object.keys(settings.sources).find(key => settings.sources[key] === source)}" ("${source}") (page: ${page.inputPath}).`));
                 return false;
             } else {
-                console.error(Chalk.red(`Could not find icon: "${name}" in source: "${Object.keys(settings.sources).find(key => settings.sources[key] === source)}" ("${source}"). Check the documentation of the source for a list of available icons.`));
+                console.error(Chalk.red(`Could not find icon: "${name}" in source: "${Object.keys(settings.sources).find(key => settings.sources[key] === source)}" ("${source}") (page: ${page.inputPath}). Check the documentation of the source for a list of available icons.`));
                 process.exit(1);
             }
         }
     }
 
     const insertIcon = function (string) {
-        if (!parseIconSource(string)) { // If the source is invalid.
+        const page = this.page;
+        if (!parseIconSource(string, page)) { // If the source is invalid.
             return "";
         }
-        const icon = parseIconSource(string)[1];
-        const source = parseIconSource(string)[0];
+        const [source, icon] = parseIconSource(string, page);
         if (this.page.icons === undefined) {
             this.page.icons = [];
         }
@@ -142,7 +142,7 @@ module.exports = (eleventyConfig, options) => {
         }
 
         if (settings.mode === 'inline') { 
-            const result = getIconContent(icon, source);
+            const result = getIconContent(icon, source, page);
             if (result) {
                 return result.content
                     .replace(
@@ -159,6 +159,7 @@ module.exports = (eleventyConfig, options) => {
 
     let warnedSpriteSheet = false;
     const insertSpriteSheet = function () {
+        const page = this.page;
         if (settings.mode === 'inline' && !settings.insertSpriteSheet.override && !warnedSpriteSheet) {
             console.warn(Chalk.yellow(`\nIt looks like you are using the {% ${settings.insertSpriteSheet.shortcode} %} shortcode in 'inline' mode. Set the mode to 'sprite' to use the sprite sheet or set ${Chalk.magenta('insertSpriteSheet.override')} to ${Chalk.blue('true')} to hide this warning and insert the sprite sheet anyway.\n`));
             warnedSpriteSheet = true;
@@ -171,7 +172,7 @@ module.exports = (eleventyConfig, options) => {
         let symbols = "";
 
         for (let [icon, source] of pageIcons) {
-            const [content, attributes] = getIconContent(icon, source);
+            const [content, attributes] = getIconContent(icon, source, page);
             symbols += content
                 .replace(
                     /<svg([^>]+)>/,
