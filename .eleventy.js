@@ -66,10 +66,10 @@ module.exports = (eleventyConfig, options) => {
         insertIcon: {
             shortcode: "icon", // The shortcode to insert the icon.
             delimiter: ":", // The delimiter between the source and the icon name (e.g. "feather:activity"). Must be a single character. Must be in ["!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", ":", ";", "<", ">", ".", "?", "/", "~"].
-            class: function(name, source) { // The class of the inserted icon (e.g. "icon icon-activity") on either the sprite or the inline icon.
+            class: function (name, source) { // The class of the inserted icon (e.g. "icon icon-activity") on either the sprite or the inline icon.
                 return `icon icon-${name}`;
             },
-            id: function(name, source) { // The ID/link of sprite icons (e.g. "icon-activity").
+            id: function (name, source) { // The ID/link of sprite icons (e.g. "icon-activity").
                 return `icon-${name}`;
             },
             override: false, // Whether to continue even if the icon is not found.
@@ -119,7 +119,7 @@ module.exports = (eleventyConfig, options) => {
             process.exit(1);
         }
     }
-    
+
     Object.entries(settings).forEach(([key, value]) => {
         if (value.constructor === Object && typeof validOptions[key] === "object") {
             Object.entries(value).forEach(([subKey, subValue]) => {
@@ -134,7 +134,7 @@ module.exports = (eleventyConfig, options) => {
         }
     });
 
-    function parseIconSource(string, page){
+    function parseIconSource(string, page) {
         const delimiter = settings.insertIcon.delimiter;
         if (typeof settings.default === "string" && !string.includes(delimiter)) { // If the source is set and the string doesn't contain a source.
             return [settings.sources[settings.default], string];
@@ -146,7 +146,7 @@ module.exports = (eleventyConfig, options) => {
                 console.error(Chalk.red(`Source is not enabled: ${string.split(delimiter)[0]}`));
                 process.exit(1);
             } else {
-                console.error(Chalk.red(`Invalid source specified: "${string}" (page: ${page.inputPath}). Did you forget to define the source in the sources option?`));
+                console.error(Chalk.red(`Invalid source specified: "${string}" (page: ${page.inputPath}). Did you forget to define or enable the source?`));
                 process.exit(1);
             }
         }
@@ -159,12 +159,12 @@ module.exports = (eleventyConfig, options) => {
     function getIconContent(name, source, page) {
         const iconPath = path.join(source, `${name}.svg`); // Path to the icon (e.g. "./lib/feather/activity.svg")
         if (fs.existsSync(iconPath)) {
-            const content = prettier.format(fs.readFileSync(iconPath, "utf8"),{
+            const content = prettier.format(fs.readFileSync(iconPath, "utf8"), {
                 tabWidth: 2,
                 printWidth: 1000,
                 trailingComma: "all",
                 semi: true,
-                parser: "babel",
+                parser: "html",
             });
             let attributes = content.match(/<svg ([^>]+)>/)[1]; // Get the attributes of the <svg> tag.
             attributes = attributes.match(/(\w-?)+="[^"]+"/g);
@@ -197,7 +197,7 @@ module.exports = (eleventyConfig, options) => {
             this.page.icons.push([icon, source]);
         }
 
-        if (settings.mode === 'inline') { 
+        if (settings.mode === 'inline') {
             const result = getIconContent(icon, source, page);
             if (result) {
                 return result.content
