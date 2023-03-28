@@ -3,15 +3,13 @@ const path = require("path");
 
 const Chalk = require("chalk");
 
-const SOURCE_DIR = path.join(__dirname, "./lib"); // Path to the icons directory.
-
 module.exports = (eleventyConfig, options) => {
     const validOptions = {
         mode: function (value, options) {
             return ["sprite", "inline"].includes(value); // The mode can be either "sprite" or "inline".
         },
         default: function (value, options) {
-            return (typeof value === "string" && options.sources[value] !== undefined) || value === false; // The default source can be "feather", "tabler", "lucide" or false.
+            return (typeof value === "string" && options.sources[value] !== undefined) || value === false; // The default source can be "tabler", "lucide", "feather", a custom source or false.
         },
         sources: function (value, options) {
             return typeof value === "object";
@@ -30,9 +28,9 @@ module.exports = (eleventyConfig, options) => {
     const defaults = {
         mode: 'inline',
         sources: { // Defines custom sources. For example, to add a source called "custom" with a path to your custom icons directory, you would do: sources: { custom: "./path/to/icons" }
-            feather: path.join(SOURCE_DIR, "feather"),
-            tabler: path.join(SOURCE_DIR, "tabler"),
-            lucide: path.join(SOURCE_DIR, "lucide"),
+            tabler: "node_modules/@tabler/icons/icons",
+            lucide: "node_modules/lucide-static/icons",
+            feather: "node_modules/feather-icons/dist/icons",
         },
         default: false, // The default source for icons without a source (e.g. "activity" instead of "feather:activity"). Can be false, "feather", "tabler", "lucide" or a 
         insertIcon: {
@@ -53,6 +51,17 @@ module.exports = (eleventyConfig, options) => {
     };
 
     const settings = Object.assign({}, defaults, options);
+    for (const [key, value] of Object.entries(settings.sources)) {
+        if (!fs.existsSync(value)) {
+            if (key in defaults.sources) {
+                console.error(Chalk.red(`Could not find the source directory for eleventy-plugin-icons: ${key}=${value}. Did you forget to install the package?`));
+                process.exit(1);
+            }
+            console.error(Chalk.red(`Could not find the source directory for eleventy-plugin-icons: ${key}=${value}.`));
+            process.exit(1);
+        }
+    }
+    
     Object.entries(settings).forEach(([key, value]) => {
         if (!validOptions[key](value, settings)) {
             throw new Error(`Invalid option for eleventy-plugin-icons: ${key}=${value}`);

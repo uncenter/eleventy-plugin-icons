@@ -4,9 +4,11 @@
 
 Install via npm:
 
-```bash
+```sh
 npm install eleventy-plugin-icons
 ```
+
+You will also need to install the package for each source you want to use. See the [Sources](#sources) section for more info.
 
 Then, include it in your `.eleventy.js` config file:
 
@@ -17,6 +19,21 @@ module.exports = (eleventyConfig) => {
     eleventyConfig.addPlugin(pluginIcons);
 };
 ```
+
+### Sources
+
+The following sources are configured by default. To use each, install the package and then use the source name in the shortcode (e.g. `tabler:activity`). If you want to use a different source, see the [Config Options](#config-options) section.
+
+Make sure to install the correct package for each source as listed below.
+
+| Source | Package | Shortcode |
+| --- | --- | --- |
+| [Tabler](https://tabler-icons.io/) | [@tabler/icons](https://www.npmjs.com/package/@tabler/icons) | `tabler:activity` |
+| [Lucide](https://lucide.dev/) | [lucide-static](https://www.npmjs.com/package/lucide-static) | `lucide:activity` |
+| [Feather](https://feathericons.com/) | [feather-icons](https://www.npmjs.com/package/feather-icons) | `feather:activity` |
+
+> **Note**
+> Feather Icons hasn't been updated in a while, so it's recommended to use the popular and consistently updated fork [Lucide](https://lucide.dev/) instead (also included by default).
 
 ## Config Options
 
@@ -35,7 +52,7 @@ The mode option can be either `sprite` or `inline`. If `sprite` is used, using t
 
 ### sources
 
-The sources option is an object of source names and paths. The source name is used in the shortcode (e.g. `feather:activity`), and the path is the location of the SVG files. For example, if you wanted to add a source called `custom` that points to the `icons` directory in the `src` folder of your project, you would use the following:
+The sources option is an object of source names and paths. The source name is used in the shortcode (e.g. `tabler:activity`), and the path is the location of the SVG files. For example, if you wanted to add a source called `custom` that points to the `icons` directory in the `src` folder of your project, you would use the following:
 
 ```js
 sources: {
@@ -49,18 +66,9 @@ And then use the shortcode like this:
 {% icon custom:activity %}
 ```
 
-#### Default Sources
-
-The following sources are included by default:
-- [Feather Icons](https://feathericons.com/) ([GitHub](https://github.com/feathericons/feather))
-- [Tabler Icons](https://tabler-icons.io/) ([GitHub](https://github.com/tabler/tabler-icons))
-- [Lucide Icons](https://lucide.dev/) ([GitHub](https://github.com/lucide-icons/lucide))
-
-If somehow the sources are out of date, you can redefine the paths to point to your own local copies of the sources.
-
 ### default
 
-The default source for icons without a source (e.g. "activity" instead of "feather:activity"). Can be false, "feather", "tabler", "lucide" or a custom path defined in the `sources` option.
+The default source for icons without a source (e.g. "activity" instead of "tabler:activity"). Can be `false`, "tabler", "lucide", "feather", or the name of a custom source. If `false`, no default source will be used.
 
 ### insertIcon
 
@@ -77,7 +85,7 @@ For example, to insert the `activity` icon from the `tabler` source, you would u
 {% icon tabler:activity %}
 ```
 
-Alternatively, you can use the `source` option to set a default source. If you set the `source` option to `tabler`, you can then use the shortcode like this:
+Alternatively, you can use the `source` option to set a default source. If you set the `source` option to `tabler`, you can then use the shortcode like this to insert the Tabler `activity` icon:
 
 ```twig
 {% icon activity %}
@@ -108,9 +116,9 @@ module.exports = (eleventyConfig) => {
     eleventyConfig.addPlugin(pluginIcons, {
         mode: 'inline',
         sources: {
-            feather: "node_modules/eleventy-plugin-icons/lib/feather",
-            tabler: "node_modules/eleventy-plugin-icons/lib/tabler",
-            lucide: "node_modules/eleventy-plugin-icons/lib/lucide",
+            tabler: "node_modules/@tabler/icons/icons",
+            lucide: "node_modules/lucide-static/icons",
+            feather: "node_modules/feather-icons/dist/icons",
         },
         default: false,
         insertIcon: {
