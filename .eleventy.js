@@ -4,30 +4,37 @@ const path = require("path");
 const Chalk = require("chalk");
 
 const SOURCE_DIR = path.join(__dirname, "./lib"); // Path to the icons directory.
-const SOURCES = fs.readdirSync(SOURCE_DIR); // List of sources (e.g. "feather", "tabler", "lucide").
 
 module.exports = (eleventyConfig, options) => {
     const validOptions = {
-        mode: function (value) {
+        mode: function (value, options) {
             return ["sprite", "inline"].includes(value); // The mode can be either "sprite" or "inline".
         },
-        source: function (value) {
-            return (typeof value === "string" && SOURCES.includes(value)) || value === false; // The source can be either a string or false.
+        default: function (value, options) {
+            return (typeof value === "string" && options.sources[value] !== undefined) || value === false; // The default source can be "feather", "tabler", "lucide" or false.
         },
-        insertIcon: function (value) {
+        sources: function (value, options) {
             return typeof value === "object";
         },
-        insertSpriteSheet: function (value) {
+        insertIcon: function (value, options) {
             return typeof value === "object";
         },
-        removeAttributes: function (value) {
+        insertSpriteSheet: function (value, options) {
+            return typeof value === "object";
+        },
+        removeAttributes: function (value, options) {
             return Array.isArray(value);
         }
     }
 
     const defaults = {
         mode: 'inline',
-        source: false,
+        sources: { // Defines custom sources. For example, to add a source called "custom" with a path to your custom icons directory, you would do: sources: { custom: "./path/to/icons" }
+            feather: path.join(SOURCE_DIR, "feather"),
+            tabler: path.join(SOURCE_DIR, "tabler"),
+            lucide: path.join(SOURCE_DIR, "lucide"),
+        },
+        default: false, // The default source for icons without a source (e.g. "activity" instead of "feather:activity"). Can be false, "feather", "tabler", "lucide" or a 
         insertIcon: {
             shortcode: "icon", // The shortcode to insert the icon.
             class: function(name, source) { // The class of the inserted icon (e.g. "icon icon-activity") on either the sprite or the inline icon.
@@ -47,27 +54,27 @@ module.exports = (eleventyConfig, options) => {
 
     const settings = Object.assign({}, defaults, options);
     Object.entries(settings).forEach(([key, value]) => {
-        if (!validOptions[key](value)) {
+        if (!validOptions[key](value, settings)) {
             throw new Error(`Invalid option for eleventy-plugin-icons: ${key}=${value}`);
         }
     });
 
     function parseIconSource(string){
-        if (typeof settings.source === "string" && !string.includes(":")) { // If the source is set and the string doesn't contain a source.
-            return [settings.source, string];
-        } else if (settings.source === false && !string.includes(":")) { // If the source is not set and the string doesn't contain a source.
+        if (typeof settings.default === "string" && !string.includes(":")) { // If the source is set and the string doesn't contain a source.
+            return [settings.sources[settings.default], string];
+        } else if (settings.default === false && !string.includes(":")) { // If the source is not set and the string doesn't contain a source.
             throw new Error(`No source specified for icon: ${string}`);
-        } else if (string.includes(":") && !SOURCES.includes(string.split(":")[0])) { // If the string contains a source but the source is invalid.
+        } else if (string.includes(":") && settings.sources[(string.split(":")[0])] === undefined) { // If the string contains a source but the source is invalid.
             throw new Error(`Invalid source specified for icon: ${string}`);
         }
         const [source, name] = string.split(":"); // If the string contains a source (e.g. "feather:activity").
-        if (SOURCES.includes(source)) {
-            return [source, name];
+        if (settings.sources[source] !== undefined) { // If the source is valid.
+            return [settings.sources[source], name];
         }
     }
 
     function getIconContent(name, source) {
-        const iconPath = path.join(SOURCE_DIR, source, `${name}.svg`); // Path to the icon (e.g. "./lib/feather/activity.svg")
+        const iconPath = path.join(source, `${name}.svg`); // Path to the icon (e.g. "./lib/feather/activity.svg")
         if (fs.existsSync(iconPath)) {
             const content = fs.readFileSync(iconPath, "utf8");
             let attributes = content.match(/<svg ([^>]+)>/)[1]; // Get the attributes of the <svg> tag.

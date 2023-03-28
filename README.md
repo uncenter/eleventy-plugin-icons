@@ -23,7 +23,8 @@ module.exports = (eleventyConfig) => {
 | Option | Type | Default |
 | --- | --- | --- |
 | [`mode`](#mode) | `string` | `sprite` |
-| [`source`](#source) | `string` or `false` | `false` |
+| [`sources`](#sources) | `object` | |
+| [`default`](#default) | `string` or `false` | `false` |
 | [`insertIcon`](#inserticon) | `object` | |
 | [`insertSpriteSheet`](#insertspritesheet) | `object` | |
 | [`removeAttributes`](#removeattributes) | `array` | `['class', 'width', 'height', 'xlmns']` |
@@ -31,6 +32,26 @@ module.exports = (eleventyConfig) => {
 ### mode
 
 The mode option can be either `sprite` or `inline`. If `sprite` is used, using the `insertIcon` shortcode will insert a `<use>` reference for each icon (used in conjunction with the `insertSpriteSheet` shortcode). If `inline` is used, the `inserIcon` shortcode will insert the SVG code directly into the page (no sprite sheet required).
+
+### sources
+
+The sources option is an object of source names and paths. The source name is used in the shortcode (e.g. `feather:activity`), and the path is the location of the SVG files. For example, if you wanted to add a source called `custom` that points to the `icons` directory in the `src` folder of your project, you would use the following:
+
+```js
+sources: {
+    custom: "./src/icons"
+}
+```
+
+And then use the shortcode like this:
+
+```twig
+{% icon custom:activity %}
+```
+
+### default
+
+The default source for icons without a source (e.g. "activity" instead of "feather:activity"). Can be false, "feather", "tabler", "lucide" or a custom path defined in the `sources` option.
 
 ### insertIcon
 
@@ -62,6 +83,10 @@ Alternatively, you can use the `source` option to set a default source. If you s
 | `styles` | `string` | `position: absolute; width: 0; height: 0; overflow: hidden;` | The styles of the inserted sprite sheet. |
 
 The `insertSpriteSheet` shortcode can be used to insert the sprite sheet into a page. It takes no arguments. Only used when `mode` is set to `sprite`.
+
+### removeAttributes
+
+An array of attributes to remove from raw SVGs. This is useful for removing attributes that are not needed (e.g. `width`, `height`, `xmlns`) or that may conflict with other attributes (e.g. `class`). If these are for some reason needed, set the `removeAttributes` option to an empty array (`[]`).
 
 ## Config Examples
 
