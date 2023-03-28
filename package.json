@@ -2,7 +2,6 @@
     "name": "eleventy-plugin-icons",
     "version": "1.0.0",
     "description": "A plugin for Eleventy to quickly add multiple types of icons to your site.",
-    "homepage": "",
     "main": ".eleventy.js",
     "scripts": {
         "start": "eleventy --serve",
@@ -11,7 +10,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/uncenter/eleventy-plugin-icons.git"
+        "url": "https://github.com/uncenter/eleventy-plugin-icons.git"
     },
     "keywords": [
         "11ty",
