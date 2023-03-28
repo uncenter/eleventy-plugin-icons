@@ -16,7 +16,7 @@ module.exports = (eleventyConfig, options) => {
             return typeof value === "object";
         },
         enable: function (value, options) {
-            return Array.isArray(value) && value.every((source) => source in options.sources);
+            return Array.isArray(value) && value.every((source) => options.sources.includes(source));
         },
         insertIcon: {
             shortcode: function (value, options) {
