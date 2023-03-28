@@ -14,6 +14,9 @@ module.exports = (eleventyConfig, options) => {
         sources: function (value, options) {
             return typeof value === "object";
         },
+        enable: function (value, options) {
+            return Array.isArray(value);
+        },
         insertIcon: function (value, options) {
             return typeof value === "object";
         },
@@ -32,6 +35,7 @@ module.exports = (eleventyConfig, options) => {
             lucide: "node_modules/lucide-static/icons",
             feather: "node_modules/feather-icons/dist/icons",
         },
+        enable: [], // The sources to enable. Can be "tabler", "lucide", "feather" or a custom source.
         default: false, // The default source for icons without a source (e.g. "activity" instead of "feather:activity"). Can be false, "feather", "tabler", "lucide" or a 
         insertIcon: {
             shortcode: "icon", // The shortcode to insert the icon.
@@ -51,6 +55,18 @@ module.exports = (eleventyConfig, options) => {
     };
 
     const settings = Object.assign({}, defaults, options);
+    const defaultSources = Object.keys(defaults.sources);
+    if (settings.enable.length > 0) {
+        Object.keys(settings.sources).forEach((key) => {
+            if (!settings.enable.includes(key)) {
+                delete settings.sources[key];
+            }
+        });
+    } else {
+        console.error(Chalk.red("No sources enabled for eleventy-plugin-icons. Please add at least one source to the enable array."));
+        process.exit(1);
+    }
+
     for (const [key, value] of Object.entries(settings.sources)) {
         if (!fs.existsSync(value)) {
             if (key in defaults.sources) {
@@ -74,7 +90,13 @@ module.exports = (eleventyConfig, options) => {
         } else if (settings.default === false && !string.includes(":")) { // If the source is not set and the string doesn't contain a source.
             throw new Error(`No source specified for icon: ${string}`);
         } else if (string.includes(":") && settings.sources[(string.split(":")[0])] === undefined) { // If the string contains a source but the source is invalid.
-            throw new Error(`Invalid source specified for icon: ${string}`);
+            if (settings.sources[string.split(":")[0]] === undefined && defaultSources.includes(string.split(":")[0])) {
+                console.error(Chalk.red(`Source is not enabled: ${string.split(":")[0]}`));
+                process.exit(1);
+            } else {
+                console.error(Chalk.red(`Invalid source specified for icon: ${string}. Did you forget to define the source in the sources option?`));
+                process.exit(1);
+            }
         }
         const [source, name] = string.split(":"); // If the string contains a source (e.g. "feather:activity").
         if (settings.sources[source] !== undefined) { // If the source is valid.
@@ -128,7 +150,7 @@ module.exports = (eleventyConfig, options) => {
     let warnedSpriteSheet = false;
     const insertSpriteSheet = function () {
         if (settings.mode === 'inline' && !settings.insertSpriteSheet.override && !warnedSpriteSheet) {
-            console.warn(Chalk.yellow(`It looks like you are using the {% ${settings.insertSpriteSheet.shortcode} %} shortcode in 'inline' mode. Set the mode to 'sprite' to use the sprite sheet or set ${Chalk.magenta('insertSpriteSheet.override')} to ${Chalk.blue('true')} to hide this warning and insert the sprite sheet anyway.\n`));
+            console.warn(Chalk.yellow(`\nIt looks like you are using the {% ${settings.insertSpriteSheet.shortcode} %} shortcode in 'inline' mode. Set the mode to 'sprite' to use the sprite sheet or set ${Chalk.magenta('insertSpriteSheet.override')} to ${Chalk.blue('true')} to hide this warning and insert the sprite sheet anyway.\n`));
             warnedSpriteSheet = true;
         }
         if (settings.mode === 'inline' && !settings.insertSpriteSheet.override) {

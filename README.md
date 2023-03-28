@@ -37,14 +37,15 @@ Make sure to install the correct package for each source as listed below.
 
 ## Config Options
 
-| Option | Type | Default |
-| --- | --- | --- |
-| [`mode`](#mode) | `string` | `sprite` |
-| [`sources`](#sources) | `object` | |
-| [`default`](#default) | `string` or `false` | `false` |
-| [`insertIcon`](#inserticon) | `object` | |
-| [`insertSpriteSheet`](#insertspritesheet) | `object` | |
-| [`removeAttributes`](#removeattributes) | `array` | `['class', 'width', 'height', 'xlmns']` |
+| Option | Type | Default | Required |
+| --- | --- | --- | --- |
+| [`mode`](#mode) | `string` | `sprite` | N |
+| [`sources`](#sources) | `object` | | N |
+| [`enable`](#enable) | `array` | `[]` | Y |
+| [`default`](#default) | `string` or `false` | `false` | N |
+| [`insertIcon`](#inserticon) | `object` | | N |
+| [`insertSpriteSheet`](#insertspritesheet) | `object` | | N |
+| [`removeAttributes`](#removeattributes) | `array` | `['class', 'width', 'height', 'xlmns']` | N |
 
 ### mode
 
@@ -64,6 +65,14 @@ And then use the shortcode like this:
 
 ```twig
 {% icon custom:activity %}
+```
+
+### enable
+
+The enable option is an array of source names to enable. None are enabled by default, so this is required to be functional. For example, if you wanted to enable the `tabler` and `lucide` sources, you would use the following:
+
+```js
+enable: ["tabler", "lucide"]
 ```
 
 ### default
@@ -120,6 +129,7 @@ module.exports = (eleventyConfig) => {
             lucide: "node_modules/lucide-static/icons",
             feather: "node_modules/feather-icons/dist/icons",
         },
+        enable: [],
         default: false,
         insertIcon: {
             shortcode: "icon",
@@ -140,6 +150,62 @@ module.exports = (eleventyConfig) => {
 }
 ```
 
+### Using a Custom Source
+
+```js
+const pluginIcons = require("eleventy-plugin-icons");
+
+module.exports = (eleventyConfig) => {
+    eleventyConfig.addPlugin(pluginIcons, {
+        sources: {
+            custom: "./src/icons"
+        },
+        enable: ["custom"],
+    });
+}
+```
+
+This example adds a custom source called `custom` that points to the `icons` directory in the `src` folder of your project. You can then use the shortcode like this:
+
+```twig
+{% icon custom:activity %}
+```
+
+### Using a Custom Naming Pattern
+
+By default, the plugin uses the icon name as the ID and class of the inserted icon. For example, the `activity` icon from any source would have the following class and ID:
+
+```html
+class="icon icon-activity"
+id="icon-activity"
+```
+
+If you want to change this, you can use the `insertIcon` option to change the class and ID of the inserted icon. For example, the following would change the class and ID to include the source name:
+
+```js
+const pluginIcons = require("eleventy-plugin-icons");
+
+module.exports = (eleventyConfig) => {
+    eleventyConfig.addPlugin(pluginIcons, {
+        enable: ["<source>"],
+        insertIcon: {
+            class: function(name, source) {
+                return `icon icon-${source}-${name}`;
+            },
+            id: function(name, source) {
+                return `icon-${source}-${name}`;
+            }
+        },
+    });
+}
+```
+
+This would lead to the following class and ID for the `activity` icon from the `tabler` source:
+
+```html
+class="icon icon-tabler-activity"
+id="icon-tabler-activity"
+```
 
 ## Credits
 
