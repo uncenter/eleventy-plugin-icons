@@ -67,9 +67,6 @@ module.exports = (eleventyConfig, options) => {
             throw new Error(`Invalid option for eleventy-plugin-icons: ${key}=${value}`);
         }
     });
-    if (settings.mode === 'inline' && !settings.insertSpriteSheet.override) {
-        console.warn(Chalk.yellow(`It looks like you are using the {% ${settings.insertSpriteSheet.shortcode} %} shortcode in 'inline' mode. Set the mode to 'sprite' to use the sprite sheet or set ${Chalk.white.bold('`insertSpriteSheet.override`')} to ${Chalk.white.bold('true')} to hide this warning and insert the sprite sheet anyway.`));
-    }
 
     function parseIconSource(string){
         if (typeof settings.default === "string" && !string.includes(":")) { // If the source is set and the string doesn't contain a source.
@@ -128,7 +125,12 @@ module.exports = (eleventyConfig, options) => {
         };
     };
 
+    let warnedSpriteSheet = false;
     const insertSpriteSheet = function () {
+        if (settings.mode === 'inline' && !settings.insertSpriteSheet.override && !warnedSpriteSheet) {
+            console.warn(Chalk.yellow(`It looks like you are using the {% ${settings.insertSpriteSheet.shortcode} %} shortcode in 'inline' mode. Set the mode to 'sprite' to use the sprite sheet or set ${Chalk.magenta('insertSpriteSheet.override')} to ${Chalk.blue('true')} to hide this warning and insert the sprite sheet anyway.\n`));
+            warnedSpriteSheet = true;
+        }
         if (settings.mode === 'inline' && !settings.insertSpriteSheet.override) {
             return "";
         }
