@@ -49,6 +49,15 @@ And then use the shortcode like this:
 {% icon custom:activity %}
 ```
 
+#### Default Sources
+
+The following sources are included by default:
+- [Feather Icons](https://feathericons.com/) ([GitHub](https://github.com/feathericons/feather))
+- [Tabler Icons](https://tabler-icons.io/) ([GitHub](https://github.com/tabler/tabler-icons))
+- [Lucide Icons](https://lucide.dev/) ([GitHub](https://github.com/lucide-icons/lucide))
+
+If somehow the sources are out of date, you can redefine the paths to point to your own local copies of the sources.
+
 ### default
 
 The default source for icons without a source (e.g. "activity" instead of "feather:activity"). Can be false, "feather", "tabler", "lucide" or a custom path defined in the `sources` option.
@@ -97,23 +106,28 @@ const pluginIcons = require("eleventy-plugin-icons");
 
 module.exports = (eleventyConfig) => {
     eleventyConfig.addPlugin(pluginIcons, {
-        mode: "sprite",
-        source: false,
+        mode: 'inline',
+        sources: {
+            feather: "node_modules/eleventy-plugin-icons/lib/feather",
+            tabler: "node_modules/eleventy-plugin-icons/lib/tabler",
+            lucide: "node_modules/eleventy-plugin-icons/lib/lucide",
+        },
+        default: false,
         insertIcon: {
             shortcode: "icon",
-            class: function (name, source) {
+            class: function(name, source) {
                 return `icon icon-${name}`;
             },
-            id: function (name, source) {
+            id: function(name, source) {
                 return `icon-${name}`;
-            },
+            }
         },
         insertSpriteSheet: {
             shortcode: "spriteSheet",
             class: "sprite-sheet",
             styles: "position: absolute; width: 0; height: 0; overflow: hidden;",
         },
-        removeAttributes: ["class", "width", "height", "xlmns"],
+        removeAttributes: ['class', 'width', 'height', 'xlmns'], 
     });
 }
 ```
@@ -122,6 +136,3 @@ module.exports = (eleventyConfig) => {
 ## Credits
 
 - [eleventy-plugin-template](https://github.com/5t3ph/eleventy-plugin-template) by [Stephanie Eckles](https://5t3ph.dev/)
-
-### Sources
-- [Tabler Icons](https://tabler-icons.io/) ([GitHub](https://github.com/tabler/tabler-icons))
