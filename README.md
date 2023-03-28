@@ -39,17 +39,17 @@ Make sure to install the correct package for each source as listed below.
 
 | Option | Type | Default | Required |
 | --- | --- | --- | --- |
-| [`mode`](#mode) | `string` | `sprite` | N |
-| [`sources`](#sources) | `object` | | N |
-| [`enable`](#enable) | `array` | `[]` | Y |
-| [`default`](#default) | `string` or `false` | `false` | N |
-| [`insertIcon`](#inserticon) | `object` | | N |
-| [`insertSpriteSheet`](#insertspritesheet) | `object` | | N |
-| [`removeAttributes`](#removeattributes) | `array` | `['class', 'width', 'height', 'xlmns']` | N |
+| [`mode`](#mode) | `string` | `sprite` | |
+| [`sources`](#sources) | `object` | | |
+| [`enable`](#enable) | `array` | `[]` | * |
+| [`default`](#default) | `string` or `false` | `false` | |
+| [`insertIcon`](#inserticon) | `object` | | |
+| [`insertSpriteSheet`](#insertspritesheet) | `object` | | |
+| [`removeAttributes`](#removeattributes) | `array` | `['class', 'width', 'height', 'xlmns']` | |
 
 ### mode
 
-The mode option can be either `sprite` or `inline`. If `sprite` is used, using the `insertIcon` shortcode will insert a `<use>` reference for each icon (used in conjunction with the `insertSpriteSheet` shortcode). If `inline` is used, the `inserIcon` shortcode will insert the SVG code directly into the page (no sprite sheet required).
+The mode option can be either `sprite` or `inline`. If `sprite` is used, using the `insertIcon` shortcode will insert a `<use>` reference for each icon (used in conjunction with the `insertSpriteSheet` shortcode). If `inline` is used, the `insertIcon` shortcode will insert the SVG code directly into the page (no sprite sheet required).
 
 ### sources
 
@@ -64,12 +64,12 @@ sources: {
 And then use the shortcode like this:
 
 ```twig
-{% icon custom:activity %}
+{% icon "custom:activity" %}
 ```
 
 ### enable
 
-The enable option is an array of source names to enable. None are enabled by default, so this is required to be functional. For example, if you wanted to enable the `tabler` and `lucide` sources, you would use the following:
+The enable option is an array of source names to enable. **None are enabled by default, so this is required for the plugin to be functional.** For example, if you wanted to enable the `tabler` and `lucide` sources, you would use the following:
 
 ```js
 enable: ["tabler", "lucide"]
@@ -77,7 +77,7 @@ enable: ["tabler", "lucide"]
 
 ### default
 
-The default source for icons without a source (e.g. "activity" instead of "tabler:activity"). Can be `false`, "tabler", "lucide", "feather", or the name of a custom source. If `false`, no default source will be used.
+The default source for icons without a specified source (e.g. "activity" instead of "tabler:activity"). Can be `false`, "tabler", "lucide", "feather", or the name of a custom source. If `false`, no default source will be used (an error will be thrown if no source is specified).
 
 ### insertIcon
 
@@ -86,12 +86,13 @@ The default source for icons without a source (e.g. "activity" instead of "table
 | `shortcode` | `string` | `icon` | The shortcode name (e.g. `{% icon %}`) to insert the icon. |
 | `class` | `string` or `function` | `icon icon-{name}` | The class of the inserted icon (e.g. `class="icon icon-activity"`) on either the sprite or the inline icon. If a function is used, it will be passed the icon name and source. |
 | `id` | `string` or `function` | `icon-{name}` | The ID/link of sprite icons (e.g. `id="icon-activity"`) or the `href` of sprite references (e.g. `href="#icon-activity"`). If a function is used, it will be passed the icon name and source. |
+| override | `boolean` | `false` | Whether to continue even if an icon is not found (typically used for debugging). |
 
 The `insertIcon` shortcode can be used to insert an icon into a page. It takes a single argument, the icon source (e.g. `tabler`) and the icon name (e.g. `activity`).
 For example, to insert the `activity` icon from the `tabler` source, you would use the shortcode like this:
 
 ```twig
-{% icon tabler:activity %}
+{% icon "tabler:activity" %}
 ```
 
 Alternatively, you can use the `source` option to set a default source. If you set the `source` option to `tabler`, you can then use the shortcode like this to insert the Tabler `activity` icon:
@@ -107,12 +108,13 @@ Alternatively, you can use the `source` option to set a default source. If you s
 | `shortcode` | `string` | `spriteSheet` | The shortcode name (e.g. `{% spriteSheet %}`) to insert the sprite sheet. |
 | `class` | `string` | `sprite-sheet` | The class of the inserted sprite sheet. |
 | `styles` | `string` | `position: absolute; width: 0; height: 0; overflow: hidden;` | The styles of the inserted sprite sheet. |
+| `override` | `boolean` | `false` | Whether to insert the sprites even in `inline` mode (not sure why you would want to do this, but it's there). |
 
-The `insertSpriteSheet` shortcode can be used to insert the sprite sheet into a page. It takes no arguments. Only used when `mode` is set to `sprite`.
+The `insertSpriteSheet` shortcode is be used to insert the sprite sheet into a page. It takes no arguments. Only used when `mode` is set to `sprite`.
 
 ### removeAttributes
 
-An array of attributes to remove from raw SVGs. This is useful for removing attributes that are not needed (e.g. `width`, `height`, `xmlns`) or that may conflict with other attributes (e.g. `class`). If these are for some reason needed, set the `removeAttributes` option to an empty array (`[]`).
+An array of attributes to remove from raw SVGs. This is used to removing attributes that are typically not needed (e.g. `width`, `height`, `xmlns`) or that may conflict with other attributes (e.g. `class`). If these are for some reason needed, set the `removeAttributes` option to an empty array (`[]`).
 
 ## Config Examples
 
@@ -168,7 +170,7 @@ module.exports = (eleventyConfig) => {
 This example adds a custom source called `custom` that points to the `icons` directory in the `src` folder of your project. You can then use the shortcode like this:
 
 ```twig
-{% icon custom:activity %}
+{% icon "custom:activity" %}
 ```
 
 ### Using a Custom Naming Pattern
@@ -200,7 +202,7 @@ module.exports = (eleventyConfig) => {
 }
 ```
 
-This would lead to the following class and ID for the `activity` icon from the `tabler` source:
+This would lead to the following class and ID for the `activity` icon from the `tabler` source, for example:
 
 ```html
 class="icon icon-tabler-activity"

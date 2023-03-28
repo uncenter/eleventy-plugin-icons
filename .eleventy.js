@@ -44,12 +44,14 @@ module.exports = (eleventyConfig, options) => {
             },
             id: function(name, source) { // The ID/link of sprite icons (e.g. "icon-activity").
                 return `icon-${name}`;
-            }
+            },
+            override: false, // Whether to continue even if the icon is not found.
         },
         insertSpriteSheet: {
             shortcode: "spriteSheet", // The shortcode to insert the sprite sheet.
             class: "sprite-sheet", // Class of the inserted sprite sheet.
             styles: "position: absolute; width: 0; height: 0; overflow: hidden;", // Visually hide the sprite sheet.
+            override: false, // Whether to insert the sprite sheet even in inline mode.
         },
         removeAttributes: ['class', 'width', 'height', 'xlmns'], // Attributes to remove from the source SVGs.
     };
@@ -114,7 +116,15 @@ module.exports = (eleventyConfig, options) => {
                 const name = attribute.split("=")[0]; // Split the attribute into name and value.
                 return !settings.removeAttributes.includes(name); // Remove the attributes that are in the removeAttributes array.
             });
-            return [content, attributes];
+            return { content, attributes };
+        } else {
+            if (settings.insertIcon.override) {
+                console.warn(Chalk.yellow(`Could not find icon: "${name}" in source: "${Object.keys(settings.sources).find(key => settings.sources[key] === source)}" ("${source}").`));
+                return false;
+            } else {
+                console.error(Chalk.red(`Could not find icon: "${name}" in source: "${Object.keys(settings.sources).find(key => settings.sources[key] === source)}" ("${source}"). Check the documentation of the source for a list of available icons.`));
+                process.exit(1);
+            }
         }
     }
 
@@ -132,12 +142,12 @@ module.exports = (eleventyConfig, options) => {
         }
 
         if (settings.mode === 'inline') { 
-            const [content, attributes] = getIconContent(icon, source);
-            if ([content, attributes]) {
-                return content
+            const result = getIconContent(icon, source);
+            if (result) {
+                return result.content
                     .replace(
                         /<svg([^>]+)>/,
-                        `<svg class="${settings.insertIcon.class(icon, source)}" ${attributes.join(" ")}>`
+                        `<svg class="${settings.insertIcon.class(icon, source)}" ${result.attributes.join(" ")}>`
                     )
                     .replace(/<!--(.*?)-->/g, "");
             }
