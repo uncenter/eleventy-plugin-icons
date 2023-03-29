@@ -228,11 +228,14 @@ module.exports = (eleventyConfig, options) => {
         let symbols = "";
 
         for (let [icon, source] of pageIcons) {
-            const [content, attributes] = getIconContent(icon, source, page);
-            symbols += content
+            const result = getIconContent(icon, source, page);
+            if (!result) {
+                continue;
+            }
+            symbols += result.content
                 .replace(
                     /<svg([^>]+)>/,
-                    `<symbol id="${settings.insertIcon.id(icon, source)}" ${attributes.join(" ")}>`
+                    `<symbol id="${settings.insertIcon.id(icon, source)}" ${result.attributes.join(" ")}>`
                 )
                 .replace("</svg>", "</symbol>")
                 .replace(/<!--(.*?)-->/g, "");
