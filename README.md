@@ -33,6 +33,7 @@ Make sure to install the correct package for each source as listed below.
 | [Feather](https://feathericons.com/) | [feather-icons](https://www.npmjs.com/package/feather-icons) | `feather:activity` |
 
 > **Note**
+>
 > Feather Icons hasn't been updated in a while, so it's recommended to use the popular and consistently updated fork [Lucide](https://lucide.dev/) instead (also included by default).
 
 ## Config Options
@@ -84,7 +85,7 @@ The default source for icons without a specified source (e.g. "activity" instead
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `shortcode` | `string` | `icon` | The shortcode name (e.g. `{% icon %}`) to insert the icon. |
-| `delimiter` | `string` | `:` | The delimiter between the source and icon name (e.g. `tabler:activity`). Must be one of `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `=`, `|`, `:`, `;`, `<`, `>`, `.`, `?`, `/`, or `~`. |
+| `delimiter` | `string` | `:` | The delimiter between the source and icon name (e.g. `tabler:activity`). Must be one of `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `=`, `\|`, `:`, `;`, `<`, `>`, `.`, `?`, `/`, or `~`. |
 | `class` | `string` or `function` | `icon icon-<name>` | The class of the inserted icon (e.g. `class="icon icon-activity"`) on either the sprite or the inline icon. If a function is used, it will be passed the icon name and source. |
 | `id` | `string` or `function` | `icon-<name>` | The ID/link of sprite icons (e.g. `id="icon-activity"`) or the `href` of sprite references (e.g. `href="#icon-activity"`). If a function is used, it will be passed the icon name and source. |
 | override | `boolean` | `false` | Whether to continue even if an icon is not found (typically used for debugging). |
