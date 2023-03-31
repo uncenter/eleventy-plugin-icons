@@ -1,0 +1,11 @@
+{
+	"extends": ["prettier"],
+	"plugins": ["prettier"],
+	"rules": {
+		"prettier/prettier": ["error", { "singleQuote": true }]
+	},
+	"ignorePatterns": ["!.eleventy.js"],
+	"parserOptions": {
+		"ecmaVersion": "latest"
+	}
+}

@@ -1,38 +1,41 @@
 {
-    "name": "eleventy-plugin-icons",
-    "version": "1.3.4",
-    "description": "A plugin for Eleventy to quickly add multiple types of icons to your site.",
-    "main": ".eleventy.js",
-    "scripts": {
-        "start": "eleventy --serve",
-        "build": "eleventy",
-        "clean": "rm -rf _site"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/uncenter/eleventy-plugin-icons.git"
-    },
-    "keywords": [
-        "11ty",
-        "11ty-plugin",
-        "eleventy",
-        "eleventy-plugin"
-    ],
-    "author": {
-        "name": "uncenter",
-        "url": "https://www.uncenter.org"
-    },
-    "license": "ISC",
-    "devDependencies": {
-        "@11ty/eleventy": "^2.0.0",
-        "@tabler/icons": "^2.12.0",
-        "feather-icons": "^4.29.0",
-        "lucide-static": "^0.128.0"
-    },
-    "dependencies": {
-        "chalk": "^4.1.2",
-        "fs": "^0.0.1-security",
-        "path": "^0.12.7",
-        "prettier": "^2.8.7"
-    }
+	"name": "eleventy-plugin-icons",
+	"version": "1.3.4",
+	"description": "A plugin for Eleventy to quickly add multiple types of icons to your site.",
+	"main": ".eleventy.js",
+	"scripts": {
+		"start": "eleventy --serve",
+		"build": "eleventy",
+		"clean": "rm -rf _site"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/uncenter/eleventy-plugin-icons.git"
+	},
+	"keywords": [
+		"11ty",
+		"11ty-plugin",
+		"eleventy",
+		"eleventy-plugin"
+	],
+	"author": {
+		"name": "uncenter",
+		"url": "https://www.uncenter.org"
+	},
+	"license": "ISC",
+	"devDependencies": {
+		"@11ty/eleventy": "^2.0.0",
+		"@tabler/icons": "^2.12.0",
+		"eslint": "^8.37.0",
+		"eslint-config-prettier": "^8.8.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"feather-icons": "^4.29.0",
+		"lucide-static": "^0.128.0",
+		"prettier": "^2.8.7"
+	},
+	"dependencies": {
+		"chalk": "^4.1.2",
+		"fs": "^0.0.1-security",
+		"path": "^0.12.7"
+	}
 }
