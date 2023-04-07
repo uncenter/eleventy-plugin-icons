@@ -45,6 +45,7 @@ Make sure to install the correct package for each source as listed below.
 | [`enable`](#enable) | `array` | `[]` | * |
 | [`default`](#default) | `string` or `false` | `false` | |
 | [`optimize`](#optimize) | `boolean` | `false` | |
+| [`SVGO`](#svgo) | `string` | `svgo.config.js` | |
 | [`insertIcon`](#inserticon) | `object` | | |
 | [`insertSpriteSheet`](#insertspritesheet) | `object` | | |
 | [`removeAttributes`](#removeattributes) | `array` | `['class', 'width', 'height', 'xlmns']` | |
@@ -83,7 +84,11 @@ The default source for icons without a specified source (e.g. "activity" instead
 
 ### optimize
 
-The optimize option can be used to optimize the SVG using [svgo](https://github.com/svg/svgo). This is useful if you are using the `inline` mode and want to reduce the size of the SVG code. It is disabled by default. To configure the options, create a `svgo.config.js` file in the root of your project and it will be automatically loaded.
+The optimize option can be used to optimize the SVG using [svgo](https://github.com/svg/svgo). This currently only works if you are using the `inline` mode since SVGO has difficulty optimizing sprites. To configure the options, create a `svgo.config.js` file in the root of your project and it will be automatically loaded. At the moment, the only way to configure the options is to create the file manually. 
+
+### SVGO
+
+The SVGO option can be used to specify a custom path to the SVGO config file. This is useful if you want to use a different file name or location. By default, it will look for a `svgo.config.js` file in the root of your project.
 
 ### insertIcon
 
