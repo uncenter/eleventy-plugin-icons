@@ -4,8 +4,8 @@ const prettier = require('prettier');
 const { optimize } = require('svgo');
 const { loadConfig } = require('svgo');
 
-async function optimizeSVG(svg) {
-	const config = await loadConfig();
+async function optimizeSVG(svg, path) {
+	const config = await loadConfig(path);
 	const result = optimize(svg, config);
 	return result.data;
 }
@@ -34,6 +34,9 @@ module.exports = (eleventyConfig, options) => {
 		},
 		optimize: function (value, options) {
 			return typeof value === 'boolean';
+		},
+		SVGO: function (value, options) {
+			return typeof value === 'string';
 		},
 		insertIcon: {
 			shortcode: function (value, options) {
@@ -108,7 +111,8 @@ module.exports = (eleventyConfig, options) => {
 		enable: [],
 		// The default source for icons without a source (e.g. "activity" instead of "tabler:activity"). Can be false or any defined source.
 		default: false,
-		optimize: false,
+		optimize: false, // Whether to optimize the SVGs.
+		SVGO: 'svgo.config.js', // Path to the SVGO config file.
 		insertIcon: {
 			shortcode: 'icon', // The shortcode to insert the icon.
 			delimiter: ':', // The delimiter between the source and the icon name (e.g. the ':' in "tabler:activity"). Must be a single character. Must be in ["!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", ":", ";", "<", ">", ".", "?", "/", "~"].
@@ -256,6 +260,7 @@ module.exports = (eleventyConfig, options) => {
 				semi: true,
 				parser: 'html',
 			});
+
 			let attributes = content.match(/<svg ([^>]+)>/)[1]; // Get the attributes of the <svg> tag.
 			attributes = attributes.match(/(\w-?)+="[^"]+"/g);
 			attributes = attributes.filter((attribute) => {
@@ -316,7 +321,7 @@ module.exports = (eleventyConfig, options) => {
 					)
 					.replace(/<!--(.*?)-->/g, '');
 				if (settings.optimize) {
-					content = optimizeSVG(content);
+					content = await optimizeSVG(content, settings.SVGO);
 				}
 				return content;
 			}
