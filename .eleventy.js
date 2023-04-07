@@ -1,6 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const prettier = require('prettier');
+const { optimize } = require('svgo');
+const { loadConfig } = require('svgo');
+
+async function optimizeSVG(svg) {
+	const config = await loadConfig();
+	const result = optimize(svg, config);
+	return result.data;
+}
 
 const Chalk = require('chalk');
 
@@ -23,6 +31,9 @@ module.exports = (eleventyConfig, options) => {
 				Array.isArray(value) &&
 				value.every((source) => Object.keys(options.sources).includes(source))
 			);
+		},
+		optimize: function (value, options) {
+			return typeof value === 'boolean';
 		},
 		insertIcon: {
 			shortcode: function (value, options) {
@@ -97,6 +108,7 @@ module.exports = (eleventyConfig, options) => {
 		enable: [],
 		// The default source for icons without a source (e.g. "activity" instead of "tabler:activity"). Can be false or any defined source.
 		default: false,
+		optimize: false,
 		insertIcon: {
 			shortcode: 'icon', // The shortcode to insert the icon.
 			delimiter: ':', // The delimiter between the source and the icon name (e.g. the ':' in "tabler:activity"). Must be a single character. Must be in ["!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", ":", ";", "<", ">", ".", "?", "/", "~"].
@@ -294,7 +306,7 @@ module.exports = (eleventyConfig, options) => {
 		if (settings.mode === 'inline') {
 			const result = getIconContent(icon, source, this.page);
 			if (result) {
-				return result.content
+				content = result.content
 					.replace(
 						/<svg([^>]+)>/,
 						`<svg class="${settings.insertIcon.class(
@@ -303,6 +315,10 @@ module.exports = (eleventyConfig, options) => {
 						)}" ${result.attributes.join(' ')}>`,
 					)
 					.replace(/<!--(.*?)-->/g, '');
+				if (settings.optimize) {
+					content = optimizeSVG(content);
+				}
+				return content;
 			}
 			return '';
 		} else {
