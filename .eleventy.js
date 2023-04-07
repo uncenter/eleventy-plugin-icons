@@ -290,8 +290,8 @@ module.exports = (eleventyConfig, options) => {
 		}
 	}
 
-	const insertIcon = function (string) {
-		if (!parseIconSource(string, page)) {
+	const insertIcon = async function (string) {
+		if (!parseIconSource(string, this.page)) {
 			// If the source is invalid.
 			return '';
 		}
