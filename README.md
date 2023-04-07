@@ -20,113 +20,139 @@ module.exports = (eleventyConfig) => {
 };
 ```
 
-### Sources
-
-The following sources are configured by default. To use each, install the package and then use the source name in the shortcode (e.g. `tabler:activity`). If you want to use a different source, see the [Config Options](#config-options) section.
-
-Make sure to install the correct package for each source as listed below.
-
-| Source | Package | Shortcode |
-| --- | --- | --- |
-| [Tabler](https://tabler-icons.io/) | [@tabler/icons](https://www.npmjs.com/package/@tabler/icons) | `tabler:activity` |
-| [Lucide](https://lucide.dev/) | [lucide-static](https://www.npmjs.com/package/lucide-static) | `lucide:activity` |
-| [Feather](https://feathericons.com/) | [feather-icons](https://www.npmjs.com/package/feather-icons) | `feather:activity` |
-
-> **Note**
->
-> Feather Icons hasn't been updated in a while, so it's recommended to use the popular and consistently updated fork [Lucide](https://lucide.dev/) instead (also included by default).
-
 ## Config Options
 
-| Option | Type | Default | Required |
+| Option | Type | Default | Values |
 | --- | --- | --- | --- |
-| [`mode`](#mode) | `string` | `sprite` | |
-| [`sources`](#sources) | `object` | | |
-| [`enable`](#enable) | `array` | `[]` | * |
-| [`default`](#default) | `string` or `false` | `false` | |
-| [`optimize`](#optimize) | `boolean` | `false` | |
-| [`SVGO`](#svgo) | `string` | `svgo.config.js` | |
-| [`insertIcon`](#inserticon) | `object` | | |
-| [`insertSpriteSheet`](#insertspritesheet) | `object` | | |
-| [`removeAttributes`](#removeattributes) | `array` | `['class', 'width', 'height', 'xlmns']` | |
+| [`mode`](#mode) | `string` | `sprite` | `sprite`, `inline` |
+| [`sources`](#sources) | `object` | - | any |
+| [`default`](#default) | `string` or `false` | `false` | `false` or any source defined in `sources` |
+| [`optimize`](#optimize) | `boolean` | `false` | `true`, `false` |
+| [`SVGO`](#svgo-options) | `string` | `svgo.config.js` | any |
+| [`icon`](#icon) | `object` | *see below* | *see below* |
+| [`sprites`](#sprites) | `object` | *see below* | *see below* |
 
 ### mode
 
-The mode option can be either `sprite` or `inline`. If `sprite` is used, using the `insertIcon` shortcode will insert a `<use>` reference for each icon (used in conjunction with the `insertSpriteSheet` shortcode). If `inline` is used, the `insertIcon` shortcode will insert the SVG code directly into the page (no sprite sheet required).
+The mode option can be either `sprite` or `inline`. If `sprite` is used, using the shortcode defined in the `icon` option will insert a `<use>` reference for each icon (used in conjunction with the `sprites` shortcode). If `inline` is used, the shortcode will insert the SVG directly into the page (no sprite sheet required).
 
 ### sources
 
-The sources option is an object of source names and paths. The source name is used in the shortcode (e.g. `tabler:activity`), and the path is the location of the SVG files. For example, if you wanted to add a source called `custom` that points to the `icons` directory in the `src` folder of your project, you would use the following:
+The `sources` option is an object of source names and paths. The source name is used in the shortcode (e.g. `custom` in `custom:icon`), and the path is the location of the SVG files. For example, if you wanted to add a source called `custom` that points to the `icons` directory in the `src` folder of your project, you would use the following:
 
 ```js
-sources: {
-    custom: "./src/icons"
-}
+const pluginIcons = require("eleventy-plugin-icons");
+
+module.exports = (eleventyConfig) => {
+    eleventyConfig.addPlugin(pluginIcons, {
+        sources: {
+            "custom": "./src/icons"
+        },
+    });
+};
 ```
 
-And then use the shortcode like this:
+There are no sources defined by default, but here are some popular ones for reference:
 
-```twig
-{% icon "custom:activity" %}
+| | NPM Package | Path to Icons |
+| --- | --- | --- |
+| [Tabler](https://tabler-icons.io/) | [@tabler/icons](https://www.npmjs.com/package/@tabler/icons) | `"node_modules/@tabler/icons/icons"` |
+| [Lucide](https://lucide.dev/) | [lucide-static](https://www.npmjs.com/package/lucide-static) | `"node_modules/lucide-static/icons"` |
+| [Feather](https://feathericons.com/) | [feather-icons](https://www.npmjs.com/package/feather-icons) | `"node_modules/feather-icons/dist/icons"` |
+
+> **Note**
+>
+> Feather Icons hasn't been updated in a while, so it's recommended to use the popular and consistently updated fork [Lucide](https://lucide.dev/) instead.
+
+To use icons from a package like above, install the package and define the source in the config file. For example, to use a source called `"tabler"` that points to the `icons` directory in the `node_modules/@tabler/icons` folder, you would use the following:
+
+```js
+const pluginIcons = require("eleventy-plugin-icons");
+
+module.exports = (eleventyConfig) => {
+    eleventyConfig.addPlugin(pluginIcons, {
+        sources: {
+            "tabler": "node_modules/@tabler/icons/icons"
+        },
+    });
+};
 ```
 
 ### enable
 
-The enable option is an array of source names to enable. **None are enabled by default, so this is required for the plugin to be functional.** For example, if you wanted to enable the `tabler` and `lucide` sources, you would use the following:
-
-```js
-enable: ["tabler", "lucide"]
-```
+This option is deprecated and will be removed in a future version. There are no longer any sources defined by default, so there is no need to enable them.
 
 ### default
 
-The default source for icons without a specified source (e.g. "activity" instead of "tabler:activity"). Can be `false`, "tabler", "lucide", "feather", or the name of a custom source. If `false`, no default source will be used (an error will be thrown if no source is specified).
+The default source for icons without a specified source (e.g. using `{% icon "heart" %}` instead of `{% icon "custom:heart" %}`). Any source defined in the `sources` option can be used. If `false`, no default source will be used (an error will be thrown if no source is specified).
 
 ### optimize
 
-The optimize option can be used to optimize the SVG using [svgo](https://github.com/svg/svgo). This currently only works if you are using the `inline` mode since SVGO has difficulty optimizing sprites. To configure the options, create a `svgo.config.js` file in the root of your project and it will be automatically loaded. At the moment, the only way to configure the options is to create the file manually. 
+The optimize option can be used to optimize the SVG using [svgo](https://github.com/svg/svgo).
 
-### SVGO
+#### SVGO Options
 
-The SVGO option can be used to specify a custom path to the SVGO config file. This is useful if you want to use a different file name or location. By default, it will look for a `svgo.config.js` file in the root of your project.
+To configure the options, create a `svgo.config.js` file in the root of your project and it will be automatically loaded (by default, it will look for a `svgo.config.js` file in the root of your project). Alternatively, you can use the `SVGO` option to specify a custom path to the config file.
 
-### insertIcon
 
-| Option | Type | Default | Description |
+### icon
+
+| Option | Default | Values | Description |
 | --- | --- | --- | --- |
-| `shortcode` | `string` | `icon` | The shortcode name (e.g. `{% icon %}`) to insert the icon. |
-| `delimiter` | `string` | `:` | The delimiter between the source and icon name (e.g. `tabler:activity`). Must be one of `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `=`, `\|`, `:`, `;`, `<`, `>`, `.`, `?`, `/`, or `~`. |
-| `class` | `string` or `function` | `icon icon-<name>` | The class of the inserted icon (e.g. `class="icon icon-activity"`) on either the sprite or the inline icon. If a function is used, it will be passed the icon name and source. |
-| `id` | `string` or `function` | `icon-<name>` | The ID/link of sprite icons (e.g. `id="icon-activity"`) or the `href` of sprite references (e.g. `href="#icon-activity"`). If a function is used, it will be passed the icon name and source. |
-| override | `boolean` | `false` | Whether to continue even if an icon is not found (typically used for debugging). |
+| `shortcode` | `"icon"` | any |The shortcode name (e.g. `{% icon %}`) to insert the icon. |
+| `delimiter` | `:` | `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `=`, `\|`, `:`, `;`, `<`, `>`, `.`, `?`, `/`, or `~` |The delimiter between the source and icon name (e.g. `:` in `custom:heart`). |
+| `class` | *see below* | | The class of the inserted icon (e.g. `class="icon icon-heart"`) on the inlined icon. Define a function that takes in the icon name and source and returns the class. |
+| `id` | *see below* | | The ID of sprite icons (e.g. `id="icon-heart"`)/the `xlink:href` of sprite references (e.g. `href="#icon-heart"`). Define a function that takes in the icon name and source and returns the ID. |
+| `insertAttributes` | `{ xmlns: 'http://www.w3.org/2000/svg' }` | | The attributes to insert in icons. These must be static strings such as `"width": "24"` or `"aria-hidden": "true"`. |
+| `skipIfNotFound` | `false` | `true`, `false` | If `true`, the shortcode will continue if the icon is not found. Otherwise, an error will be thrown. |
 
-The `insertIcon` shortcode can be used to insert an icon into a page. It takes a single argument, the icon source (e.g. `tabler`) and the icon name (e.g. `activity`).
-For example, to insert the `activity` icon from the `tabler` source, you would use the shortcode like this:
 
-```twig
-{% icon "tabler:activity" %}
+#### icon.class
+
+By default, the class of the inserted icon is `icon icon-{name}`, using the following function:
+
+```js
+function (name, source) {
+    return `icon icon-${name}`;
+}
 ```
 
-Alternatively, you can use the `default` option to set a default source. If you set the `default` option to `tabler`, you can then use the shortcode like this to insert the `activity` icon from the `tabler` source:
+#### icon.id
+
+By default, the ID of the inserted icon is `icon-{name}`, using the following function:
+
+```js
+function (name, source) {
+    return `icon-${name}`;
+}
+```
+---
+
+The shortcode defined in the `icon.shortcode` option is used to insert icons into the page. It takes a single argument, the icon source and the icon name. The source and icon name are separated by the delimiter defined in the `icon.delimiter` option. For example, to insert the `heart` icon from the `custom` source, you would use the shortcode like this:
 
 ```twig
-{% icon "activity" %}
+{% icon "custom:heart" %}
 ```
 
-### insertSpriteSheet
+Alternatively, you can use the `default` option to set a default source. If you set the `default` option to `custom`, you can then use the shortcode like this to insert the `heart` icon:
 
-| Option | Type | Default | Description |
+```twig
+{% icon "heart" %}
+```
+
+### sprites
+
+| Option | Default | Values | Description |
 | --- | --- | --- | --- |
-| `shortcode` | `string` | `spriteSheet` | The shortcode name (e.g. `{% spriteSheet %}`) to insert the sprite sheet. |
-| `class` | `string` | `sprite-sheet` | The class of the inserted sprite sheet. |
-| `styles` | `string` | `position: absolute; width: 0; height: 0; overflow: hidden;` | The styles of the inserted sprite sheet. |
-| `override` | `boolean` | `false` | Whether to insert the sprites even in `inline` mode (not sure why you would want to do this, but it's there). |
+| `shortcode` | `"spriteSheet"` | any | The shortcode name (e.g. `{% spriteSheet %}`) to insert the sprite sheet. |
+| `class` | `sprite-sheet` | any| The class of the inserted sprites. |
+| `insertAttributes` | `{ "class: "sprite-sheet", "style": "display: none;", "aria-hidden": "true" }` | | The attributes to insert in the sprite sheet. These must be static strings. |
+| `insertAll` | `false` | `true`, `false`, `[]` | If set to `true`, all icons from every source will be inserted into the sprite sheet (even if they are not used in the page).
+If set to `false`, only icons that are used in the page will be inserted. If set to an array, all icons from the specified sources (which must be defined in the `sources` option) will be inserted, even if they are not used in the page. |
+| `generateFile` | `false` | `string`, `false` | If set to a string, an SVG file will be generated and saved to the specified path in the output directory.
+If set to `true`, the file will be saved to `sprite.svg` in the output directory. If set to `false`, no file will be generated. |
 
-The `insertSpriteSheet` shortcode is be used to insert the sprite sheet into a page. It takes no arguments. Only used when `mode` is set to `sprite`.
-
-### removeAttributes
-
-An array of attributes to remove from raw SVGs. This is used to removing attributes that are typically not needed (e.g. `width`, `height`, `xmlns`) or that may conflict with other attributes (e.g. `class`). If these are for some reason needed, set the `removeAttributes` option to an empty array (`[]`).
+The `sprites.shortcode` shortcode is be used to insert the sprite sheet into a page. It takes no arguments. Typically only used when `mode` is set to `sprite`.
 
 ## Config Examples
 
@@ -138,72 +164,56 @@ const pluginIcons = require("eleventy-plugin-icons");
 module.exports = (eleventyConfig) => {
     eleventyConfig.addPlugin(pluginIcons, {
         mode: 'inline',
-        sources: {
-            tabler: "node_modules/@tabler/icons/icons",
-            lucide: "node_modules/lucide-static/icons",
-            feather: "node_modules/feather-icons/dist/icons",
-        },
-        enable: [],
-        default: false,
-        insertIcon: {
-            shortcode: "icon",
-            delimiter: ":",
-            class: function(name, source) {
-                return `icon icon-${name}`;
+		sources: {},
+		default: false,
+		optimize: false,
+		SVGO: 'svgo.config.js',
+		icon: {
+			shortcode: 'icon',
+			delimiter: ':',
+			class: function (name, source) {
+				return `icon icon-${name}`;
+			},
+			id: function (name, source) {
+				return `icon-${name}`;
+			},
+			insertAttributes: {
+                xmlns: 'http://www.w3.org/2000/svg',
             },
-            id: function(name, source) {
-                return `icon-${name}`;
-            }
-        },
-        insertSpriteSheet: {
-            shortcode: "spriteSheet",
-            class: "sprite-sheet",
-            styles: "position: absolute; width: 0; height: 0; overflow: hidden;",
-        },
-        removeAttributes: ['class', 'width', 'height', 'xlmns'], 
+			skipIfNotFound: false,
+		},
+		sprites: {
+			shortcode: 'spriteSheet',
+			insertAttributes: {
+                class: 'sprite-sheet',
+				style: 'display: none;',
+				'aria-hidden': 'true',
+			},
+            insertAll: false,
+			generateFile: false,
+		},
     });
 }
-```
-
-### Using a Custom Source
-
-```js
-const pluginIcons = require("eleventy-plugin-icons");
-
-module.exports = (eleventyConfig) => {
-    eleventyConfig.addPlugin(pluginIcons, {
-        sources: {
-            custom: "./src/icons"
-        },
-        enable: ["custom"],
-    });
-}
-```
-
-This example adds a custom source called `custom` that points to the `icons` directory in the `src` folder of your project. You can then use the shortcode like this:
-
-```twig
-{% icon "custom:activity" %}
 ```
 
 ### Using a Custom Naming Pattern
 
-By default, the plugin uses the icon name as the ID and class of the inserted icon. For example, the `activity` icon from any source would have the following class and ID:
+By default, the plugin uses the icon name as the ID and class of the inserted icon. For example, the `heart` icon from any source would have the following class and ID:
 
 ```html
-class="icon icon-activity"
-id="icon-activity"
+class="icon icon-heart"
+id="icon-heart"
 ```
 
-If you want to change this, you can use the `insertIcon` option to change the class and ID of the inserted icon. For example, the following would change the class and ID to include the source name:
+If you want to change this, you can use the `icon.id` and `icon.class` options. For example, the following would change the class and ID to include the source name:
 
 ```js
 const pluginIcons = require("eleventy-plugin-icons");
 
 module.exports = (eleventyConfig) => {
     eleventyConfig.addPlugin(pluginIcons, {
-        enable: ["<source>"],
-        insertIcon: {
+        // ...
+        icon: {
             class: function(name, source) {
                 return `icon icon-${source}-${name}`;
             },
@@ -215,11 +225,11 @@ module.exports = (eleventyConfig) => {
 }
 ```
 
-This would lead to the following class and ID for the `activity` icon from the `tabler` source, for example:
+This would lead to the following class and ID for the `heart` icon from the `custom` source, for example:
 
 ```html
-class="icon icon-tabler-activity"
-id="icon-tabler-activity"
+class="icon icon-custom-heart"
+id="icon-custom-heart"
 ```
 
 ## Credits
