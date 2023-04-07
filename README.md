@@ -44,6 +44,7 @@ Make sure to install the correct package for each source as listed below.
 | [`sources`](#sources) | `object` | | |
 | [`enable`](#enable) | `array` | `[]` | * |
 | [`default`](#default) | `string` or `false` | `false` | |
+| [`optimize`](#optimize) | `boolean` | `false` | |
 | [`insertIcon`](#inserticon) | `object` | | |
 | [`insertSpriteSheet`](#insertspritesheet) | `object` | | |
 | [`removeAttributes`](#removeattributes) | `array` | `['class', 'width', 'height', 'xlmns']` | |
@@ -79,6 +80,10 @@ enable: ["tabler", "lucide"]
 ### default
 
 The default source for icons without a specified source (e.g. "activity" instead of "tabler:activity"). Can be `false`, "tabler", "lucide", "feather", or the name of a custom source. If `false`, no default source will be used (an error will be thrown if no source is specified).
+
+### optimize
+
+The optimize option can be used to optimize the SVG using [svgo](https://github.com/svg/svgo). This is useful if you are using the `inline` mode and want to reduce the size of the SVG code. It is disabled by default. To configure the options, create a `svgo.config.js` file in the root of your project and it will be automatically loaded.
 
 ### insertIcon
 
