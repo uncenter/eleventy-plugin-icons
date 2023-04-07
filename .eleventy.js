@@ -359,7 +359,7 @@ module.exports = (eleventyConfig, options) => {
 			return '';
 		}
 		const pageIcons = this.page.icons || [];
-		let sprite = `<svg class="${settings.insertSpriteSheet.class}" aria-hidden="true" style="${settings.insertSpriteSheet.class}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n<defs>\n`;
+		let sprite = `<svg class="${settings.insertSpriteSheet.class}" aria-hidden="true" style="${settings.insertSpriteSheet.styles}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n<defs>\n`;
 		let symbols = '';
 
 		for (let [icon, source] of pageIcons) {
