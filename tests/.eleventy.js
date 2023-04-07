@@ -5,6 +5,7 @@ module.exports = (eleventyConfig) => {
 		mode: 'sprite',
 		sources: {
 			tabler: 'node_modules/@tabler/icons/icons',
+			custom: './icons',
 		},
 		default: 'tabler',
 	});
