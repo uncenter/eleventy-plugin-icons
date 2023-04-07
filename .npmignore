@@ -1,2 +1,5 @@
 tests
 .eleventyignore
+.eslintrc
+.prettierrc
+.prettierignore
