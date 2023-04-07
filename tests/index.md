@@ -2,6 +2,6 @@
 layout: base.njk
 ---
 
-{% icon "lucide:activity" %}
+{% icon "activity" %}
 
 {% spriteSheet %}
