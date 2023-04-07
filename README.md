@@ -8,8 +8,6 @@ Install via npm:
 npm install eleventy-plugin-icons
 ```
 
-You will also need to install the package for each source you want to use. See the [Sources](#sources) section for more info.
-
 Then, include it in your `.eleventy.js` config file:
 
 ```js
@@ -19,6 +17,8 @@ module.exports = (eleventyConfig) => {
     eleventyConfig.addPlugin(pluginIcons);
 };
 ```
+
+See the [Config Options](#config-options) section below or the [Config Examples](#config-examples) section for more info on the configuration options.
 
 ## Config Options
 
