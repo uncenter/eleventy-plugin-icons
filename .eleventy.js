@@ -29,9 +29,7 @@ module.exports = (eleventyConfig, options) => {
 			id: function (name, source) {
 				return `icon-${name}`;
 			},
-			insertAttributes: {
-				xmlns: 'http://www.w3.org/2000/svg',
-			},
+			insertAttributes: {},
 			skipIfNotFound: false,
 		},
 		sprites: {
@@ -40,6 +38,7 @@ module.exports = (eleventyConfig, options) => {
 				class: 'sprite-sheet',
 				style: 'display: none;',
 				'aria-hidden': 'true',
+				xmlns: 'http://www.w3.org/2000/svg',
 			},
 			insertAll: false,
 			generateFile: false,
