@@ -58,6 +58,7 @@ function getSVGContent(source, sourcePath, name, skipIfNotFound) {
 		return content;
 	}
 	if (skipIfNotFound) {
+		message.warn(`Icon "${name}" not found in source "${source}" ("${sourcePath}").`);
 		return;
 	}
 	message.error(`Icon "${name}" not found in source "${source}" ("${sourcePath}").`);

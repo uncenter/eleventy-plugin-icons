@@ -10,8 +10,8 @@ class Message {
 		console.log(Chalk.yellow(`[WARNING] ${message}`));
 	}
 
-	deprecated(message) {
-		console.log(Chalk.yellow(`[DEPRECATED] ${message}`));
+	warn(message) {
+		console.log(Chalk.yellow(`[WARNING] ${message}`));
 	}
 
 	info(message) {
