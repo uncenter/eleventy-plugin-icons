@@ -65,7 +65,6 @@ module.exports = (eleventyConfig, options) => {
 	} else if (settings.sprites.insertAll) {
 		settings.sprites.insertAll = Object.keys(settings.sources);
 	}
-	console.log(settings);
 	if (settings.default && !settings.sources[settings.default]) {
 		message.error(`Default source "${settings.default}" not found in sources list.`);
 	}
