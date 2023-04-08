@@ -32,6 +32,8 @@ function extractFromString(str, delimiter, sources, def) {
 }
 
 function replaceAttributes(svg, attributes) {
+	const content = svg;
+	svg = svg.match(/<svg[^>]*>/)[0];
 	Object.entries(attributes).forEach(([key, value]) => {
 		let regex = new RegExp(`(${key})="([^"]*)"`, 'g');
 		if (svg.match(regex)) {
@@ -40,7 +42,7 @@ function replaceAttributes(svg, attributes) {
 			svg = svg.replace('<svg ', `<svg ${key}="${value}" `);
 		}
 	});
-	return svg;
+	return content.replace(/<svg[^>]*>/, svg);
 }
 
 function getSVGContent(source, sourcePath, name, skipIfNotFound) {
