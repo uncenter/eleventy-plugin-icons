@@ -42,8 +42,19 @@ function stringifyAttributes(attributes) {
 		.join(' ');
 }
 
+function filterDuplicates(arr) {
+	const unique = [];
+	arr.forEach((item) => {
+		if (!unique.some((element) => JSON.stringify(element) === JSON.stringify(item))) {
+			unique.push(item);
+		}
+	});
+	return unique;
+}
+
 module.exports = {
 	Message,
 	mergeOptions,
 	stringifyAttributes,
+	filterDuplicates,
 };
