@@ -7,6 +7,7 @@ const {
 	extractFromString,
 	replaceAttributes,
 	getSVGContent,
+	buildSprites,
 } = require('./svg');
 const { Message, mergeOptions, stringifyAttributes } = require('./utils');
 
@@ -66,6 +67,8 @@ module.exports = (eleventyConfig, options) => {
 		settings.sprites.insertAll = Object.keys(settings.sources);
 	}
 
+	const usedIcons = new Set();
+
 	const insertIcon = async function (string) {
 		const { icon, source } = extractFromString(
 			string,
@@ -79,6 +82,7 @@ module.exports = (eleventyConfig, options) => {
 		if (!this.page.icons.includes(icon)) {
 			this.page.icons.push([icon, source]);
 		}
+		usedIcons.add([icon, source]);
 
 		if (settings.mode === 'inline') {
 			let content = getSVGContent(
@@ -111,12 +115,8 @@ module.exports = (eleventyConfig, options) => {
 	};
 
 	const insertSprites = async function () {
-		let sprite = `<svg ${stringifyAttributes(settings.sprites.insertAttributes)}>`;
-
-		let symbols = '';
-		let icons;
+		let icons = [];
 		if (settings.sprites.insertAll) {
-			icons = [];
 			for (let source of settings.sprites.insertAll) {
 				const iconsFromSource = fs
 					.readdirSync(settings.sources[source])
@@ -128,39 +128,17 @@ module.exports = (eleventyConfig, options) => {
 		} else {
 			icons = this.page.icons || [];
 		}
-		for (let [icon, source] of icons) {
-			let content = getSVGContent(
-				source,
-				settings.sources[source],
-				icon,
-				settings.icon.skipIfNotFound,
-			);
-			if (!content) {
-				continue;
-			}
-			if (settings.optimize) {
-				content = await optimizeSVGContent(content, settings.SVGO);
-			}
-			content = replaceAttributes(content, {
-				...settings.icon.insertAttributes,
-				id: settings.icon.id(icon, source),
-			});
-			symbols += content.replace('<svg', `<symbol`).replace('</svg>', '</symbol>');
-		}
-		if (symbols !== '') {
-			return sprite + '<defs>' + symbols + '</defs></svg>';
-		}
-		return '';
+		return await buildSprites(icons, settings);
 	};
 
 	if (settings.sprites.generateFile !== false) {
 		eleventyConfig.on('eleventy.after', async ({ dir, runMode, outputMode }) => {
-			const sprite = await insertSprites();
+			const sprite = await buildSprites(usedIcons, settings);
 			if (sprite !== '') {
 				if (settings.sprites.generateFile === true) {
 					spritesPath = 'sprite.svg';
 				} else {
-					if (!settings.sprites.generateFile.endsWith('.svg')) {
+					if (!path.extname(settings.sprites.generateFile) === '.svg') {
 						message.error(
 							`Invalid sprite file name. Expected '*.svg', got '${settings.sprites.generateFile}'.`,
 						);
@@ -168,6 +146,10 @@ module.exports = (eleventyConfig, options) => {
 					spritesPath = settings.sprites.generateFile;
 				}
 				const file = path.join(dir.output, spritesPath);
+				const fileMeta = path.parse(file);
+				if (!fs.existsSync(fileMeta.dir)) {
+					fs.mkdirSync(fileMeta.dir, { recursive: true });
+				}
 				const formatted = prettier.format(sprite, {
 					parser: 'html',
 				});

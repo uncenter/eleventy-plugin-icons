@@ -1,5 +1,6 @@
 const { optimize } = require('svgo');
 const { loadConfig } = require('svgo');
+const { stringifyAttributes } = require('./utils');
 
 const prettier = require('prettier');
 const path = require('path');
@@ -60,9 +61,39 @@ function getSVGContent(source, sourcePath, name, skipIfNotFound) {
 	message.error(`Icon "${name}" not found in source "${source}" ("${sourcePath}").`);
 }
 
+async function buildSprites(icons, settings) {
+	let sprite = `<svg ${stringifyAttributes(settings.sprites.insertAttributes)}>`;
+
+	let symbols = '';
+	for (let [icon, source] of icons) {
+		let content = getSVGContent(
+			source,
+			settings.sources[source],
+			icon,
+			settings.icon.skipIfNotFound,
+		);
+		if (!content) {
+			continue;
+		}
+		if (settings.optimize) {
+			content = await optimizeSVGContent(content, settings.SVGO);
+		}
+		content = replaceAttributes(content, {
+			...settings.icon.insertAttributes,
+			id: settings.icon.id(icon, source),
+		});
+		symbols += content.replace('<svg', `<symbol`).replace('</svg>', '</symbol>');
+	}
+	if (symbols !== '') {
+		return sprite + '<defs>' + symbols + '</defs></svg>';
+	}
+	return '';
+}
+
 module.exports = {
 	optimizeSVGContent,
 	extractFromString,
 	replaceAttributes,
 	getSVGContent,
+	buildSprites,
 };
