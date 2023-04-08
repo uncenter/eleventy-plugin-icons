@@ -103,7 +103,7 @@ To configure the options, create a `svgo.config.js` file in the root of your pro
 | `delimiter` | `:` | `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `=`, `\|`, `:`, `;`, `<`, `>`, `.`, `?`, `/`, or `~` |The delimiter between the source and icon name (e.g. `:` in `custom:heart`). |
 | `class` | *see below* | | The class of the inserted icon (e.g. `class="icon icon-heart"`) on the inlined icon. Define a function that takes in the icon name and source and returns the class. |
 | `id` | *see below* | | The ID of sprite icons (e.g. `id="icon-heart"`)/the `xlink:href` of sprite references (e.g. `href="#icon-heart"`). Define a function that takes in the icon name and source and returns the ID. |
-| `insertAttributes` | `{ xmlns: 'http://www.w3.org/2000/svg' }` | | The attributes to insert in icons. These must be static strings such as `"width": "24"` or `"aria-hidden": "true"`. |
+| `insertAttributes` | `{}` | | The attributes to insert in icons. These must be static strings such as `"width": "24"` or `"aria-hidden": "true"`. |
 | `skipIfNotFound` | `false` | `true`, `false` | If `true`, the shortcode will continue if the icon is not found. Otherwise, an error will be thrown. |
 
 
@@ -146,7 +146,7 @@ Alternatively, you can use the `default` option to set a default source. If you 
 | --- | --- | --- | --- |
 | `shortcode` | `"spriteSheet"` | any | The shortcode name (e.g. `{% spriteSheet %}`) to insert the sprite sheet. |
 | `class` | `sprite-sheet` | any| The class of the inserted sprites. |
-| `insertAttributes` | `{ "class: "sprite-sheet", "style": "display: none;", "aria-hidden": "true" }` | | The attributes to insert in the sprite sheet. These must be static strings. |
+| `insertAttributes` | `{ "class: "sprite-sheet", "style": "display: none;", "aria-hidden": "true", xmlns: 'http://www.w3.org/2000/svg' }` | | The attributes to insert in the sprite sheet. These must be static strings. |
 | `insertAll` | `false` | `true`, `false`, `[]` | If set to `true`, all icons from every source will be inserted into the sprite sheet (even if they are not used in the page).
 If set to `false`, only icons that are used in the page will be inserted. If set to an array, all icons from the specified sources (which must be defined in the `sources` option) will be inserted, even if they are not used in the page. |
 | `generateFile` | `false` | `string`, `false` | If set to a string, an SVG file will be generated and saved to the specified path in the output directory.
@@ -177,9 +177,7 @@ module.exports = (eleventyConfig) => {
 			id: function (name, source) {
 				return `icon-${name}`;
 			},
-			insertAttributes: {
-                xmlns: 'http://www.w3.org/2000/svg',
-            },
+			insertAttributes: {},
 			skipIfNotFound: false,
 		},
 		sprites: {
@@ -188,6 +186,7 @@ module.exports = (eleventyConfig) => {
                 class: 'sprite-sheet',
 				style: 'display: none;',
 				'aria-hidden': 'true',
+                xmlns: 'http://www.w3.org/2000/svg',
 			},
             insertAll: false,
 			generateFile: false,
