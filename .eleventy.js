@@ -138,7 +138,7 @@ module.exports = (eleventyConfig, options) => {
 				if (settings.sprites.generateFile === true) {
 					spritesPath = 'sprite.svg';
 				} else {
-					if (!path.extname(settings.sprites.generateFile) === '.svg') {
+					if (path.parse(settings.sprites.generateFile).ext !== '.svg') {
 						message.error(
 							`Invalid sprite file name. Expected '*.svg', got '${settings.sprites.generateFile}'.`,
 						);
