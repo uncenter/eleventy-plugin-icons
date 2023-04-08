@@ -133,7 +133,20 @@ module.exports = (eleventyConfig, options) => {
 
 	if (settings.sprites.generateFile !== false) {
 		eleventyConfig.on('eleventy.after', async ({ dir, runMode, outputMode }) => {
-			const sprite = await buildSprites(usedIcons, settings);
+			let icons = [];
+			if (settings.sprites.insertAll) {
+				for (let source of settings.sprites.insertAll) {
+					const iconsFromSource = fs
+						.readdirSync(settings.sources[source])
+						.filter((file) => file.endsWith('.svg'));
+					for (let icon of iconsFromSource) {
+						icons.push([icon.replace('.svg', ''), source]);
+					}
+				}
+			} else {
+				icons = this.page.icons || [];
+			}
+			const sprite = await buildSprites(icons, settings);
 			if (sprite !== '') {
 				if (settings.sprites.generateFile === true) {
 					spritesPath = 'sprite.svg';
