@@ -7,6 +7,10 @@ module.exports = (eleventyConfig) => {
 			tabler: 'node_modules/@tabler/icons/icons',
 			custom: './icons',
 		},
+		sprites: {
+			insertAll: ['custom'],
+			generateFile: true,
+		},
 		default: 'tabler',
 	});
 };
