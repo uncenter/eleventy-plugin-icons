@@ -70,17 +70,6 @@ module.exports = (eleventyConfig, options) => {
 	}
 
 	const usedIcons = [];
-	const allIcons = [];
-	if (settings.sprites.insertAll) {
-		for (let source of settings.sprites.insertAll) {
-			const iconsFromSource = fs
-				.readdirSync(settings.sources[source])
-				.filter((file) => file.endsWith('.svg'));
-			for (let icon of iconsFromSource) {
-				allIcons.push([icon.replace('.svg', ''), source]);
-			}
-		}
-	}
 
 	const insertIcon = async function (string) {
 		const { icon, source } = extractFromString(
@@ -128,7 +117,14 @@ module.exports = (eleventyConfig, options) => {
 	const insertSprites = async function () {
 		let icons = [];
 		if (settings.sprites.insertAll) {
-			icons = Array.from(allIcons);
+			for (let source of settings.sprites.insertAll) {
+				const iconsFromSource = fs
+					.readdirSync(settings.sources[source])
+					.filter((file) => file.endsWith('.svg'));
+				for (let icon of iconsFromSource) {
+					icons.push([icon.replace('.svg', ''), source]);
+				}
+			}
 		} else {
 			icons = this.page.icons || [];
 		}
@@ -140,7 +136,17 @@ module.exports = (eleventyConfig, options) => {
 		eleventyConfig.on('eleventy.after', async ({ dir, runMode, outputMode }) => {
 			let icons = usedIcons;
 			if (settings.sprites.insertAll) {
-				icons = allIcons;
+				icons = [];
+				if (settings.sprites.insertAll) {
+					for (let source of settings.sprites.insertAll) {
+						const iconsFromSource = fs
+							.readdirSync(settings.sources[source])
+							.filter((file) => file.endsWith('.svg'));
+						for (let icon of iconsFromSource) {
+							icons.push([icon.replace('.svg', ''), source]);
+						}
+					}
+				}
 			}
 			icons = filterDuplicates(icons);
 			const sprite = await buildSprites(icons, settings);
