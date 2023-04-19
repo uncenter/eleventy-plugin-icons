@@ -1,6 +1,6 @@
 {
 	"name": "eleventy-plugin-icons",
-	"version": "2.2.0",
+	"version": "2.2.1",
 	"description": "A plugin for Eleventy to quickly add multiple types of icons to your site.",
 	"main": ".eleventy.js",
 	"scripts": {
