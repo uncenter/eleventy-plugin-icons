@@ -155,10 +155,8 @@ Alternatively, you can use the `default` option to set a default source. If you 
 | `shortcode` | `"spriteSheet"` | any | The shortcode name (e.g. `{% spriteSheet %}`) to insert the sprite sheet. |
 | `class` | `sprite-sheet` | any| The class of the inserted sprites. |
 | `insertAttributes` | `{ "class: "sprite-sheet", "style": "display: none;", "aria-hidden": "true", xmlns: 'http://www.w3.org/2000/svg' }` | | The attributes to insert in the sprite sheet. These must be static strings. |
-| `insertAll` | `false` | `true`, `false`, `[]` | If set to `true`, all icons from every source will be inserted into the sprite sheet (even if they are not used in the page).
-If set to `false`, only icons that are used in the page will be inserted. If set to an array, all icons from the specified sources (which must be defined in the `sources` option) will be inserted, even if they are not used in the page. |
-| `generateFile` | `false` | `string`, `false` | If set to a string, an SVG file will be generated and saved to the specified path in the output directory.
-If set to `true`, the file will be saved to `sprite.svg` in the output directory. If set to `false`, no file will be generated. |
+| `insertAll` | `false` | `true`, `false`, `[]` | If set to `true`, all icons from every source will be inserted into the sprite sheet (even if they are not used in the page). If set to `false`, only icons that are used in the page will be inserted. If set to an array, all icons from the specified sources (which must be defined in the `sources` option) will be inserted, even if they are not used in the page. |
+| `generateFile` | `false` | `string`, `false` | If set to a string, an SVG file will be generated and saved to the specified path in the output directory. If set to `true`, the file will be saved to `sprite.svg` in the output directory. If set to `false`, no file will be generated. |
 
 The `sprites.shortcode` shortcode is be used to insert the sprite sheet into a page. It takes no arguments. Typically only used when `mode` is set to `sprite`.
 
@@ -186,6 +184,7 @@ module.exports = (eleventyConfig) => {
 				return `icon-${name}`;
 			},
 			insertAttributes: {},
+            combineDuplicateAttributes: ['class'],
 			skipIfNotFound: false,
 		},
 		sprites: {
