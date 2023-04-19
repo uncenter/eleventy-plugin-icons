@@ -1,4 +1,11 @@
-# `eleventy-plugin-icons`
+<div align="center">
+	<h1>eleventy-plugin-icons</h1>
+	<img alt="version" src="https://img.shields.io/npm/v/eleventy-plugin-icons?style=for-the-badge&color=red">
+	<img alt="downloads" src="https://img.shields.io/npm/dt/eleventy-plugin-icons?style=for-the-badge&color=blueviolet">
+   	<img alt="license" src="https://img.shields.io/npm/l/eleventy-plugin-icons?style=for-the-badge&color=g">
+	<p></p>
+	<p>An easy to use and effective plugin to add icons to your Eleventy project.</p> 
+</div>
 
 ## Usage
 
