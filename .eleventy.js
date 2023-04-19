@@ -30,6 +30,7 @@ module.exports = (eleventyConfig, options) => {
 				return `icon-${name}`;
 			},
 			insertAttributes: {},
+			combineDuplicateAttributes: ['class'],
 			skipIfNotFound: false,
 		},
 		sprites: {
@@ -71,7 +72,7 @@ module.exports = (eleventyConfig, options) => {
 
 	const usedIcons = [];
 
-	const insertIcon = async function (string) {
+	const insertIcon = async function (string, attributes = {}) {
 		const { icon, source } = extractFromString(
 			string,
 			settings.icon.delimiter,
@@ -95,10 +96,17 @@ module.exports = (eleventyConfig, options) => {
 				if (settings.optimize) {
 					content = await optimizeSVGContent(content, settings.SVGO);
 				}
-				content = replaceAttributes(content, {
-					...settings.icon.insertAttributes,
-					class: settings.icon.class(icon, source),
-				});
+				content = replaceAttributes(
+					content,
+					[
+						settings.icon.insertAttributes,
+						{ class: settings.icon.class(icon, source) },
+						Object.entries(attributes)
+							.filter(([key, value]) => key !== '__keywords')
+							.reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),
+					],
+					settings.icon.combineDuplicateAttributes,
+				);
 				return content;
 			}
 			return '';

@@ -31,7 +31,34 @@ function extractFromString(str, delimiter, sources, def) {
 	);
 }
 
-function replaceAttributes(svg, attributes) {
+function replaceAttributes(svg, attributes, combineDuplicateAttributes) {
+	if (combineDuplicateAttributes === true) {
+		attributes = attributes.reduce((obj, item) => {
+			Object.entries(item).forEach(([key, value]) => {
+				if (obj[key]) {
+					obj[key] = obj[key] + ' ' + value;
+				} else {
+					obj[key] = value;
+				}
+			});
+			return obj;
+		}, {});
+	} else {
+		attributes = attributes.reduce((obj, item) => {
+			Object.entries(item).forEach(([key, value]) => {
+				if (combineDuplicateAttributes.includes(key)) {
+					if (obj[key]) {
+						obj[key] = obj[key] + ' ' + value;
+					} else {
+						obj[key] = value;
+					}
+				} else {
+					obj[key] = value;
+				}
+			});
+			return obj;
+		}, {});
+	}
 	const content = svg;
 	svg = svg.match(/<svg[^>]*>/)[0];
 	Object.entries(attributes).forEach(([key, value]) => {
