@@ -46,7 +46,10 @@ function replaceAttributes(svg, attributes, combineDuplicateAttributes) {
 	} else {
 		attributes = attributes.reduce((obj, item) => {
 			Object.entries(item).forEach(([key, value]) => {
-				if (combineDuplicateAttributes.includes(key)) {
+				if (
+					Array.isArray(combineDuplicateAttributes) &&
+					combineDuplicateAttributes.includes(key)
+				) {
 					if (obj[key]) {
 						obj[key] = obj[key] + ' ' + value;
 					} else {
