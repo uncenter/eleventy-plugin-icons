@@ -30,6 +30,7 @@ module.exports = (eleventyConfig, options) => {
 				return `icon-${name}`;
 			},
 			insertAttributes: {},
+			insertAttributesBySource: {},
 			combineDuplicateAttributes: ['class'],
 			skipIfNotFound: false,
 		},
@@ -99,8 +100,9 @@ module.exports = (eleventyConfig, options) => {
 				content = replaceAttributes(
 					content,
 					[
-						settings.icon.insertAttributes,
 						{ class: settings.icon.class(icon, source) },
+						settings.icon.insertAttributes,
+						settings.icon.insertAttributesBySource[source] || {},
 						Object.entries(attributes)
 							.filter(([key, value]) => key !== '__keywords')
 							.reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),

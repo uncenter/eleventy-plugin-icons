@@ -110,7 +110,8 @@ To configure the options, create a `svgo.config.js` file in the root of your pro
 | `delimiter` | `:` | `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `=`, `\|`, `:`, `;`, `<`, `>`, `.`, `?`, `/`, or `~` |The delimiter between the source and icon name (e.g. `:` in `custom:heart`). |
 | `class` | *see below* | | The class of the inserted icon (e.g. `class="icon icon-heart"`) on the inlined icon. Define a function that takes in the icon name and source and returns the class. |
 | `id` | *see below* | | The ID of sprite icons (e.g. `id="icon-heart"`)/the `xlink:href` of sprite references (e.g. `href="#icon-heart"`). Define a function that takes in the icon name and source and returns the ID. |
-| `insertAttributes` | `{}` | | The attributes to insert in icons. These must be static strings such as `"width": "24"` or `"aria-hidden": "true"`. |
+| `insertAttributes` | `{}` | | The attributes to insert in icons; `'aria-hidden': 'true'` would insert `aria-hidden="true"` in the icon. |
+| `insertAttributesBySource` | `{}` | | The attributes to insert in icons by source; `custom: { 'aria-hidden': 'true' }` would insert `aria-hidden="true"` in the icon if the source is `custom`. |
 | `combineDuplicateAttributes` | `['class']` | `true`, `false`, any| **Only functional in Nunjucks**. If `true`, duplicate attributes will be combined. If `false`, duplicate attributes will be ignored. If an array, duplicate attributes will be combined if the attribute name is in the array. |
 | `skipIfNotFound` | `false` | `true`, `false` | If `true`, the shortcode will continue if the icon is not found. Otherwise, an error will be thrown. |
 
