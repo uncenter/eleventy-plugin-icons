@@ -7,6 +7,16 @@ module.exports = (eleventyConfig) => {
 			tabler: 'node_modules/@tabler/icons/icons',
 			custom: './icons',
 		},
+		icon: {
+			insertAttributesBySource: {
+				tabler: {
+					class: 'testing-123',
+				},
+				custom: {
+					class: 'testing-456',
+				},
+			},
+		},
 		default: 'tabler',
 	});
 };
