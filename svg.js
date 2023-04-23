@@ -75,10 +75,10 @@ function replaceAttributes(svg, attributes, combineDuplicateAttributes) {
 	return content.replace(/<svg[^>]*>/, svg);
 }
 
-function getSVGContent(source, sourcePath, name, skipIfNotFound) {
+async function getSVGContent(source, sourcePath, name, skipIfNotFound) {
 	const iconPath = path.join(sourcePath, name + '.svg');
 	if (fs.existsSync(iconPath)) {
-		const content = prettier.format(fs.readFileSync(iconPath, 'utf8'), {
+		const content = prettier.format(fs.readFile(iconPath, 'utf8'), {
 			tabWidth: 2,
 			printWidth: 1000,
 			trailingComma: 'all',
@@ -99,7 +99,7 @@ async function buildSprites(icons, settings) {
 
 	let symbols = '';
 	for (let [icon, source] of icons) {
-		let content = getSVGContent(
+		let content = await getSVGContent(
 			source,
 			settings.sources[source],
 			icon,
