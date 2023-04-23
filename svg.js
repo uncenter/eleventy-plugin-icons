@@ -77,21 +77,23 @@ function replaceAttributes(svg, attributes, combineDuplicateAttributes) {
 
 async function getSVGContent(source, sourcePath, name, skipIfNotFound) {
 	const iconPath = path.join(sourcePath, name + '.svg');
-	if (fs.existsSync(iconPath)) {
-		const content = prettier.format(fs.readFile(iconPath, 'utf8'), {
+	try {
+		const content = await fs.promises.readFile(iconPath, 'utf8');
+		const formattedContent = prettier.format(content, {
 			tabWidth: 2,
 			printWidth: 1000,
 			trailingComma: 'all',
 			semi: true,
 			parser: 'html',
 		});
-		return content;
+		return formattedContent;
+	} catch (err) {
+		if (skipIfNotFound) {
+			message.warn(`Icon "${name}" not found in source "${source}" ("${sourcePath}").`);
+			return;
+		}
+		message.error(`Icon "${name}" not found in source "${source}" ("${sourcePath}").`);
 	}
-	if (skipIfNotFound) {
-		message.warn(`Icon "${name}" not found in source "${source}" ("${sourcePath}").`);
-		return;
-	}
-	message.error(`Icon "${name}" not found in source "${source}" ("${sourcePath}").`);
 }
 
 async function buildSprites(icons, settings) {

@@ -128,9 +128,9 @@ module.exports = (eleventyConfig, options) => {
 		let icons = [];
 		if (settings.sprites.insertAll) {
 			for (let source of settings.sprites.insertAll) {
-				const iconsFromSource = await fs
+				const iconsFromSource = await fs.promises
 					.readdir(settings.sources[source])
-					.filter((file) => file.endsWith('.svg'));
+					.then((files) => files.filter((file) => file.endsWith('.svg')));
 				for (let icon of iconsFromSource) {
 					icons.push([icon.replace('.svg', ''), source]);
 				}
@@ -149,9 +149,9 @@ module.exports = (eleventyConfig, options) => {
 				icons = [];
 				if (settings.sprites.insertAll) {
 					for (let source of settings.sprites.insertAll) {
-						const iconsFromSource = await fs
+						const iconsFromSource = await fs.promises
 							.readdir(settings.sources[source])
-							.filter((file) => file.endsWith('.svg'));
+							.then((files) => files.filter((file) => file.endsWith('.svg')));
 						for (let icon of iconsFromSource) {
 							icons.push([icon.replace('.svg', ''), source]);
 						}
@@ -173,13 +173,14 @@ module.exports = (eleventyConfig, options) => {
 				}
 				const file = path.join(dir.output, spritesPath);
 				const fileMeta = path.parse(file);
-				if (!fs.existsSync(fileMeta.dir)) {
-					fs.mkdir(fileMeta.dir, { recursive: true });
+				if (!(await fs.promises.exists(fileMeta.dir))) {
+					await fs.promises.mkdir(fileMeta.dir, { recursive: true });
 				}
+
 				const formatted = prettier.format(sprite, {
 					parser: 'html',
 				});
-				fs.writeFile(file, formatted);
+				await fs.promises.writeFile(file, formatted);
 			}
 		});
 	}
