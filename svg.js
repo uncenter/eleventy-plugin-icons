@@ -69,7 +69,7 @@ function replaceAttributes(svg, attributes, combineDuplicateAttributes) {
 		if (svg.match(regex)) {
 			svg = svg.replace(regex, `${key}="${value}"`);
 		} else {
-			svg = svg.replace('<svg ', `<svg ${key}="${value}" `);
+			svg = svg.replace('<svg', `<svg ${key}="${value}"`);
 		}
 	});
 	return content.replace(/<svg[^>]*>/, svg);
@@ -113,10 +113,12 @@ async function buildSprites(icons, settings) {
 		if (settings.optimize) {
 			content = await optimizeSVGContent(content, settings.SVGO);
 		}
-		content = replaceAttributes(content, {
-			...settings.icon.insertAttributes,
-			id: settings.icon.id(icon, source),
-		});
+		content = replaceAttributes(
+			content,
+			[{ id: settings.icon.id(icon, source) }],
+			settings.icon.combineDuplicateAttributes,
+		);
+
 		symbols += content.replace('<svg', `<symbol`).replace('</svg>', '</symbol>');
 	}
 	if (symbols !== '') {

@@ -113,10 +113,18 @@ module.exports = (eleventyConfig, options) => {
 			}
 			return '';
 		} else if (settings.mode === 'sprite') {
-			return `<svg class="${settings.icon.class(
-				icon,
-				source,
-			)}"><use href="#${settings.icon.id(icon, source)}"></use></svg>`;
+			return replaceAttributes(
+				`<svg><use href="#${settings.icon.id(icon, source)}"></use></svg>`,
+				[
+					{ class: settings.icon.class(icon, source) },
+					settings.icon.insertAttributes,
+					settings.icon.insertAttributesBySource[source] || {},
+					Object.entries(attributes)
+						.filter(([key, value]) => key !== '__keywords')
+						.reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),
+				],
+				settings.icon.combineDuplicateAttributes,
+			);
 		} else {
 			message.error(
 				`Invalid mode. Expected 'inline' or 'sprite', got '${settings.mode}'.`,
