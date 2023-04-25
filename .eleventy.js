@@ -63,17 +63,21 @@ module.exports = (eleventyConfig, options) => {
 	}
 
 	const usedIcons = [];
+	const validatedSources = [];
 
 	const insertIcon = memoize(async function (string, attributes = {}) {
 		const { icon, source } = extractFromString(string, settings);
-		if (!(await checkFileExists(settings.sources[source]))) {
-			message.error(
-				`Path: "${settings.sources[source]}" for source: "${source}" does not exist. ${
-					settings.sources[source].startsWith('node_modules')
-						? 'Did you run "npm install"?'
-						: ''
-				}`,
-			);
+		if (!validatedSources.includes(source)) {
+			if (!(await checkFileExists(settings.sources[source]))) {
+				message.error(
+					`Path: "${settings.sources[source]}" for source: "${source}" does not exist. ${
+						settings.sources[source].startsWith('node_modules')
+							? 'Did you run "npm install"?'
+							: ''
+					}`,
+				);
+			}
+			validatedSources.push(source);
 		}
 		if (this.page.icons === undefined) {
 			this.page.icons = [];
