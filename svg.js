@@ -20,10 +20,12 @@ async function optimizeIcon(svgContent, configPath) {
 	return result.data;
 }
 
-function extractFromString(str, delimiter, sources, def) {
+function extractFromString(str, settings) {
+	const delimiter = settings.icon.delimiter;
+	const def = settings.default;
 	if (str.includes(delimiter)) {
 		const [source, icon] = str.split(delimiter);
-		if (!sources[source]) {
+		if (!settings.sources[source]) {
 			message.error(`Source "${source}" not found in sources list.`);
 		}
 		return { icon: icon, source };

@@ -49,16 +49,6 @@ module.exports = (eleventyConfig, options) => {
 	};
 
 	const settings = mergeOptions(defaults, options);
-	Object.entries(settings.sources).forEach(([source, sourcePath]) => {
-		if (!checkFileExists(sourcePath)) {
-			if (sourcePath.startsWith('node_modules')) {
-				message.error(
-					`Path: "${sourcePath}" for source: "${source}" does not exist. Did you run "npm install"?`,
-				);
-			}
-			message.error(`Path: "${sourcePath}" for source: "${source}" does not exist.`);
-		}
-	});
 	if (Array.isArray(settings.sprites.insertAll)) {
 		for (let source of settings.sprites.insertAll) {
 			if (!settings.sources[source]) {
@@ -75,12 +65,16 @@ module.exports = (eleventyConfig, options) => {
 	const usedIcons = [];
 
 	const insertIcon = memoize(async function (string, attributes = {}) {
-		const { icon, source } = extractFromString(
-			string,
-			settings.icon.delimiter,
-			settings.sources,
-			settings.default,
-		);
+		const { icon, source } = extractFromString(string, settings);
+		if (!(await checkFileExists(settings.sources[source]))) {
+			message.error(
+				`Path: "${settings.sources[source]}" for source: "${source}" does not exist. ${
+					settings.sources[source].startsWith('node_modules')
+						? 'Did you run "npm install"?'
+						: ''
+				}`,
+			);
+		}
 		if (this.page.icons === undefined) {
 			this.page.icons = [];
 		}

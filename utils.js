@@ -53,13 +53,17 @@ function filterDuplicates(arr) {
 	return unique;
 }
 
-function checkFileExists(file) {
-	return fs.promises
-		.access(file, fs.constants.F_OK)
-		.then(() => true)
-		.catch(() => false);
+async function checkFileExists(filePath) {
+	try {
+		await fs.promises.access(filePath);
+		return true;
+	} catch (error) {
+		if (error.code === 'ENOENT') {
+			return false;
+		}
+		throw error;
+	}
 }
-
 module.exports = {
 	Message,
 	mergeOptions,
