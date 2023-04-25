@@ -87,16 +87,8 @@ module.exports = (eleventyConfig, options) => {
 		usedIcons.push([icon, source]);
 
 		if (settings.mode === 'inline') {
-			let content = await getSVGContent(
-				source,
-				settings.sources[source],
-				icon,
-				settings.icon.skipIfNotFound,
-			);
+			let content = await getSVGContent(source, icon, settings);
 			if (content) {
-				if (settings.optimize) {
-					content = await optimizeSVGContent(content, settings.SVGO);
-				}
 				content = replaceAttributes(
 					content,
 					[

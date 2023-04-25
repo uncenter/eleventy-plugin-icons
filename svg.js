@@ -75,10 +75,13 @@ function replaceAttributes(svg, attributes, combineDuplicateAttributes) {
 	return content.replace(/<svg[^>]*>/, svg);
 }
 
-async function getSVGContent(source, sourcePath, name, skipIfNotFound) {
-	const iconPath = path.join(sourcePath, name + '.svg');
+async function getSVGContent(source, icon, settings) {
+	const sourcePath = settings.sources[source];
 	try {
-		const content = await fs.promises.readFile(iconPath, 'utf8');
+		const content = await fs.promises.readFile(
+			path.join(sourcePath, icon + '.svg'),
+			'utf8',
+		);
 		const formattedContent = prettier.format(content, {
 			tabWidth: 2,
 			printWidth: 1000,
@@ -86,13 +89,16 @@ async function getSVGContent(source, sourcePath, name, skipIfNotFound) {
 			semi: true,
 			parser: 'html',
 		});
+		if (settings.optimize) {
+			return await optimizeSVGContent(formattedContent, settings.SVGO);
+		}
 		return formattedContent;
 	} catch (err) {
-		if (skipIfNotFound) {
-			message.warn(`Icon "${name}" not found in source "${source}" ("${sourcePath}").`);
+		if (settings.icon.skipIfNotFound) {
+			message.warn(`Icon "${icon}" not found in source "${source}" ("${sourcePath}").`);
 			return;
 		}
-		message.error(`Icon "${name}" not found in source "${source}" ("${sourcePath}").`);
+		message.error(`Icon "${icon}" not found in source "${source}" ("${sourcePath}").`);
 	}
 }
 
@@ -101,29 +107,18 @@ async function buildSprites(icons, settings) {
 
 	let symbols = '';
 	for (let [icon, source] of icons) {
-		let content = await getSVGContent(
-			source,
-			settings.sources[source],
-			icon,
-			settings.icon.skipIfNotFound,
-		);
-		if (!content) {
-			continue;
-		}
-		if (settings.optimize) {
-			content = await optimizeSVGContent(content, settings.SVGO);
-		}
-		content = replaceAttributes(
-			content,
-			[{ id: settings.icon.id(icon, source) }],
-			settings.icon.combineDuplicateAttributes,
-		);
+		let content = await getSVGContent(source, icon, settings);
+		if (content) {
+			content = replaceAttributes(
+				content,
+				[{ id: settings.icon.id(icon, source) }],
+				settings.icon.combineDuplicateAttributes,
+			);
 
-		symbols += content.replace('<svg', `<symbol`).replace('</svg>', '</symbol>');
+			symbols += content.replace('<svg', `<symbol`).replace('</svg>', '</symbol>');
+		}
 	}
-	if (symbols !== '') {
-		return sprite + '<defs>' + symbols + '</defs></svg>';
-	}
+	if (symbols !== '') return sprite + '<defs>' + symbols + '</defs></svg>';
 	return '';
 }
 
