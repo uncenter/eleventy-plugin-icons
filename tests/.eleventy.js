@@ -2,7 +2,7 @@ const pluginIcons = require('../.eleventy.js');
 
 module.exports = (eleventyConfig) => {
 	eleventyConfig.addPlugin(pluginIcons, {
-		mode: 'inline',
+		mode: 'sprite',
 		sources: {
 			tabler: 'node_modules/@tabler/icons/icons',
 			custom: './icons',
@@ -16,6 +16,9 @@ module.exports = (eleventyConfig) => {
 					class: 'testing-456',
 				},
 			},
+		},
+		sprites: {
+			generateFile: true,
 		},
 		default: 'tabler',
 	});
