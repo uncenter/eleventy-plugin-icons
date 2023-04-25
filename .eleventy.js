@@ -1,15 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 const prettier = require('prettier');
+const memoize = require('just-memoize');
 
 const {
-	optimizeSVGContent,
 	extractFromString,
 	replaceAttributes,
-	getSVGContent,
+	getIconContent,
 	buildSprites,
+	getAllIcons,
 } = require('./svg');
-const { Message, mergeOptions, filterDuplicates } = require('./utils');
+const { Message, mergeOptions, filterDuplicates, checkFileExists } = require('./utils');
 
 const message = new Message();
 
@@ -49,7 +50,7 @@ module.exports = (eleventyConfig, options) => {
 
 	const settings = mergeOptions(defaults, options);
 	Object.entries(settings.sources).forEach(([source, sourcePath]) => {
-		if (!fs.existsSync(sourcePath)) {
+		if (!checkFileExists(sourcePath)) {
 			if (sourcePath.startsWith('node_modules')) {
 				message.error(
 					`Path: "${sourcePath}" for source: "${source}" does not exist. Did you run "npm install"?`,
@@ -73,7 +74,7 @@ module.exports = (eleventyConfig, options) => {
 
 	const usedIcons = [];
 
-	const insertIcon = async function (string, attributes = {}) {
+	const insertIcon = memoize(async function (string, attributes = {}) {
 		const { icon, source } = extractFromString(
 			string,
 			settings.icon.delimiter,
@@ -87,7 +88,7 @@ module.exports = (eleventyConfig, options) => {
 		usedIcons.push([icon, source]);
 
 		if (settings.mode === 'inline') {
-			let content = await getSVGContent(source, icon, settings);
+			let content = await getIconContent(source, icon, settings);
 			if (content) {
 				content = replaceAttributes(
 					content,
@@ -122,21 +123,12 @@ module.exports = (eleventyConfig, options) => {
 				`Invalid mode. Expected 'inline' or 'sprite', got '${settings.mode}'.`,
 			);
 		}
-	};
+	});
 
 	const insertSprites = async function () {
-		let icons = [];
+		let icons = this.page.icons || [];
 		if (settings.sprites.insertAll) {
-			for (let source of settings.sprites.insertAll) {
-				const iconsFromSource = await fs.promises
-					.readdir(settings.sources[source])
-					.then((files) => files.filter((file) => file.endsWith('.svg')));
-				for (let icon of iconsFromSource) {
-					icons.push([icon.replace('.svg', ''), source]);
-				}
-			}
-		} else {
-			icons = this.page.icons || [];
+			icons = getAllIcons(settings);
 		}
 		icons = filterDuplicates(icons);
 		return await buildSprites(icons, settings);
@@ -146,17 +138,7 @@ module.exports = (eleventyConfig, options) => {
 		eleventyConfig.on('eleventy.after', async ({ dir, runMode, outputMode }) => {
 			let icons = usedIcons;
 			if (settings.sprites.insertAll) {
-				icons = [];
-				if (settings.sprites.insertAll) {
-					for (let source of settings.sprites.insertAll) {
-						const iconsFromSource = await fs.promises
-							.readdir(settings.sources[source])
-							.then((files) => files.filter((file) => file.endsWith('.svg')));
-						for (let icon of iconsFromSource) {
-							icons.push([icon.replace('.svg', ''), source]);
-						}
-					}
-				}
+				icons = getAllIcons(settings);
 			}
 			icons = filterDuplicates(icons);
 			const sprite = await buildSprites(icons, settings);
@@ -173,7 +155,7 @@ module.exports = (eleventyConfig, options) => {
 				}
 				const file = path.join(dir.output, spritesPath);
 				const fileMeta = path.parse(file);
-				if (!(await fs.promises.exists(fileMeta.dir))) {
+				if (!checkFileExists(fileMeta.dir)) {
 					await fs.promises.mkdir(fileMeta.dir, { recursive: true });
 				}
 

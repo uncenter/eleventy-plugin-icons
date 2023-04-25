@@ -1,4 +1,5 @@
 const Chalk = require('chalk');
+const fs = require('fs');
 
 class Message {
 	error(message) {
@@ -52,9 +53,17 @@ function filterDuplicates(arr) {
 	return unique;
 }
 
+function checkFileExists(file) {
+	return fs.promises
+		.access(file, fs.constants.F_OK)
+		.then(() => true)
+		.catch(() => false);
+}
+
 module.exports = {
 	Message,
 	mergeOptions,
 	stringifyAttributes,
 	filterDuplicates,
+	checkFileExists,
 };

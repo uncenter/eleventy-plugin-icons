@@ -5,12 +5,17 @@ const { stringifyAttributes } = require('./utils');
 const prettier = require('prettier');
 const path = require('path');
 const fs = require('fs');
+const memoize = require('just-memoize');
 
 const { Message } = require('./utils');
 const message = new Message();
 
-async function optimizeSVGContent(svgContent, configPath) {
-	const config = await loadConfig(configPath);
+async function optimizeIcon(svgContent, configPath) {
+	try {
+		const config = await loadConfig(configPath);
+	} catch (error) {
+		message.error(`Error loading SVGO config: could not find "${configPath}".`);
+	}
 	const result = optimize(svgContent, config);
 	return result.data;
 }
@@ -75,7 +80,7 @@ function replaceAttributes(svg, attributes, combineDuplicateAttributes) {
 	return content.replace(/<svg[^>]*>/, svg);
 }
 
-async function getSVGContent(source, icon, settings) {
+const getIconContent = memoize(async function (source, icon, settings) {
 	const sourcePath = settings.sources[source];
 	try {
 		const content = await fs.promises.readFile(
@@ -90,7 +95,13 @@ async function getSVGContent(source, icon, settings) {
 			parser: 'html',
 		});
 		if (settings.optimize) {
-			return await optimizeSVGContent(formattedContent, settings.SVGO);
+			try {
+				return await optimizeIcon(formattedContent, settings.SVGO);
+			} catch (err) {
+				message.error(
+					`Error optimizing icon "${icon}" in source "${source}" ("${sourcePath}").`,
+				);
+			}
 		}
 		return formattedContent;
 	} catch (err) {
@@ -100,14 +111,14 @@ async function getSVGContent(source, icon, settings) {
 		}
 		message.error(`Icon "${icon}" not found in source "${source}" ("${sourcePath}").`);
 	}
-}
+});
 
-async function buildSprites(icons, settings) {
+const buildSprites = memoize(async function (icons, settings) {
 	let sprite = `<svg ${stringifyAttributes(settings.sprites.insertAttributes)}>`;
 
 	let symbols = '';
 	for (let [icon, source] of icons) {
-		let content = await getSVGContent(source, icon, settings);
+		let content = await getIconContent(source, icon, settings);
 		if (content) {
 			content = replaceAttributes(
 				content,
@@ -120,12 +131,25 @@ async function buildSprites(icons, settings) {
 	}
 	if (symbols !== '') return sprite + '<defs>' + symbols + '</defs></svg>';
 	return '';
-}
+});
+
+const getAllIcons = memoize(async function (settings) {
+	for (let source of settings.sprites.insertAll) {
+		const files = await fs.promises.readdirSync(settings.sources[source]);
+		for (let file of files) {
+			if (file.endsWith('.svg')) {
+				icons.push([file.replace('.svg', ''), source]);
+			}
+		}
+	}
+	return icons;
+});
 
 module.exports = {
-	optimizeSVGContent,
+	optimizeIcon,
 	extractFromString,
 	replaceAttributes,
-	getSVGContent,
+	getIconContent,
 	buildSprites,
+	getAllIcons,
 };
