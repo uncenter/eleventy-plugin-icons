@@ -181,7 +181,7 @@ module.exports = (eleventyConfig, options) => {
 		});
 	}
 
-	eleventyConfig.addShortcode(settings.icon.shortcode, insertIcon);
+	eleventyConfig.addNunjucksAsyncShortcode(settings.icon.shortcode, insertIcon);
 	eleventyConfig.addShortcode(settings.sprites.shortcode, insertSprites);
 	Object.entries(settings.sources).forEach(([source, sourcePath]) => {
 		eleventyConfig.addWatchTarget(sourcePath);
