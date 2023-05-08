@@ -79,11 +79,17 @@ module.exports = (eleventyConfig, options) => {
 			}
 			validatedSources.push(source);
 		}
-		if (this.page.icons === undefined) {
-			this.page.icons = [];
+		if (this.page) {
+			if (this.page.icons === undefined) {
+				this.page.icons = [];
+			}
+			if (!this.page.icons.includes(icon)) {
+				this.page.icons.push([icon, source]);
+			}
+			usedIcons.add([icon, source]);
+		} else {
+			message.warning(`Issue accessing page object.`);
 		}
-		this.page.icons.push([icon, source]);
-		usedIcons.push([icon, source]);
 
 		if (settings.mode === 'inline') {
 			let content = await getIconContent(source, icon, settings);
