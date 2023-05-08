@@ -113,7 +113,7 @@ To configure the options, create a `svgo.config.js` file in the root of your pro
 | `insertAttributes` | `{}` | | The attributes to insert in icons; `'aria-hidden': 'true'` would insert `aria-hidden="true"` in the icon. |
 | `insertAttributesBySource` | `{}` | | The attributes to insert in icons by source; `custom: { 'aria-hidden': 'true' }` would insert `aria-hidden="true"` in the icon if the source is `custom`. |
 | `combineDuplicateAttributes` | `['class']` | `true`, `false`, any| **Only functional in Nunjucks**. If `true`, duplicate attributes will be combined. If `false`, duplicate attributes will be ignored. If an array, duplicate attributes will be combined if the attribute name is in the array. |
-| `notFound` | `'error'` | `'error'`, `'warn'`, `'log'`, `'ignore'` | If the icon is not found, the error level to log. |
+| `notFound` | `'error'` | `'error'`, `'warn'`, `'ignore'` | If the icon is not found, the error level to log. |
 
 
 #### icon.class
