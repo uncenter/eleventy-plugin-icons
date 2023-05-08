@@ -96,7 +96,7 @@ module.exports = (eleventyConfig, options) => {
 			if (!this.page.icons.includes(icon)) {
 				this.page.icons.push([icon, source]);
 			}
-			usedIcons.add([icon, source]);
+			usedIcons.push([icon, source]);
 		} else {
 			message.warning(`Issue accessing page object.`);
 		}
