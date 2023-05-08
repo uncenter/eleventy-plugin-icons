@@ -13,11 +13,11 @@ const message = new Message();
 async function optimizeIcon(svgContent, configPath) {
 	try {
 		const config = await loadConfig(configPath);
+		const result = optimize(svgContent, config);
+		return result.data;
 	} catch (error) {
 		message.error(`Error loading SVGO config: could not find "${configPath}".`);
 	}
-	const result = optimize(svgContent, config);
-	return result.data;
 }
 
 function extractFromString(str, settings) {
