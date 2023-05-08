@@ -15,7 +15,7 @@ const { Message, mergeOptions, filterDuplicates, checkFileExists } = require('./
 const message = new Message();
 
 module.exports = (eleventyConfig, options) => {
-	const deprecatedOptions = [];
+	const deprecatedOptions = ['icon.skipIfNotFound'];
 	const defaults = {
 		mode: 'inline',
 		sources: {},
@@ -34,7 +34,7 @@ module.exports = (eleventyConfig, options) => {
 			insertAttributes: {},
 			insertAttributesBySource: {},
 			combineDuplicateAttributes: ['class'],
-			skipIfNotFound: false,
+			notFound: 'error',
 		},
 		sprites: {
 			shortcode: 'spriteSheet',

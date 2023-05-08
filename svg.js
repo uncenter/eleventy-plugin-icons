@@ -107,11 +107,13 @@ const getIconContent = memoize(async function (source, icon, settings) {
 		}
 		return formattedContent;
 	} catch (err) {
-		if (settings.icon.skipIfNotFound) {
+		if (settings.icon.notFound === 'error') {
+			message.error(`Icon "${icon}" not found in source "${source}" ("${sourcePath}").`);
+		} else if (settings.icon.notFound === 'warn') {
 			message.warn(`Icon "${icon}" not found in source "${source}" ("${sourcePath}").`);
-			return;
+		} else {
+			message.log(`Icon "${icon}" not found in source "${source}" ("${sourcePath}").`);
 		}
-		message.error(`Icon "${icon}" not found in source "${source}" ("${sourcePath}").`);
 	}
 });
 
