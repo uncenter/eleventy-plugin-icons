@@ -15,6 +15,7 @@ const { Message, mergeOptions, filterDuplicates, checkFileExists } = require('./
 const message = new Message();
 
 module.exports = (eleventyConfig, options) => {
+	const deprecatedOptions = [];
 	const defaults = {
 		mode: 'inline',
 		sources: {},
@@ -48,6 +49,15 @@ module.exports = (eleventyConfig, options) => {
 		},
 	};
 
+	if (options) {
+		for (let option of deprecatedOptions) {
+			if (options[option]) {
+				message.warn(
+					`Option "${option}" is deprecated and will be removed in a future version. This may cause unexpected behavior.`,
+				);
+			}
+		}
+	}
 	const settings = mergeOptions(defaults, options);
 	if (Array.isArray(settings.sprites.insertAll)) {
 		for (let source of settings.sprites.insertAll) {
