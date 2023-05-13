@@ -19,6 +19,7 @@ module.exports = (eleventyConfig) => {
 		},
 		sprites: {
 			generateFile: true,
+			insertAll: true,
 		},
 		default: 'tabler',
 	});
