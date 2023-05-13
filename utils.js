@@ -1,5 +1,5 @@
 const Chalk = require('chalk');
-const fs = require('fs');
+const fs = require('fs/promises');
 
 class Message {
 	error(message) {
@@ -55,7 +55,7 @@ function filterDuplicates(arr) {
 
 async function checkFileExists(filePath) {
 	try {
-		await fs.promises.access(filePath);
+		await fs.access(filePath);
 		return true;
 	} catch (error) {
 		if (error.code === 'ENOENT') {

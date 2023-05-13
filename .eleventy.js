@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs/promises');
 const path = require('path');
 const prettier = require('prettier');
 const memoize = require('just-memoize');
@@ -170,18 +170,18 @@ module.exports = (eleventyConfig, options) => {
 				const file = path.join(dir.output, spritesPath);
 				const fileMeta = path.parse(file);
 				if (!checkFileExists(fileMeta.dir)) {
-					await fs.promises.mkdir(fileMeta.dir, { recursive: true });
+					await fs.mkdir(fileMeta.dir, { recursive: true });
 				}
 
 				const formatted = prettier.format(sprite, {
 					parser: 'html',
 				});
-				await fs.promises.writeFile(file, formatted);
+				await fs.writeFile(file, formatted);
 			}
 		});
 	}
 
-	eleventyConfig.addNunjucksAsyncShortcode(settings.icon.shortcode, insertIcon);
+	eleventyConfig.addShortcode(settings.icon.shortcode, insertIcon);
 	eleventyConfig.addShortcode(settings.sprites.shortcode, insertSprites);
 	Object.entries(settings.sources).forEach(([source, sourcePath]) => {
 		eleventyConfig.addWatchTarget(sourcePath);

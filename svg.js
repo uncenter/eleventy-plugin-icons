@@ -4,7 +4,7 @@ const { stringifyAttributes } = require('./utils');
 
 const prettier = require('prettier');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs/promises');
 const memoize = require('just-memoize');
 
 const { Message } = require('./utils');
@@ -85,10 +85,7 @@ function replaceAttributes(svg, attributes, combineDuplicateAttributes) {
 const getIconContent = memoize(async function (source, icon, settings) {
 	const sourcePath = settings.sources[source];
 	try {
-		const content = await fs.promises.readFile(
-			path.join(sourcePath, icon + '.svg'),
-			'utf8',
-		);
+		const content = await fs.readFile(path.join(sourcePath, icon + '.svg'), 'utf8');
 		const formattedContent = prettier.format(content, {
 			tabWidth: 2,
 			printWidth: 1000,
@@ -137,7 +134,7 @@ const buildSprites = memoize(async function (icons, settings) {
 
 const getAllIcons = memoize(async function (settings) {
 	for (let source of settings.sprites.insertAll) {
-		const files = await fs.promises.readdirSync(settings.sources[source]);
+		const files = await fs.readdir(settings.sources[source]);
 		for (let file of files) {
 			if (file.endsWith('.svg')) {
 				icons.push([file.replace('.svg', ''), source]);
