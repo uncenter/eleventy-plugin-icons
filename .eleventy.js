@@ -155,7 +155,10 @@ module.exports = (eleventyConfig, options) => {
 		eleventyConfig.on('eleventy.after', async ({ dir, runMode, outputMode }) => {
 			let icons = usedIcons;
 			if (settings.sprites.insertAll) {
-				icons = getAllIcons(settings);
+				icons = await getAllIcons(settings);
+			}
+			if (icons.length === 0 || icons === undefined) {
+				return '';
 			}
 			icons = filterDuplicates(icons);
 			const sprite = await buildSprites(icons, settings);
