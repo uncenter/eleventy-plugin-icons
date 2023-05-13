@@ -134,6 +134,12 @@ const buildSprites = memoize(async function (icons, settings) {
 
 const getAllIcons = memoize(async function (settings) {
 	let icons = [];
+	if (settings.sprites.insertAll === true) {
+		settings.sprites.insertAll = Object.keys(settings.sources);
+	}
+	if (!Array.isArray(settings.sprites.insertAll)) {
+		message.error(`"insertAll" must be an array or boolean.`);
+	}
 	for (let source of settings.sprites.insertAll) {
 		const files = await fs.readdir(settings.sources[source]);
 		for (let file of files) {

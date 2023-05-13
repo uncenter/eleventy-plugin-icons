@@ -142,7 +142,7 @@ module.exports = (eleventyConfig, options) => {
 	const insertSprites = async function () {
 		let icons = this.page.icons || [];
 		if (settings.sprites.insertAll) {
-			icons = getAllIcons(settings);
+			icons = await getAllIcons(settings);
 		}
 		if (icons.length === 0 || icons === undefined) {
 			return '';
