@@ -144,6 +144,9 @@ module.exports = (eleventyConfig, options) => {
 		if (settings.sprites.insertAll) {
 			icons = getAllIcons(settings);
 		}
+		if (icons.length === 0 || icons === undefined) {
+			return '';
+		}
 		icons = filterDuplicates(icons);
 		return await buildSprites(icons, settings);
 	};

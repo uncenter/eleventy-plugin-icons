@@ -45,6 +45,9 @@ function stringifyAttributes(attributes) {
 
 function filterDuplicates(arr) {
 	const unique = [];
+	if (!arr || !Array.isArray(arr)) {
+		return unique;
+	}
 	arr.forEach((item) => {
 		if (!unique.some((element) => JSON.stringify(element) === JSON.stringify(item))) {
 			unique.push(item);
