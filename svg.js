@@ -133,6 +133,7 @@ const buildSprites = memoize(async function (icons, settings) {
 });
 
 const getAllIcons = memoize(async function (settings) {
+	let icons = [];
 	for (let source of settings.sprites.insertAll) {
 		const files = await fs.readdir(settings.sources[source]);
 		for (let file of files) {
