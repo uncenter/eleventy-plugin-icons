@@ -1,8 +1,9 @@
 ---
 layout: base.njk
+templateEngineOverride: njk, md
 ---
 
 {% icon "activity" %}
-{% icon "custom:eleventy" %}
+{% icon "custom:eleventy", class="demo" %}
 
 {% spriteSheet %}
