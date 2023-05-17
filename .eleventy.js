@@ -199,7 +199,7 @@ async function getAllIcons(options) {
 	return icons;
 }
 
-async function buildSprites(icons, options) {
+const buildSprites = memoize(async (icons, options) => {
 	let sprite = parseHTML(`<svg ${attrsToString(options.sprites.insertAttributes)}></svg>`)
 		.document.firstChild;
 
@@ -225,7 +225,7 @@ async function buildSprites(icons, options) {
 		return sprite.outerHTML;
 	}
 	return '';
-}
+});
 
 module.exports = function (eleventyConfig, configuration = {}) {
 	const options = mergeOptions(defaultOptions, configuration);
@@ -242,7 +242,7 @@ module.exports = function (eleventyConfig, configuration = {}) {
 
 	eleventyConfig.addAsyncShortcode(
 		options.icon.shortcode,
-		async function (iconString, attrs = {}) {
+		memoize(async (iconString, attrs = {}) => {
 			const { icon, source } = splitIconString(iconString, {
 				delimiter: options.icon.delimiter,
 				defaultSource: options.default,
@@ -307,7 +307,7 @@ module.exports = function (eleventyConfig, configuration = {}) {
 				}
 				return document.firstChild.outerHTML;
 			}
-		},
+		}),
 	);
 
 	async function generateSpriteHTML() {
