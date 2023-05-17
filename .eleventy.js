@@ -48,7 +48,7 @@ const defaultOptions = {
 		},
 		insertAttributes: {}, // { [attributeName]: attributeValue, ... }
 		insertAttributesBySource: {}, // { [sourceName]: { [attributeName]: attributeValue, ... }, ... }
-		overrideExistingAttributes: true, // true | false (replace existing attributes with attributes from class/id/insertAttributes/insertAttributesBySource)
+		overwriteExistingAttributes: true, // true | false (replace existing attributes with attributes from class/id/insertAttributes/insertAttributesBySource)
 		ignoreNotFound: false, // true | false
 	},
 	sprites: {
@@ -199,30 +199,30 @@ async function getAllIcons(options) {
 	return icons;
 }
 
-const buildSprites = memoize(async (icons, options) => {
-	let sprite = parseHTML(`<svg ${attrsToString(options.sprites.insertAttributes)}></svg>`)
-		.document.firstChild;
+function applyAttributes(htmlstring, attributes) {
+	const { document } = parseHTML(htmlstring);
+	const element = document.firstChild;
+	Object.entries(attributes).forEach(([key, value]) => {
+		element.setAttribute(key, value);
+	});
+	return element.outerHTML;
+}
 
+const buildSprites = memoize(async (icons, options) => {
 	let symbols = '';
 	for (let [icon, source] of icons) {
 		let content = await getIconContent({ icon, source, options });
 		if (content) {
 			const attributes = { id: options.icon.id(icon, source) };
-			let svg = parseHTML(content).document.querySelector('svg');
-			svg = parseHTML(
-				`<symbol ${attrsToString(attributes)}>${svg.innerHTML}</symbol>`,
-			).document.querySelector('symbol');
-			if (attributes !== {} && attributes !== undefined) {
-				Object.entries(attributes).forEach(([key, value]) => {
-					svg.setAttribute(key, value);
-				});
-			}
-			symbols += svg.outerHTML;
+			let symbol = applyAttributes(content, attributes);
+			symbol = symbol.replace(/<svg/, '<symbol').replace(/<\/svg>/, '</symbol>');
+			symbols += symbol;
 		}
 	}
 	if (symbols !== '') {
-		sprite.innerHTML = symbols;
-		return sprite.outerHTML;
+		return `<svg ${attrsToString(
+			options.sprites.insertAttributes,
+		)}><defs>${symbols}</defs></svg>`;
 	}
 	return '';
 });
@@ -260,26 +260,25 @@ module.exports = function (eleventyConfig, configuration = {}) {
 			const iconContent = await getIconContent({ icon, source, options });
 			if (!iconContent) return '';
 			globals.usedIcons.push([icon, source]);
+			if (attrs !== {} && attrs['__keywords'] !== undefined) {
+				delete attrs['__keywords'];
+			}
 			const attributes = reduceAttrs(
 				['class', 'id'],
 				attrs,
 				{ class: options.icon.class(icon, source) },
 				options.icon.insertAttributes || {},
 				options.icon.insertAttributesBySource[source] || {},
-			); // earlier attributes override later ones
+			);
 
 			if (options.mode === 'inline') {
 				const { document } = parseHTML(iconContent);
-				const existingAttributes = document.firstChild.attributes || {};
+				const existingAttrs = document.firstChild.attributes || {};
 				Object.entries(attributes).forEach(([key, value]) => {
-					if (
-						existingAttributes.getNamedItem(key) &&
-						!options.icon.overrideExistingAttributes
-					) {
-						existingAttributes.getNamedItem(key).value += ` ${value}`;
+					if (existingAttrs.getNamedItem(key) && !options.icon.overrideexistingAttrs) {
+						existingAttrs.getNamedItem(key).value += ` ${value}`;
 					} else {
-						existingAttributes.setNamedItem(document.createAttribute(key));
-						existingAttributes.getNamedItem(key).value = value;
+						document.firstChild.setAttribute(key, value);
 					}
 				});
 				return document.firstChild.outerHTML;
@@ -297,15 +296,10 @@ module.exports = function (eleventyConfig, configuration = {}) {
 						severity: 'warning',
 					});
 				}
-				const { document } = parseHTML(
-					`<svg><use href="#${options.icon.id(icon, source)}"></use></svg>`,
-				);
-				if (attributes !== {} && attributes !== undefined) {
-					Object.entries(attributes).forEach(([key, value]) => {
-						document.firstChild.setAttribute(key, value);
-					});
-				}
-				return document.firstChild.outerHTML;
+				return `<svg ${attrsToString(attributes)}><use href="#${options.icon.id(
+					icon,
+					source,
+				)}"></use></svg>`;
 			}
 		}),
 	);
