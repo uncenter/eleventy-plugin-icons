@@ -85,10 +85,6 @@ module.exports = (eleventyConfig) => {
 };
 ```
 
-### enable
-
-This option is deprecated and will be removed in a future version. There are no longer any sources defined by default, so there is no need to enable them.
-
 ### default
 
 The default source for icons without a specified source (e.g. using `{% icon "heart" %}` instead of `{% icon "custom:heart" %}`). Any source defined in the `sources` option can be used. If `false`, no default source will be used (an error will be thrown if no source is specified).
@@ -101,7 +97,6 @@ The optimize option can be used to optimize the SVG using [svgo](https://github.
 
 To configure the options, create a `svgo.config.js` file in the root of your project and it will be automatically loaded (by default, it will look for a `svgo.config.js` file in the root of your project). Alternatively, you can use the `SVGO` option to specify a custom path to the config file.
 
-
 ### icon
 
 | Option | Default | Values | Description |
@@ -112,8 +107,8 @@ To configure the options, create a `svgo.config.js` file in the root of your pro
 | `id` | *see below* | | The ID of sprite icons (e.g. `id="icon-heart"`)/the `xlink:href` of sprite references (e.g. `href="#icon-heart"`). Define a function that takes in the icon name and source and returns the ID. |
 | `insertAttributes` | `{}` | | The attributes to insert in icons; `'aria-hidden': 'true'` would insert `aria-hidden="true"` in the icon. |
 | `insertAttributesBySource` | `{}` | | The attributes to insert in icons by source; `custom: { 'aria-hidden': 'true' }` would insert `aria-hidden="true"` in the icon if the source is `custom`. |
-| `combineDuplicateAttributes` | `['class']` | `true`, `false`, any| **Only functional in Nunjucks**. If `true`, duplicate attributes will be combined. If `false`, duplicate attributes will be ignored. If an array, duplicate attributes will be combined if the attribute name is in the array. |
-| `notFound` | `'error'` | `'error'`, `'warn'`, `'ignore'` | If the icon is not found, the error level to log. |
+| `overwriteExistingAttributes` | `true` | `true`, `false`, list of attributes | Whether to override existing attributes on an icon. If `true`, existing attributes will be replaced with custom attributes. If `false`, existing attributes will be kept. If a list of attributes is specified, only those attributes will be overwritten. |
+| `ignoreNotFound` | `false` | `true`, `false` | Whether to ignore icons that are not found. If `true`, icons that are not found will be ignored. If `false`, an error will be thrown if an icon is not found. |
 
 
 #### icon.class
@@ -168,35 +163,39 @@ const pluginIcons = require("eleventy-plugin-icons");
 
 module.exports = (eleventyConfig) => {
     eleventyConfig.addPlugin(pluginIcons, {
-        mode: 'inline',
-		sources: {},
-		default: false,
-		optimize: false,
-		SVGO: 'svgo.config.js',
-		icon: {
-			shortcode: 'icon',
-			delimiter: ':',
-			class: function (name, source) {
-				return `icon icon-${name}`;
-			},
-			id: function (name, source) {
-				return `icon-${name}`;
-			},
-			insertAttributes: {},
-            combineDuplicateAttributes: ['class'],
-			notFound: 'error',
-		},
-		sprites: {
-			shortcode: 'spriteSheet',
-			insertAttributes: {
+        mode: 'inline', 
+        sources: {}, 
+        default: false, 
+        optimize: false, 
+        SVGO: 'svgo.config.js', 
+        icon: {
+            shortcode: 'icon', 
+            delimiter: ':', 
+            class: function (name, source) {
+                
+                return `icon icon-${name}`;
+            },
+            id: function (name, source) {
+                
+                return `icon-${name}`;
+            },
+            insertAttributes: {}, 
+            insertAttributesBySource: {}, 
+            overrideExistingAttributes: true, 
+            ignoreNotFound: false, 
+        },
+        sprites: {
+            shortcode: 'spriteSheet', 
+            insertAttributes: {
+                
                 class: 'sprite-sheet',
-				style: 'display: none;',
-				'aria-hidden': 'true',
-                xmlns: 'http://www.w3.org/2000/svg',
-			},
-            insertAll: false,
-			generateFile: false,
-		},
+                style: 'display: none;',
+                'aria-hidden': 'true',
+                xmlns: 'http:
+            },
+            insertAll: false, 
+            generateFile: false, 
+        },
     });
 }
 ```
