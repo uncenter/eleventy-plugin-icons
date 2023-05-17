@@ -1,14 +1,11 @@
-const { optimize } = require('svgo');
-const { loadConfig } = require('svgo');
-const { stringifyAttributes } = require('./utils');
+const { optimize, loadConfig } = require('svgo');
+const { Message, attrsToString } = require('./utils');
+const message = new Message();
 
 const prettier = require('prettier');
 const path = require('path');
 const fs = require('fs/promises');
 const memoize = require('just-memoize');
-
-const { Message } = require('./utils');
-const message = new Message();
 
 async function optimizeIcon(svgContent, configPath) {
 	try {
@@ -113,7 +110,7 @@ const getIconContent = memoize(async function (source, icon, settings) {
 });
 
 const buildSprites = memoize(async function (icons, settings) {
-	let sprite = `<svg ${stringifyAttributes(settings.sprites.insertAttributes)}>`;
+	let sprite = `<svg ${attrsToString(settings.sprites.insertAttributes)}>`;
 
 	let symbols = '';
 	for (let [icon, source] of icons) {

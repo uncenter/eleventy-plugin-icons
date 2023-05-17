@@ -37,7 +37,7 @@ function mergeOptions(defaults, options) {
 	}, {});
 }
 
-function stringifyAttributes(attributes) {
+function attrsToString(attributes) {
 	return Object.entries(attributes)
 		.map(([key, value]) => `${key}="${value}"`)
 		.join(' ');
@@ -70,7 +70,7 @@ async function checkFileExists(filePath) {
 module.exports = {
 	Message,
 	mergeOptions,
-	stringifyAttributes,
+	attrsToString,
 	filterDuplicates,
 	checkFileExists,
 };
