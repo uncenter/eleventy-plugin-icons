@@ -1,195 +1,362 @@
+const { parseHTML } = require('linkedom');
 const fs = require('fs/promises');
 const path = require('path');
-const prettier = require('prettier');
 const memoize = require('just-memoize');
+const { optimize, loadConfig } = require('svgo');
+const kleur = require('kleur');
 
-const {
-	extractFromString,
-	replaceAttributes,
-	getIconContent,
-	buildSprites,
-	getAllIcons,
-} = require('./svg');
-const { Message, mergeOptions, filterDuplicates, checkFileExists } = require('./utils');
-
-const message = new Message();
-
-module.exports = (eleventyConfig, options) => {
-	const deprecatedOptions = ['icon.skipIfNotFound'];
-	const defaults = {
-		mode: 'inline',
-		sources: {},
-		default: false,
-		optimize: false,
-		SVGO: 'svgo.config.js',
-		icon: {
-			shortcode: 'icon',
-			delimiter: ':',
-			class: function (name, source) {
-				return `icon icon-${name}`;
-			},
-			id: function (name, source) {
-				return `icon-${name}`;
-			},
-			insertAttributes: {},
-			insertAttributesBySource: {},
-			combineDuplicateAttributes: ['class'],
-			notFound: 'error',
+function say({ message, severity = 'log' }) {
+	const severityLevels = {
+		none: {
+			color: 'white',
 		},
-		sprites: {
-			shortcode: 'spriteSheet',
-			insertAttributes: {
-				class: 'sprite-sheet',
-				style: 'display: none;',
-				'aria-hidden': 'true',
-				xmlns: 'http://www.w3.org/2000/svg',
-			},
-			insertAll: false,
-			generateFile: false,
+		error: {
+			color: 'red',
+		},
+		warning: {
+			color: 'yellow',
+		},
+		info: {
+			color: 'blue',
+		},
+		debug: {
+			color: 'gray',
 		},
 	};
+	console.log(
+		kleur[severityLevels[severity].color](`[eleventy-plugin-icons] ${message}`),
+	);
+	if (severity === 'error') process.exit(1);
+}
 
-	if (options) {
-		for (let option of deprecatedOptions) {
-			if (options[option]) {
-				message.warn(
-					`Option "${option}" is deprecated and will be removed in a future version. This may cause unexpected behavior.`,
-				);
-			}
-		}
-	}
-	const settings = mergeOptions(defaults, options);
-	if (Array.isArray(settings.sprites.insertAll)) {
-		for (let source of settings.sprites.insertAll) {
-			if (!settings.sources[source]) {
-				message.error(`Source "${source}" not found in sources list.`);
-			}
-		}
-	} else if (settings.sprites.insertAll) {
-		settings.sprites.insertAll = Object.keys(settings.sources);
-	}
-	if (settings.default && !settings.sources[settings.default]) {
-		message.error(`Default source "${settings.default}" not found in sources list.`);
-	}
+const defaultOptions = {
+	mode: 'inline', // 'inline' | 'sprite'
+	sources: {}, // { [sourceName]: sourcePath, ... }
+	default: false, // sourceName | false
+	optimize: false, // true | false
+	SVGO: 'svgo.config.js', // path to SVGO config file
+	icon: {
+		shortcode: 'icon', // @string
+		delimiter: ':', // @char in specified array
+		class: function (name, source) {
+			// @function
+			return `icon icon-${name}`;
+		},
+		id: function (name, source) {
+			// @function
+			return `icon-${name}`;
+		},
+		insertAttributes: {}, // { [attributeName]: attributeValue, ... }
+		insertAttributesBySource: {}, // { [sourceName]: { [attributeName]: attributeValue, ... }, ... }
+		overrideExistingAttributes: true, // true | false (replace existing attributes with attributes from class/id/insertAttributes/insertAttributesBySource)
+		ignoreNotFound: false, // true | false
+	},
+	sprites: {
+		shortcode: 'spriteSheet', // @string
+		insertAttributes: {
+			// { [attributeName]: attributeValue, ... }
+			class: 'sprite-sheet',
+			style: 'display: none;',
+			'aria-hidden': 'true',
+			xmlns: 'http://www.w3.org/2000/svg',
+		},
+		insertAll: false, // true | false | @array of source names
+		generateFile: false, // true | false | @string
+	},
+};
 
-	const usedIcons = [];
-	const validatedSources = [];
-
-	const insertIcon = memoize(async function (string, attributes = {}) {
-		const { icon, source } = extractFromString(string, settings);
-		if (!validatedSources.includes(source)) {
-			if (!(await checkFileExists(settings.sources[source]))) {
-				message.error(
-					`Path: "${settings.sources[source]}" for source: "${source}" does not exist. ${
-						settings.sources[source].startsWith('node_modules')
-							? 'Did you run "npm install"?'
-							: ''
-					}`,
-				);
+function mergeOptions(defaults, options) {
+	return Object.entries(defaults).reduce((acc, [key, value]) => {
+		if (options === undefined) {
+			acc[key] = value;
+		} else if (options[key] !== undefined) {
+			if (value.constructor === Object) {
+				acc[key] = Object.assign({}, value, options[key]);
+			} else {
+				acc[key] = options[key];
 			}
-			validatedSources.push(source);
-		}
-		if (this.page) {
-			if (this.page.icons === undefined) {
-				this.page.icons = [];
-			}
-			if (!this.page.icons.includes(icon)) {
-				this.page.icons.push([icon, source]);
-			}
-			usedIcons.push([icon, source]);
 		} else {
-			message.warning(`Issue accessing page object.`);
+			acc[key] = value;
 		}
+		return acc;
+	}, {});
+}
 
-		if (settings.mode === 'inline') {
-			let content = await getIconContent(source, icon, settings);
-			if (content) {
-				content = replaceAttributes(
-					content,
-					[
-						{ class: settings.icon.class(icon, source) },
-						settings.icon.insertAttributes,
-						settings.icon.insertAttributesBySource[source] || {},
-						Object.entries(attributes)
-							.filter(([key, value]) => key !== '__keywords')
-							.reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),
-					],
-					settings.icon.combineDuplicateAttributes,
-				);
-				return content;
+function reduceAttrs(attrKeysToCombine, ...objects) {
+	// @array of attribute names
+	// turn { class: 'example' }, { class: 'demo' } into { class: 'example demo' } ONLY IF attrKeysToCombine includes 'class'
+	return objects.reduce((acc, object) => {
+		attrKeysToCombine.forEach((key) => {
+			if (object[key]) {
+				acc[key] = acc[key] ? `${acc[key]} ${object[key]}` : object[key];
 			}
-			return '';
-		} else if (settings.mode === 'sprite') {
-			return replaceAttributes(
-				`<svg><use href="#${settings.icon.id(icon, source)}"></use></svg>`,
-				[
-					{ class: settings.icon.class(icon, source) },
-					settings.icon.insertAttributes,
-					settings.icon.insertAttributesBySource[source] || {},
-					Object.entries(attributes)
-						.filter(([key, value]) => key !== '__keywords')
-						.reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),
-				],
-				settings.icon.combineDuplicateAttributes,
-			);
-		} else {
-			message.error(
-				`Invalid mode. Expected 'inline' or 'sprite', got '${settings.mode}'.`,
-			);
+		});
+		return acc;
+	});
+}
+
+function attrsToString(attributes) {
+	return Object.entries(attributes)
+		.map(([key, value]) => `${key}="${value}"`)
+		.join(' ');
+}
+
+function filterArrayDuplicates(arr) {
+	const unique = [];
+	if (!arr || !Array.isArray(arr)) {
+		return unique;
+	}
+	arr.forEach((item) => {
+		if (!unique.includes(item)) {
+			unique.push(item);
 		}
 	});
+	return unique;
+}
 
-	const insertSprites = async function () {
-		let icons = this.page.icons || [];
-		if (settings.sprites.insertAll) {
-			icons = await getAllIcons(settings);
+async function fileExists(filePath) {
+	return fs
+		.stat(filePath)
+		.then(() => true)
+		.catch(() => false);
+}
+
+async function optimizeWithSVGO(content, configPath) {
+	try {
+		const config = await loadConfig(configPath);
+		try {
+			const result = optimize(content, config);
+			return result.data;
+		} catch (error) {
+			say({ message: 'Error optimizing content with SVGO.', severity: 'error' });
+		}
+	} catch (error) {
+		say({ message: 'Error loading SVGO config file.', severity: 'error' });
+	}
+}
+
+function splitIconString(iconString, x) {
+	const { delimiter, defaultSource, sources } = x;
+	if (!iconString.includes(delimiter)) {
+		if (defaultSource) {
+			return { icon: iconString, source: defaultSource };
+		}
+		say({
+			message: `Error parsing icon string: "${iconString}" does not contain a delimiter and no default source is set.`,
+			severity: 'error',
+		});
+	}
+	const [source, icon] = iconString.split(delimiter);
+	if (!sources[source]) {
+		say({
+			message: `Error parsing icon string: "${source}" is not a valid source.`,
+			severity: 'error',
+		});
+	}
+	return { icon, source };
+}
+
+async function getIconContent({ icon, source, options }) {
+	const { sources, optimize, SVGO } = options;
+	const sourcePath = sources[source];
+	const iconPath = path.join(sourcePath, `${icon}.svg`);
+	let content;
+	try {
+		content = await fs.readFile(iconPath, 'utf-8');
+	} catch (error) {
+		if (!fileExists(iconPath)) {
+			if (!options.icon.ignoreNotFound) {
+				say({ message: `Error reading icon file: ${iconPath}`, severity: 'error' });
+			}
+			return '';
+		}
+		say({ message: `Error reading icon file: ${iconPath}`, severity: 'error' });
+	}
+	return optimize ? await optimizeWithSVGO(content, SVGO) : content;
+}
+
+async function getAllIcons(options) {
+	let icons = [];
+	let sources;
+	sources =
+		options.sprites.insertAll === true
+			? Object.keys(options.sources)
+			: options.sprites.insertAll;
+	if (!Array.isArray(sources)) {
+		say({
+			message: `Error getting all icons: "insertAll" must be an array or true.`,
+			severity: 'error',
+		});
+	}
+	for (let source of sources) {
+		const files = await fs.readdir(options.sources[source]);
+		for (let file of files) {
+			if (file.endsWith('.svg')) {
+				icons.push([file.replace('.svg', ''), source]);
+			}
+		}
+	}
+	return icons;
+}
+
+async function buildSprites(icons, options) {
+	let sprite = parseHTML(`<svg ${attrsToString(options.sprites.insertAttributes)}></svg>`)
+		.document.firstChild;
+
+	let symbols = '';
+	for (let [icon, source] of icons) {
+		let content = await getIconContent({ icon, source, options });
+		if (content) {
+			const attributes = { id: options.icon.id(icon, source) };
+			let svg = parseHTML(content).document.querySelector('svg');
+			svg = parseHTML(
+				`<symbol ${attrsToString(attributes)}>${svg.innerHTML}</symbol>`,
+			).document.querySelector('symbol');
+			if (attributes !== {} && attributes !== undefined) {
+				Object.entries(attributes).forEach(([key, value]) => {
+					svg.setAttribute(key, value);
+				});
+			}
+			symbols += svg.outerHTML;
+		}
+	}
+	if (symbols !== '') {
+		sprite.innerHTML = symbols;
+		return sprite.outerHTML;
+	}
+	return '';
+}
+
+module.exports = function (eleventyConfig, configuration = {}) {
+	const options = mergeOptions(defaultOptions, configuration);
+	const globals = {
+		usedIcons: [],
+		validatedSources: [],
+	};
+	if (options.default && !options.sources[options.default]) {
+		say({
+			message: `Default source "${options.default}" not found in sources list.`,
+			severity: 'error',
+		});
+	}
+
+	eleventyConfig.addAsyncShortcode(
+		options.icon.shortcode,
+		async function (iconString, attrs = {}) {
+			const { icon, source } = splitIconString(iconString, {
+				delimiter: options.icon.delimiter,
+				defaultSource: options.default,
+				sources: options.sources,
+			});
+			if (!globals.validatedSources.includes(source)) {
+				if (!options.sources[source]) {
+					say({
+						message: `Error getting icon: "${source}" is not a valid source.`,
+						severity: 'error',
+					});
+				}
+				globals.validatedSources.push(source);
+			}
+			const iconContent = await getIconContent({ icon, source, options });
+			if (!iconContent) return '';
+			globals.usedIcons.push([icon, source]);
+			const attributes = reduceAttrs(
+				['class', 'id'],
+				attrs,
+				{ class: options.icon.class(icon, source) },
+				options.icon.insertAttributes || {},
+				options.icon.insertAttributesBySource[source] || {},
+			); // earlier attributes override later ones
+
+			if (options.mode === 'inline') {
+				const { document } = parseHTML(iconContent);
+				const existingAttributes = document.firstChild.attributes || {};
+				Object.entries(attributes).forEach(([key, value]) => {
+					if (
+						existingAttributes.getNamedItem(key) &&
+						!options.icon.overrideExistingAttributes
+					) {
+						existingAttributes.getNamedItem(key).value += ` ${value}`;
+					} else {
+						existingAttributes.setNamedItem(document.createAttribute(key));
+						existingAttributes.getNamedItem(key).value = value;
+					}
+				});
+				return document.firstChild.outerHTML;
+			} else if (options.mode === 'sprite') {
+				if (this.page) {
+					if (this.page.icons === undefined) {
+						this.page.icons = [];
+					}
+					if (!this.page.icons.includes(icon)) {
+						this.page.icons.push([icon, source]);
+					}
+				} else {
+					say({
+						message: `Issue accessing page object.`,
+						severity: 'warning',
+					});
+				}
+				const { document } = parseHTML(
+					`<svg><use href="#${options.icon.id(icon, source)}"></use></svg>`,
+				);
+				if (attributes !== {} && attributes !== undefined) {
+					Object.entries(attributes).forEach(([key, value]) => {
+						document.firstChild.setAttribute(key, value);
+					});
+				}
+				return document.firstChild.outerHTML;
+			}
+		},
+	);
+
+	async function generateSpriteHTML() {
+		let icons = [];
+		if (this.page) {
+			icons = this.page.icons || [];
+		} else {
+			icons = globals.usedIcons;
+		}
+		if (options.sprites.insertAll) {
+			icons = await getAllIcons(options);
 		}
 		if (icons.length === 0 || icons === undefined) {
 			return '';
 		}
-		icons = filterDuplicates(icons);
-		return await buildSprites(icons, settings);
-	};
+		icons = filterArrayDuplicates(icons);
+		return await buildSprites(icons, options);
+	}
 
-	if (settings.sprites.generateFile !== false) {
+	eleventyConfig.addShortcode(options.sprites.shortcode, async function () {
+		return await generateSpriteHTML();
+	});
+
+	if (options.sprites.generateFile !== false) {
 		eleventyConfig.on('eleventy.after', async ({ dir, runMode, outputMode }) => {
-			let icons = usedIcons;
-			if (settings.sprites.insertAll) {
-				icons = await getAllIcons(settings);
-			}
-			if (icons.length === 0 || icons === undefined) {
-				return '';
-			}
-			icons = filterDuplicates(icons);
-			const sprite = await buildSprites(icons, settings);
+			const sprite = await generateSpriteHTML();
 			if (sprite !== '') {
-				if (settings.sprites.generateFile === true) {
+				if (options.sprites.generateFile === true) {
 					spritesPath = 'sprite.svg';
 				} else {
-					if (path.parse(settings.sprites.generateFile).ext !== '.svg') {
-						message.error(
-							`Invalid sprite file name. Expected '*.svg', got '${settings.sprites.generateFile}'.`,
-						);
+					if (path.parse(options.sprites.generateFile).ext !== '.svg') {
+						say({
+							message: `Invalid sprite file name. Expected '*.svg', got '${options.sprites.generateFile}'.`,
+							severity: 'error',
+						});
 					}
-					spritesPath = settings.sprites.generateFile;
+					spritesPath = options.sprites.generateFile;
 				}
 				const file = path.join(dir.output, spritesPath);
 				const fileMeta = path.parse(file);
-				if (!checkFileExists(fileMeta.dir)) {
+				if (!(await fileExists(fileMeta.dir))) {
 					await fs.mkdir(fileMeta.dir, { recursive: true });
 				}
-
-				const formatted = prettier.format(sprite, {
-					parser: 'html',
-				});
-				await fs.writeFile(file, formatted);
+				await fs.writeFile(file, sprite);
 			}
 		});
 	}
 
-	eleventyConfig.addAsyncShortcode(settings.icon.shortcode, insertIcon);
-	eleventyConfig.addShortcode(settings.sprites.shortcode, insertSprites);
-	Object.entries(settings.sources).forEach(([source, sourcePath]) => {
+	Object.entries(options.sources).forEach(([source, sourcePath]) => {
 		eleventyConfig.addWatchTarget(sourcePath);
 	});
 };
