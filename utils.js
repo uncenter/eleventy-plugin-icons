@@ -1,3 +1,5 @@
+const fs = require('fs/promises');
+
 function mergeOptions(defaults, options) {
 	return Object.entries(defaults).reduce((acc, [key, value]) => {
 		if (options === undefined) {
