@@ -181,7 +181,7 @@ module.exports = (eleventyConfig) => {
             },
             insertAttributes: {}, 
             insertAttributesBySource: {}, 
-            overrideExistingAttributes: true, 
+            overwriteExistingAttributes: true, 
             ignoreNotFound: false, 
         },
         sprites: {
