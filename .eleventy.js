@@ -83,16 +83,21 @@ function mergeOptions(defaults, options) {
 }
 
 function reduceAttrs(attrKeysToCombine, ...objects) {
-	// @array of attribute names
-	// turn { class: 'example' }, { class: 'demo' } into { class: 'example demo' } ONLY IF attrKeysToCombine includes 'class'
 	return objects.reduce((acc, object) => {
 		attrKeysToCombine.forEach((key) => {
 			if (object[key]) {
 				acc[key] = acc[key] ? `${acc[key]} ${object[key]}` : object[key];
 			}
 		});
+
+		Object.keys(object).forEach((key) => {
+			if (!attrKeysToCombine.includes(key)) {
+				acc[key] = object[key];
+			}
+		});
+
 		return acc;
-	});
+	}, {});
 }
 
 function attrsToString(attributes) {
