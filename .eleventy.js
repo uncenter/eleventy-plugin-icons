@@ -64,7 +64,6 @@ const defaultOptions = {
 		insertAttributes: {
 			// { [attributeName]: attributeValue, ... }
 			class: 'sprite-sheet',
-			style: 'display: none;',
 			'aria-hidden': 'true',
 			xmlns: 'http://www.w3.org/2000/svg',
 		},
@@ -153,7 +152,13 @@ async function getAllIcons(options) {
 
 function applyAttributes(htmlstring, attributes) {
 	const { document } = parseHTML(htmlstring);
+	if (!document) {
+		return htmlstring;
+	}
 	const element = document.firstChild;
+	if (!element) {
+		return htmlstring;
+	}
 	Object.entries(attributes).forEach(([key, value]) => {
 		element.setAttribute(key, value);
 	});
