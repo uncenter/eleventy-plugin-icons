@@ -9,10 +9,18 @@
 
 ## Usage
 
-Install via npm:
+Install:
 
 ```sh
 npm install eleventy-plugin-icons
+```
+
+```sh
+yarn add eleventy-plugin-icons
+```
+
+```sh
+pnpm add eleventy-plugin-icons
 ```
 
 Then, include it in your `.eleventy.js` config file:
@@ -95,7 +103,18 @@ The optimize option can be used to optimize the SVG using [svgo](https://github.
 
 #### SVGO Options
 
-To configure the options, create a `svgo.config.js` file in the root of your project and it will be automatically loaded (by default, it will look for a `svgo.config.js` file in the root of your project). Alternatively, you can use the `SVGO` option to specify a custom path to the config file.
+To configure the options, create a `svgo.config.js` file in the root of your project and it will be automatically loaded - by default, it will look for a `svgo.config.js` file in the root of your project. Alternatively, you can use the `SVGO` option to specify a custom path to the config file.
+
+```js
+const pluginIcons = require("eleventy-plugin-icons");
+
+module.exports = (eleventyConfig) => {
+    eleventyConfig.addPlugin(pluginIcons, {
+        optimize: true,
+        SVGO: "./path/to/svgo.config.js"
+    });
+};
+```
 
 ### icon
 
@@ -189,7 +208,7 @@ module.exports = (eleventyConfig) => {
             insertAttributes: {
                 class: 'sprite-sheet',
                 'aria-hidden': 'true',
-                xmlns: 'http:
+			    xmlns: 'http://www.w3.org/2000/svg',
             },
             insertAll: false, 
             generateFile: false, 
