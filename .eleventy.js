@@ -1,41 +1,12 @@
 const { parseHTML } = require('linkedom');
 const { optimize, loadConfig } = require('svgo');
+const pkg = require('./package.json');
 
 const fs = require('fs/promises');
 const path = require('path');
 const memoize = require('just-memoize');
 const kleur = require('kleur');
-const {
-	mergeOptions,
-	reduceAttrs,
-	attrsToString,
-	filterArrayDuplicates,
-	fileExists,
-} = require('./utils');
-
-function say({ message, severity = 'log' }) {
-	const severityLevels = {
-		none: {
-			color: 'white',
-		},
-		error: {
-			color: 'red',
-		},
-		warning: {
-			color: 'yellow',
-		},
-		info: {
-			color: 'blue',
-		},
-		debug: {
-			color: 'gray',
-		},
-	};
-	console.log(
-		kleur[severityLevels[severity].color](`[eleventy-plugin-icons] ${message}`),
-	);
-	if (severity === 'error') process.exit(1);
-}
+const { mergeOptions, reduceAttrs, attrsToString, filterArrayDuplicates, fileExists } = require('./utils');
 
 const defaultOptions = {
 	mode: 'inline', // 'inline' | 'sprite'
@@ -79,30 +50,22 @@ async function optimizeWithSVGO(content, configPath) {
 			const result = optimize(content, config);
 			return result.data;
 		} catch (error) {
-			say({ message: 'Error optimizing content with SVGO.', severity: 'error' });
+			throw new Error('[${pkg.name}] Error optimizing content with SVGO.');
 		}
 	} catch (error) {
-		say({ message: 'Error loading SVGO config file.', severity: 'error' });
+		throw new Error('[${pkg.name}] Error loading SVGO config file.');
 	}
 }
 
 function splitIconString(iconString, x) {
 	const { delimiter, defaultSource, sources } = x;
 	if (!iconString.includes(delimiter)) {
-		if (defaultSource) {
-			return { icon: iconString, source: defaultSource };
-		}
-		say({
-			message: `Error parsing icon string: "${iconString}" does not contain a delimiter and no default source is set.`,
-			severity: 'error',
-		});
+		if (defaultSource) return { icon: iconString, source: defaultSource };
+		throw new Error(`[${pkg.name}] Error parsing icon string: "${iconString}" does not contain a delimiter and no default source is set.`);
 	}
 	const [source, icon] = iconString.split(delimiter);
 	if (!sources[source]) {
-		say({
-			message: `Error parsing icon string: "${source}" is not a valid source.`,
-			severity: 'error',
-		});
+		throw new Error(`[${pkg.name}] Error parsing icon string: "${source}" is not a valid source.`);
 	}
 	return { icon, source };
 }
@@ -117,11 +80,11 @@ async function getIconContent({ icon, source, options }) {
 	} catch (error) {
 		if (!fileExists(iconPath)) {
 			if (!options.icon.ignoreNotFound) {
-				say({ message: `Error reading icon file: ${iconPath}`, severity: 'error' });
+				console.log(kleur.yellow(`[${pkg.name}] Could not read icon file "${iconPath}" from icon "${icon}" in source "${source}".`));
 			}
 			return '';
 		}
-		say({ message: `Error reading icon file: ${iconPath}`, severity: 'error' });
+		throw new Error(`[${pkg.name}] Could not read icon file "${iconPath}" from icon "${icon}" in source "${source}".`);
 	}
 	return optimize ? await optimizeWithSVGO(content, SVGO) : content;
 }
@@ -129,15 +92,9 @@ async function getIconContent({ icon, source, options }) {
 async function getAllIcons(options) {
 	let icons = [];
 	let sources;
-	sources =
-		options.sprites.insertAll === true
-			? Object.keys(options.sources)
-			: options.sprites.insertAll;
+	sources = options.sprites.insertAll === true ? Object.keys(options.sources) : options.sprites.insertAll;
 	if (!Array.isArray(sources)) {
-		say({
-			message: `Error getting all icons: "insertAll" must be an array or true.`,
-			severity: 'error',
-		});
+		throw new Error(`[${pkg.name}] Error getting all icons: "insertAll" must be an array or true.`);
 	}
 	for (let source of sources) {
 		const files = await fs.readdir(options.sources[source]);
@@ -152,13 +109,9 @@ async function getAllIcons(options) {
 
 function applyAttributes(htmlstring, attributes) {
 	const { document } = parseHTML(htmlstring);
-	if (!document) {
-		return htmlstring;
-	}
+	if (!document) return htmlstring;
 	const element = document.firstChild;
-	if (!element) {
-		return htmlstring;
-	}
+	if (!element) return htmlstring;
 	Object.entries(attributes).forEach(([key, value]) => {
 		element.setAttribute(key, value);
 	});
@@ -177,9 +130,7 @@ const buildSprites = memoize(async (icons, options) => {
 		}
 	}
 	if (symbols !== '') {
-		return `<svg ${attrsToString(
-			options.sprites.insertAttributes,
-		)}><defs>${symbols}</defs></svg>`;
+		return `<svg ${attrsToString(options.sprites.insertAttributes)}><defs>${symbols}</defs></svg>`;
 	}
 	return '';
 });
@@ -191,10 +142,7 @@ module.exports = function (eleventyConfig, configuration = {}) {
 		validatedSources: [],
 	};
 	if (options.default && !options.sources[options.default]) {
-		say({
-			message: `Default source "${options.default}" not found in sources list.`,
-			severity: 'error',
-		});
+		throw new Error(`[${pkg.name}] Default source "${options.default}" not found in sources list.`);
 	}
 
 	eleventyConfig.addAsyncShortcode(
@@ -207,10 +155,7 @@ module.exports = function (eleventyConfig, configuration = {}) {
 			});
 			if (!globals.validatedSources.includes(source)) {
 				if (!options.sources[source]) {
-					say({
-						message: `Error getting icon: "${source}" is not a valid source.`,
-						severity: 'error',
-					});
+					throw new Error(`[${pkg.name}] Error getting icon: "${source}" is not a valid source.`);
 				}
 				globals.validatedSources.push(source);
 			}
@@ -241,22 +186,10 @@ module.exports = function (eleventyConfig, configuration = {}) {
 				return document.firstChild.outerHTML;
 			} else if (options.mode === 'sprite') {
 				if (this.page) {
-					if (this.page.icons === undefined) {
-						this.page.icons = [];
-					}
-					if (!this.page.icons.includes(icon)) {
-						this.page.icons.push([icon, source]);
-					}
-				} else {
-					say({
-						message: `Issue accessing page object.`,
-						severity: 'warning',
-					});
+					if (this.page.icons === undefined) this.page.icons = [];
+					if (!this.page.icons.includes(icon)) this.page.icons.push([icon, source]);
 				}
-				return `<svg ${attrsToString(attributes)}><use href="#${options.icon.id(
-					icon,
-					source,
-				)}"></use></svg>`;
+				return `<svg ${attrsToString(attributes)}><use href="#${options.icon.id(icon, source)}"></use></svg>`;
 			}
 		}),
 	);
@@ -268,12 +201,8 @@ module.exports = function (eleventyConfig, configuration = {}) {
 		} else {
 			icons = globals.usedIcons;
 		}
-		if (options.sprites.insertAll) {
-			icons = await getAllIcons(options);
-		}
-		if (icons.length === 0 || icons === undefined) {
-			return '';
-		}
+		if (options.sprites.insertAll) icons = await getAllIcons(options);
+		if (icons.length === 0 || icons === undefined) return '';
 		icons = filterArrayDuplicates(icons);
 		return await buildSprites(icons, options);
 	}
@@ -290,18 +219,13 @@ module.exports = function (eleventyConfig, configuration = {}) {
 					spritesPath = 'sprite.svg';
 				} else {
 					if (path.parse(options.sprites.generateFile).ext !== '.svg') {
-						say({
-							message: `Invalid sprite file name. Expected '*.svg', got '${options.sprites.generateFile}'.`,
-							severity: 'error',
-						});
+						throw new Error(`[${pkg.name}] Invalid sprite file name. Expected '*.svg', got '${options.sprites.generateFile}'.`);
 					}
 					spritesPath = options.sprites.generateFile;
 				}
 				const file = path.join(dir.output, spritesPath);
 				const fileMeta = path.parse(file);
-				if (!(await fileExists(fileMeta.dir))) {
-					await fs.mkdir(fileMeta.dir, { recursive: true });
-				}
+				if (!(await fileExists(fileMeta.dir))) await fs.mkdir(fileMeta.dir, { recursive: true });
 				await fs.writeFile(file, sprite);
 			}
 		});
