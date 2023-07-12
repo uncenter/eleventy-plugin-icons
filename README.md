@@ -1,15 +1,13 @@
-<div align="center">
-	<h1>eleventy-plugin-icons</h1>
-	<img alt="version" src="https://img.shields.io/npm/v/eleventy-plugin-icons?style=for-the-badge&color=red">
-	<img alt="downloads" src="https://img.shields.io/npm/dt/eleventy-plugin-icons?style=for-the-badge&color=blueviolet">
-   	<img alt="license" src="https://img.shields.io/npm/l/eleventy-plugin-icons?style=for-the-badge&color=g">
-	<p></p>
-	<p>An easy to use and effective plugin to add icons to your Eleventy project.</p> 
-</div>
+
+<h1>eleventy-plugin-icons</h1>
+
+[![npm version](https://img.shields.io/npm/v/eleventy-plugin-icons?style=flat-square&color=red)](https://www.npmjs.com/package/eleventy-plugin-icons)
+[![downloads](https://img.shields.io/npm/dt/eleventy-plugin-icons?style=flat-square&color=blueviolet)](https://www.npmjs.com/package/eleventy-plugin-icons)
+[![license](https://img.shields.io/npm/l/eleventy-plugin-icons?style=flat-square&color=g)](https://www.npmjs.com/package/eleventy-plugin-icons)
+
+<p>An easy to use and effective plugin to add icons to your Eleventy project.</p> 
 
 ## Usage
-
-Install:
 
 ```sh
 npm install eleventy-plugin-icons
@@ -33,9 +31,9 @@ module.exports = (eleventyConfig) => {
 };
 ```
 
-See the [Config Options](#config-options) section below or the [Config Examples](#config-examples) section for more info on the configuration options.
+See the [Config options](#config-options) section below or the [Config examples](#config-examples) section for more info on the configuration options.
 
-## Config Options
+## Config options
 
 | Option | Type | Default | Values |
 | --- | --- | --- | --- |
@@ -101,7 +99,7 @@ The default source for icons without a specified source (e.g. using `{% icon "he
 
 The optimize option can be used to optimize the SVG using [svgo](https://github.com/svg/svgo).
 
-#### SVGO Options
+#### SVGO options
 
 To configure the options, create a `svgo.config.js` file in the root of your project and it will be automatically loaded - by default, it will look for a `svgo.config.js` file in the root of your project. Alternatively, you can use the `SVGO` option to specify a custom path to the config file.
 
@@ -173,7 +171,7 @@ Alternatively, you can use the `default` option to set a default source. If you 
 | `insertAll` | `false` | `true`, `false`, `[]` | If set to `true`, all icons from every source will be inserted into the sprite sheet (even if they are not used in the page). If set to `false`, only icons that are used in the page will be inserted. If set to an array, all icons from the specified sources (which must be defined in the `sources` option) will be inserted, even if they are not used in the page. This option is not recommended for use with large icon sets, as it will increase build time and the size of the sprite sheet. |
 | `generateFile` | `false` | `string`, `false` | If set to a string, an SVG file will be generated and saved to the specified path in the output directory. If set to `true`, the file will be saved to `sprite.svg` in the output directory. If set to `false`, no file will be generated. |
 
-## Config Examples
+## Config examples
 
 Shown are the default values for each option.
 
@@ -217,7 +215,7 @@ module.exports = (eleventyConfig) => {
 }
 ```
 
-### Using a Custom Naming Pattern
+### Using a custom naming pattern
 
 By default, the plugin uses the icon name as the ID and class of the inserted icon. For example, the `heart` icon from any source would have the following class and ID:
 
