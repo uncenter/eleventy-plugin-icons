@@ -5,6 +5,7 @@
 		"sourceType": "script"
 	},
 	"env": {
-		"commonjs": true
+		"commonjs": true,
+		"node": true
 	}
 }

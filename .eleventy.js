@@ -1,12 +1,11 @@
 const { parseHTML } = require('linkedom');
 const { optimize, loadConfig } = require('svgo');
-const pkg = require('./package.json');
 
 const fs = require('fs/promises');
 const path = require('path');
 const memoize = require('just-memoize');
-const kleur = require('kleur');
-const { mergeOptions, reduceAttrs, attrsToString, filterArrayDuplicates, fileExists } = require('./utils');
+const { mergeOptions, reduceAttrs, attrsToString, filterArrayDuplicates, fileExists } = require('./src/utils');
+const log = new Logger({ prefix: require('./package.json').name });
 
 const defaultOptions = {
 	mode: 'inline', // 'inline' | 'sprite'
@@ -61,11 +60,11 @@ function splitIconString(iconString, x) {
 	const { delimiter, defaultSource, sources } = x;
 	if (!iconString.includes(delimiter)) {
 		if (defaultSource) return { icon: iconString, source: defaultSource };
-		throw new Error(`[${pkg.name}] Error parsing icon string: "${iconString}" does not contain a delimiter and no default source is set.`);
+		log.error(`Error parsing icon string: "${iconString}" does not contain a delimiter and no default source is set.`);
 	}
 	const [source, icon] = iconString.split(delimiter);
 	if (!sources[source]) {
-		throw new Error(`[${pkg.name}] Error parsing icon string: "${source}" is not a valid source.`);
+		log.error(`Error parsing icon string: "${source}" is not a valid source.`);
 	}
 	return { icon, source };
 }
@@ -80,11 +79,11 @@ async function getIconContent({ icon, source, options }) {
 	} catch (error) {
 		if (!fileExists(iconPath)) {
 			if (!options.icon.ignoreNotFound) {
-				console.log(kleur.yellow(`[${pkg.name}] Could not read icon file "${iconPath}" from icon "${icon}" in source "${source}".`));
+				log.warn(`Could not read icon file "${iconPath}" from icon "${icon}" in source "${source}".`);
 			}
 			return '';
 		}
-		throw new Error(`[${pkg.name}] Could not read icon file "${iconPath}" from icon "${icon}" in source "${source}".`);
+		log.error(`Could not read icon file "${iconPath}" from icon "${icon}" in source "${source}".`);
 	}
 	return optimize ? await optimizeWithSVGO(content, SVGO) : content;
 }
@@ -94,7 +93,7 @@ async function getAllIcons(options) {
 	let sources;
 	sources = options.sprites.insertAll === true ? Object.keys(options.sources) : options.sprites.insertAll;
 	if (!Array.isArray(sources)) {
-		throw new Error(`[${pkg.name}] Error getting all icons: "insertAll" must be an array or true.`);
+		log.error(`Error getting all icons: "insertAll" must be an array or true.`);
 	}
 	for (let source of sources) {
 		const files = await fs.readdir(options.sources[source]);
@@ -142,7 +141,7 @@ module.exports = function (eleventyConfig, configuration = {}) {
 		validatedSources: [],
 	};
 	if (options.default && !options.sources[options.default]) {
-		throw new Error(`[${pkg.name}] Default source "${options.default}" not found in sources list.`);
+		log.error(`Default source "${options.default}" not found in sources list.`);
 	}
 
 	eleventyConfig.addAsyncShortcode(
@@ -155,7 +154,7 @@ module.exports = function (eleventyConfig, configuration = {}) {
 			});
 			if (!globals.validatedSources.includes(source)) {
 				if (!options.sources[source]) {
-					throw new Error(`[${pkg.name}] Error getting icon: "${source}" is not a valid source.`);
+					log.error(`Error getting icon: "${source}" is not a valid source.`);
 				}
 				globals.validatedSources.push(source);
 			}
@@ -219,7 +218,7 @@ module.exports = function (eleventyConfig, configuration = {}) {
 					spritesPath = 'sprite.svg';
 				} else {
 					if (path.parse(options.sprites.generateFile).ext !== '.svg') {
-						throw new Error(`[${pkg.name}] Invalid sprite file name. Expected '*.svg', got '${options.sprites.generateFile}'.`);
+						log.error(`Invalid sprite file name. Expected '*.svg', got '${options.sprites.generateFile}'.`);
 					}
 					spritesPath = options.sprites.generateFile;
 				}
