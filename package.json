@@ -1,28 +1,24 @@
 {
 	"name": "eleventy-plugin-icons",
 	"version": "3.0.1",
-	"description": "A plugin for Eleventy to quickly add multiple types of icons to your site.",
-	"main": ".eleventy.js",
-	"scripts": {
-		"start": "eleventy --serve",
-		"build": "eleventy",
-		"clean": "rm -rf _site"
-	},
+	"description": "A plugin for Eleventy to easily add icons to your site.",
+    "author": "uncenter (https://uncenter.dev)",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/uncenter/eleventy-plugin-icons.git"
 	},
 	"keywords": [
 		"11ty",
-		"11ty-plugin",
 		"eleventy",
 		"eleventy-plugin"
 	],
-	"author": {
-		"name": "uncenter",
-		"url": "https://www.uncenter.org"
+	"license": "MIT",
+    "main": "index.js",
+	"scripts": {
+		"start": "eleventy --serve",
+		"build": "eleventy",
+		"clean": "rm -rf _site"
 	},
-	"license": "ISC",
 	"engines": {
 		"node": ">=16.0.0"
 	},
