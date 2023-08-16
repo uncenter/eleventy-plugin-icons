@@ -1,11 +1,10 @@
 {
-	"extends": ["prettier"],
-	"plugins": ["prettier"],
-	"rules": {
-		"prettier/prettier": ["error", { "singleQuote": true }]
-	},
-	"ignorePatterns": ["!.eleventy.js"],
+	"extends": ["eslint:recommended", "prettier"],
 	"parserOptions": {
-		"ecmaVersion": "latest"
+		"ecmaVersion": "latest",
+		"sourceType": "script"
+	},
+	"env": {
+		"commonjs": true
 	}
 }

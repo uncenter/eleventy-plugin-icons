@@ -2,7 +2,7 @@
 	"name": "eleventy-plugin-icons",
 	"version": "3.0.1",
 	"description": "A plugin for Eleventy to easily add icons to your site.",
-    "author": "uncenter (https://uncenter.dev)",
+	"author": "uncenter (https://uncenter.dev)",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/uncenter/eleventy-plugin-icons.git"
@@ -13,27 +13,26 @@
 		"eleventy-plugin"
 	],
 	"license": "MIT",
-    "main": "index.js",
+	"main": "index.js",
 	"scripts": {
 		"start": "eleventy --serve",
 		"build": "eleventy",
 		"clean": "rm -rf _site"
 	},
-	"engines": {
-		"node": ">=16.0.0"
-	},
-	"devDependencies": {
-		"@11ty/eleventy": "^2.0.0",
-		"eslint": "^8.37.0",
-		"eslint-config-prettier": "^8.8.0",
-		"eslint-plugin-prettier": "^4.2.1",
-		"prettier": "^2.8.8"
-	},
 	"dependencies": {
 		"just-memoize": "^2.2.0",
 		"kleur": "^4.1.5",
-		"linkedom": "^0.14.26",
+		"linkedom": "^0.15.1",
 		"svgo": "^3.0.2"
 	},
-	"packageManager": "pnpm@8.6.3"
+	"devDependencies": {
+		"@11ty/eleventy": "^2.0.1",
+		"eslint": "^8.47.0",
+		"eslint-config-prettier": "^9.0.0",
+		"prettier": "^3.0.2"
+	},
+	"engines": {
+		"node": ">=16.0.0"
+	},
+	"packageManager": "pnpm@8.6.12"
 }
