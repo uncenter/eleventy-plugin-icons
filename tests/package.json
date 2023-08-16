@@ -1,20 +1,13 @@
 {
-	"name": "tests",
 	"private": true,
-	"version": "1.0.0",
-	"description": "",
-	"main": "eleventy.config.js",
 	"scripts": {
 		"clean": "rm -rf dist",
 		"start": "eleventy --serve",
 		"build": "eleventy"
 	},
-	"author": "",
 	"dependencies": {
 		"@11ty/eleventy": "^2.0.1",
 		"@tabler/icons": "^2.12.0",
-		"feather-icons": "^4.29.0",
-		"lucide-static": "^0.129.0",
-		"markdown-it": "^13.0.1"
+		"lucide-static": "^0.129.0"
 	}
 }

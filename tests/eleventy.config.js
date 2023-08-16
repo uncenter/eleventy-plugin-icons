@@ -10,15 +10,15 @@ module.exports = (eleventyConfig) => {
 		icon: {
 			insertAttributesBySource: {
 				tabler: {
-					class: 'testing-123',
+					class: 'this-icon-is-from-tabler',
 				},
 				custom: {
-					class: 'testing-456',
+					class: 'custom-icon',
 				},
 			},
 		},
 		sprites: {
-			generateFile: 'icons/sprite.svg',
+			generateFile: 'path/to/assets/sprite.svg',
 		},
 		default: 'tabler',
 	});
