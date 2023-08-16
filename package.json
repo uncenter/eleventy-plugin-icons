@@ -14,11 +14,6 @@
 	],
 	"license": "MIT",
 	"main": "index.js",
-	"scripts": {
-		"start": "eleventy --serve",
-		"build": "eleventy",
-		"clean": "rm -rf _site"
-	},
 	"dependencies": {
 		"just-memoize": "^2.2.0",
 		"kleur": "^4.1.5",

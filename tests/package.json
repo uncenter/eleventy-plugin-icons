@@ -1,8 +1,7 @@
 {
 	"private": true,
 	"scripts": {
-		"clean": "rm -rf dist",
-		"start": "eleventy --serve",
+		"dev": "eleventy --serve",
 		"build": "eleventy"
 	},
 	"dependencies": {

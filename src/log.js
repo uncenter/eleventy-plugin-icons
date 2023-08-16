@@ -1,9 +1,9 @@
 const { bgCyan, bgBlue, bgYellow, bgRed, gray } = require('kleur/colors');
 
 class Logger {
-	constructor(options = {}) {
+	constructor(prefix, options = {}) {
+		this.prefix = prefix || '';
 		this.levels = options.levels || ['debug', 'info', 'warn', 'error'];
-		this.prefix = options.prefix || '';
 	}
 
 	log(level, message) {
@@ -15,7 +15,7 @@ class Logger {
 		};
 
 		if (this.levels.includes(level)) {
-			message = `${this.prefix ? `<${gray(this.prefix)}> ` : ''}${colors[level](`[${level.toUpperCase()}]`)} ${message}`;
+			message = `${this.prefix ? gray('<') + this.prefix + gray('>') + ' ' : ''}${colors[level](` ${level.toUpperCase()} `)} ${message}`;
 			console.log(message);
 		}
 	}
@@ -29,7 +29,7 @@ class Logger {
 	}
 
 	warn(message) {
-		this.log('info', message);
+		this.log('warn', message);
 	}
 
 	error(message) {
@@ -38,4 +38,4 @@ class Logger {
 	}
 }
 
-module.exports = Logger;
+module.exports = { Logger };

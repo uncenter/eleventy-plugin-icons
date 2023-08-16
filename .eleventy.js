@@ -4,8 +4,10 @@ const { optimize, loadConfig } = require('svgo');
 const fs = require('fs/promises');
 const path = require('path');
 const memoize = require('just-memoize');
+
 const { mergeOptions, reduceAttrs, attrsToString, filterArrayDuplicates, fileExists } = require('./src/utils');
-const log = new Logger({ prefix: require('./package.json').name });
+const { Logger } = require('./src/log');
+const log = new Logger(require('./package.json').name);
 
 const defaultOptions = {
 	mode: 'inline', // 'inline' | 'sprite'
