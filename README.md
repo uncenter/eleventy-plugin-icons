@@ -18,13 +18,27 @@ Into an SVG like this, right in your templates:
 <svg class="icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
 ```
 
-You can also change/set attributes on an icon right in the shortcode:
+You can change/set attributes for an icon right in the shortcode:
 
 ```twig
-{% icon "star", { "stroke": "#ed8a19" } %}
+{% icon "star", stroke="#ed8a19", class="starry-night" %}
 ```
 
-Or you can set attributes for all icons:
+> **Note**
+>
+> Using keyword arguments as seen above might not be available in all template languages - all examples in this README are using Nunjucks, which [supports kwargs](https://mozilla.github.io/nunjucks/templating.html#keyword-arguments). You can instead provide an attributes object as the second argument (or even a JSON string of an object) like this:
+>
+> ```twig
+> {% icon "star", { "stroke": "#ed8a19", "class": "starry-night" } %}
+> ```
+>
+> or...
+>
+> ```twig
+> {% icon "star", '{ "stroke": "#ed8a19", "class": "starry-night" }' %}
+> ```
+
+You can set attributes for all icons:
 
 ```js
 {
@@ -37,7 +51,7 @@ Or you can set attributes for all icons:
 }
 ```
 
-And best of all, you can add any directory as a source for your icons, including icons from packages (in `node_modules`, see [Popular icon sets](#popular-icon-sets)).
+You can add **any directory** as a source for your icons, including icons from packages (in `node_modules`, see [Popular icon sets](#popular-icon-sets)).
 
 ## Getting started
 
