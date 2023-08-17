@@ -4,8 +4,8 @@ module.exports = (eleventyConfig) => {
 	eleventyConfig.addPlugin(pluginIcons, {
 		mode: 'inline',
 		sources: [
-			{ name: 'tabler', path: 'node_modules/@tabler/icons/icons', default: true },
-			{ name: 'custom', path: './icons' },
+			{ name: 'custom', path: './icons', default: true },
+			{ name: 'tabler', path: 'node_modules/@tabler/icons/icons' },
 		],
 		icon: {
 			attributesBySource: {

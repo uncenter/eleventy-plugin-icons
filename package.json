@@ -1,7 +1,7 @@
 {
 	"name": "eleventy-plugin-icons",
 	"version": "3.0.1",
-	"description": "A plugin for Eleventy to easily add icons to your site.",
+	"description": "A plugin for Eleventy to add and transform icons from any icon set.",
 	"author": "uncenter (https://uncenter.dev)",
 	"repository": {
 		"type": "git",
@@ -20,7 +20,6 @@
 		"linkedom": "^0.15.1"
 	},
 	"devDependencies": {
-		"@11ty/eleventy": "^2.0.1",
 		"eslint": "^8.47.0",
 		"eslint-config-prettier": "^9.0.0",
 		"prettier": "^3.0.2"
