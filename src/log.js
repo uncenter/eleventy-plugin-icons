@@ -15,7 +15,9 @@ class Logger {
 		};
 
 		if (this.levels.includes(level)) {
-			message = `${this.prefix ? gray('<') + this.prefix + gray('>') + ' ' : ''}${colors[level](` ${level.toUpperCase()} `)} ${message}`;
+			message = `${this.prefix ? gray('[') + this.prefix + gray(']') + ' ' : ''}${colors[level](
+				` ${level.toUpperCase()} `,
+			)} ${message}`;
 			console.log(message);
 		}
 	}

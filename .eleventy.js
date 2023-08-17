@@ -1,111 +1,169 @@
 const { parseHTML } = require('linkedom');
-const { optimize, loadConfig } = require('svgo');
 
-const fs = require('fs/promises');
-const path = require('path');
+const fs = require('node:fs/promises');
+const path = require('node:path');
 const memoize = require('just-memoize');
+const merge = require('./src/merge');
 
-const { mergeOptions, reduceAttrs, attrsToString, filterArrayDuplicates, fileExists } = require('./src/utils');
+const { reduceAttrs, attrsToString, filterArrayDuplicates } = require('./src/utils');
 const { Logger } = require('./src/log');
 const log = new Logger(require('./package.json').name);
 
 const defaultOptions = {
 	mode: 'inline', // 'inline' | 'sprite'
-	sources: {}, // { [sourceName]: sourcePath, ... }
-	default: false, // sourceName | false
-	optimize: false, // true | false
-	SVGO: 'svgo.config.js', // path to SVGO config file
+	sources: [], // [ { name: '', path: '', default?: true | false }, ... ]
 	icon: {
-		shortcode: 'icon', // @string
-		delimiter: ':', // @char in specified array
+		shortcode: 'icon', // string
+		delimiter: ':', // string
+		transform: async function (content) {
+			return content;
+		},
 		class: function (name, source) {
-			// @function
 			return `icon icon-${name}`;
 		},
 		id: function (name, source) {
-			// @function
 			return `icon-${name}`;
 		},
-		insertAttributes: {}, // { [attributeName]: attributeValue, ... }
-		insertAttributesBySource: {}, // { [sourceName]: { [attributeName]: attributeValue, ... }, ... }
-		overwriteExistingAttributes: true, // true | false (replace existing attributes with attributes from class/id/insertAttributes/insertAttributesBySource)
-		ignoreNotFound: false, // true | false
+		attributes: {}, // { 'attribute': 'value', ... }
+		attributesBySource: {}, // { 'source': { 'attribute': 'value', ... }, ... }
+		overwriteExistingAttributes: true, // true | false
+		errorNotFound: true, // true | false
 	},
-	sprites: {
-		shortcode: 'spriteSheet', // @string
-		insertAttributes: {
-			// { [attributeName]: attributeValue, ... }
+	sprite: {
+		shortcode: 'spriteSheet', // string
+		attributes: {
+			// { 'attribute': 'value', ... }
 			class: 'sprite-sheet',
 			'aria-hidden': 'true',
 			xmlns: 'http://www.w3.org/2000/svg',
 		},
-		insertAll: false, // true | false | @array of source names
-		generateFile: false, // true | false | @string
+		extraIcons: {
+			all: false, // true | false
+			sources: [], // ['', '', '']
+			icons: [], // [ { name: '', source: '' }]
+		},
+		writeFile: false, // false | 'path/to/file'
 	},
 };
 
-async function optimizeWithSVGO(content, configPath) {
-	try {
-		const config = await loadConfig(configPath);
+class Icon {
+	constructor(input, options) {
+		this.options = options;
+		if (typeof input === 'object') {
+			this.name = input.name;
+			this.source = input.source;
+		} else if (typeof input === 'string') {
+			if (!input.includes(options.icon.delimiter)) {
+				const defaultSource = options.sources.find((source) => source.default === true);
+				if (defaultSource) {
+					this.name = input;
+					this.source = defaultSource.name;
+				} else {
+					log.error(`'${input}' does not contain a delimiter and no default source is set`);
+				}
+			} else {
+				const [source, icon] = input.split(options.icon.delimiter);
+				if (options.sources.find((x) => x.name === this.source)) {
+					log.error(`'${source}' is not a registered source`);
+				}
+				this.name = icon;
+				this.source = source;
+			}
+		}
+		this.path = path.join(
+			options.sources.find((source) => source.name === this.source).path,
+			`${this.name}.svg`,
+		);
+	}
+
+	name = this.name;
+	source = this.source;
+
+	content = memoize(async () => {
+		const options = this.options;
 		try {
-			const result = optimize(content, config);
-			return result.data;
-		} catch (error) {
-			throw new Error('[${pkg.name}] Error optimizing content with SVGO.');
-		}
-	} catch (error) {
-		throw new Error('[${pkg.name}] Error loading SVGO config file.');
-	}
-}
-
-function splitIconString(iconString, x) {
-	const { delimiter, defaultSource, sources } = x;
-	if (!iconString.includes(delimiter)) {
-		if (defaultSource) return { icon: iconString, source: defaultSource };
-		log.error(`Error parsing icon string: "${iconString}" does not contain a delimiter and no default source is set.`);
-	}
-	const [source, icon] = iconString.split(delimiter);
-	if (!sources[source]) {
-		log.error(`Error parsing icon string: "${source}" is not a valid source.`);
-	}
-	return { icon, source };
-}
-
-async function getIconContent({ icon, source, options }) {
-	const { sources, optimize, SVGO } = options;
-	const sourcePath = sources[source];
-	const iconPath = path.join(sourcePath, `${icon}.svg`);
-	let content;
-	try {
-		content = await fs.readFile(iconPath, 'utf-8');
-	} catch (error) {
-		if (!fileExists(iconPath)) {
-			if (!options.icon.ignoreNotFound) {
-				log.warn(`Could not read icon file "${iconPath}" from icon "${icon}" in source "${source}".`);
+			let content = await fs.readFile(this.path, 'utf-8');
+			if (!content) {
+				log.warn(
+					`icon '${this.name}' in source '${this.source}' (${this.path}) appears to be empty`,
+				);
+				content = '';
 			}
-			return '';
+			return options.icon.transform ? await options.icon.transform(content) : content;
+		} catch {
+			log[options.icon.errorNotFound ? 'error' : 'warn'](
+				`icon '${this.name}' in source '${this.source}' not found`,
+			);
 		}
-		log.error(`Could not read icon file "${iconPath}" from icon "${icon}" in source "${source}".`);
-	}
-	return optimize ? await optimizeWithSVGO(content, SVGO) : content;
+	});
 }
 
-async function getAllIcons(options) {
-	let icons = [];
-	let sources;
-	sources = options.sprites.insertAll === true ? Object.keys(options.sources) : options.sprites.insertAll;
-	if (!Array.isArray(sources)) {
-		log.error(`Error getting all icons: "insertAll" must be an array or true.`);
+class Plugin {
+	constructor(options) {
+		this.options = merge(defaultOptions, options);
 	}
-	for (let source of sources) {
-		const files = await fs.readdir(options.sources[source]);
-		for (let file of files) {
-			if (file.endsWith('.svg')) {
-				icons.push([file.replace('.svg', ''), source]);
+
+	createIcon = memoize((icon) => new Icon(icon, this.options));
+
+	createSprite = memoize(async (icons) => {
+		let symbols = '';
+		for (const icon of icons) {
+			let content = await icon.content();
+			if (content) {
+				const attributes = { id: this.options.icon.id(icon.name, icon.source) };
+				let symbol = applyAttributes(content, attributes);
+				symbol = symbol.replace(/<svg/, '<symbol').replace(/<\/svg>/, '</symbol>');
+				symbols += symbol;
 			}
 		}
-	}
-	return icons;
+		if (symbols !== '') {
+			return `<svg ${attrsToString(this.options.sprite.attributes)}><defs>${symbols}</defs></svg>`;
+		}
+		return '';
+	});
+
+	extraIcons = async function () {
+		let icons = [];
+		let sourceNames = [];
+
+		const extraIcons = this.options.sprite.extraIcons;
+
+		if (extraIcons.all === true) {
+			sourceNames.push(...this.options.sources.map((source) => source.name));
+		} else {
+			if (Array.isArray(extraIcons.sources)) {
+				extraIcons.sources.forEach((name) => {
+					const source = this.options.sources.find((source) => source.name === name);
+					if (!source) {
+						log.error(`options.extraIcons.sources: source name '${name}' is not registered`);
+					}
+					sourceNames.push(source);
+				});
+			} else if (Array.isArray(extraIcons.icons)) {
+				for (const icon of extraIcons.icons) {
+					icons.push(this.createIcon(icon));
+				}
+			}
+		}
+
+		const sources = sourceNames.map((name) =>
+			this.options.sources.find((source) => source.name === name),
+		);
+		for (const source of sources) {
+			const files = await fs.readdir(source.path);
+			for (const file of files) {
+				if (file.endsWith('.svg')) {
+					icons.push(
+						this.createIcon({
+							name: file.replace('.svg', ''),
+							source: source.name,
+						}),
+					);
+				}
+			}
+		}
+		return icons;
+	};
 }
 
 function applyAttributes(htmlstring, attributes) {
@@ -119,66 +177,55 @@ function applyAttributes(htmlstring, attributes) {
 	return element.outerHTML;
 }
 
-const buildSprites = memoize(async (icons, options) => {
-	let symbols = '';
-	for (let [icon, source] of icons) {
-		let content = await getIconContent({ icon, source, options });
-		if (content) {
-			const attributes = { id: options.icon.id(icon, source) };
-			let symbol = applyAttributes(content, attributes);
-			symbol = symbol.replace(/<svg/, '<symbol').replace(/<\/svg>/, '</symbol>');
-			symbols += symbol;
-		}
-	}
-	if (symbols !== '') {
-		return `<svg ${attrsToString(options.sprites.insertAttributes)}><defs>${symbols}</defs></svg>`;
-	}
-	return '';
-});
+module.exports = function (eleventyConfig, options = {}) {
+	this.usedIcons = [];
+	this.plugin = new Plugin(options);
+	options = this.plugin.options;
 
-module.exports = function (eleventyConfig, configuration = {}) {
-	const options = mergeOptions(defaultOptions, configuration);
-	const globals = {
-		usedIcons: [],
-		validatedSources: [],
-	};
-	if (options.default && !options.sources[options.default]) {
-		log.error(`Default source "${options.default}" not found in sources list.`);
+	const defaultSources = options.sources.filter((source) => source.default === true);
+	if (defaultSources.length > 1) {
+		log.error(`options.sources: too many default sources (max: 1)`);
+	}
+
+	const uniqueSourceNames = options.sources.map((source) => source.name);
+	if (new Set(uniqueSourceNames).length < uniqueSourceNames.length) {
+		log.error('options.sources: source names must be unique');
 	}
 
 	eleventyConfig.addAsyncShortcode(
 		options.icon.shortcode,
-		memoize(async (iconString, attrs = {}) => {
-			const { icon, source } = splitIconString(iconString, {
-				delimiter: options.icon.delimiter,
-				defaultSource: options.default,
-				sources: options.sources,
-			});
-			if (!globals.validatedSources.includes(source)) {
-				if (!options.sources[source]) {
-					log.error(`Error getting icon: "${source}" is not a valid source.`);
+		memoize(async (input, attrs = {}) => {
+			const icon = this.plugin.createIcon(input);
+			this.usedIcons.push(icon);
+
+			const content = await icon.content();
+			if (!content) return '';
+
+			switch (typeof attrs) {
+				case 'string': {
+					attrs = JSON.parse(attrs);
 				}
-				globals.validatedSources.push(source);
+				case 'object': {
+					if (attrs['__keywords'] !== undefined) {
+						delete attrs['__keywords'];
+					}
+				}
 			}
-			const iconContent = await getIconContent({ icon, source, options });
-			if (!iconContent) return '';
-			globals.usedIcons.push([icon, source]);
-			if (attrs !== {} && attrs['__keywords'] !== undefined) {
-				delete attrs['__keywords'];
-			}
-			const attributes = reduceAttrs(
-				['class', 'id'],
-				attrs,
-				{ class: options.icon.class(icon, source) },
-				options.icon.insertAttributes || {},
-				options.icon.insertAttributesBySource[source] || {},
-			);
+			const attributes = reduceAttrs({
+				keysToCombine: ['class', 'id'],
+				objects: [
+					attrs,
+					{ class: options.icon.class(icon.name, icon.source) },
+					options.icon.attributes || {},
+					options.icon.attributesBySource[icon.source] || {},
+				],
+			});
 
 			if (options.mode === 'inline') {
-				const { document } = parseHTML(iconContent);
-				const existingAttrs = document.firstChild.attributes || {};
+				const { document } = parseHTML(content);
+				const existingAttrs = document.firstChild?.attributes || {};
 				Object.entries(attributes).forEach(([key, value]) => {
-					if (existingAttrs.getNamedItem(key) && !options.icon.overrideexistingAttrs) {
+					if (existingAttrs.getNamedItem(key) && !options.icon.overwriteExistingAttributes) {
 						existingAttrs.getNamedItem(key).value += ` ${value}`;
 					} else {
 						document.firstChild.setAttribute(key, value);
@@ -188,9 +235,12 @@ module.exports = function (eleventyConfig, configuration = {}) {
 			} else if (options.mode === 'sprite') {
 				if (this.page) {
 					if (this.page.icons === undefined) this.page.icons = [];
-					if (!this.page.icons.includes(icon)) this.page.icons.push([icon, source]);
+					if (!this.page.icons.includes(icon)) this.page.icons.push(icon);
 				}
-				return `<svg ${attrsToString(attributes)}><use href="#${options.icon.id(icon, source)}"></use></svg>`;
+				return `<svg ${attrsToString(attributes)}><use href="#${options.icon.id(
+					icon.name,
+					icon.source,
+				)}"></use></svg>`;
 			}
 		}),
 	);
@@ -200,39 +250,35 @@ module.exports = function (eleventyConfig, configuration = {}) {
 		if (this.page) {
 			icons = this.page.icons || [];
 		} else {
-			icons = globals.usedIcons;
+			icons = this.usedIcons;
 		}
-		if (options.sprites.insertAll) icons = await getAllIcons(options);
+		icons.push(...(await this.plugin.extraIcons()));
 		if (icons.length === 0 || icons === undefined) return '';
 		icons = filterArrayDuplicates(icons);
-		return await buildSprites(icons, options);
+		return await this.plugin.createSprite(icons);
 	}
 
-	eleventyConfig.addShortcode(options.sprites.shortcode, async function () {
+	eleventyConfig.addShortcode(options.sprite.shortcode, async function () {
 		return await generateSpriteHTML();
 	});
 
-	if (options.sprites.generateFile !== false) {
-		eleventyConfig.on('eleventy.after', async ({ dir, runMode, outputMode }) => {
+	if (typeof options.sprite.writeFile === 'string') {
+		eleventyConfig.on('eleventy.after', async ({ dir }) => {
 			const sprite = await generateSpriteHTML();
 			if (sprite !== '') {
-				if (options.sprites.generateFile === true) {
-					spritesPath = 'sprite.svg';
-				} else {
-					if (path.parse(options.sprites.generateFile).ext !== '.svg') {
-						log.error(`Invalid sprite file name. Expected '*.svg', got '${options.sprites.generateFile}'.`);
-					}
-					spritesPath = options.sprites.generateFile;
+				const file = path.join(dir.output, options.sprite.writeFile);
+				const fileDir = path.parse(file).dir;
+				try {
+					await fs.readdir(fileDir);
+				} catch {
+					await fs.mkdir(fileDir, { recursive: true });
 				}
-				const file = path.join(dir.output, spritesPath);
-				const fileMeta = path.parse(file);
-				if (!(await fileExists(fileMeta.dir))) await fs.mkdir(fileMeta.dir, { recursive: true });
 				await fs.writeFile(file, sprite);
 			}
 		});
 	}
 
-	Object.entries(options.sources).forEach(([source, sourcePath]) => {
-		eleventyConfig.addWatchTarget(sourcePath);
+	options.sources.forEach((source) => {
+		eleventyConfig.addWatchTarget(source.path);
 	});
 };
