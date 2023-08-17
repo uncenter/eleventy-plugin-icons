@@ -5,6 +5,40 @@
 
 Add icons to your Eleventy site, made easy.
 
+Turn an [11ty shortcode](https://www.11ty.dev/docs/shortcodes/) like this:
+
+```twig
+{% icon "star" %}
+```
+
+Into an SVG like this, right in your templates:
+
+<!-- prettier-ignore -->
+```html
+<svg class="icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+```
+
+You can also change/set attributes on an icon right in the shortcode:
+
+```twig
+{% icon "star", { "stroke": "#ed8a19" } %}
+```
+
+Or you can set attributes for all icons:
+
+```js
+{
+    icon: {
+        attributes: {
+            width: "50",
+            height: "50"
+        },
+    }
+}
+```
+
+And best of all, you can add any directory as a source for your icons, including icons from packages (in `node_modules`, see [Popular icon sets](#popular-icon-sets)).
+
 ## Getting started
 
 ```sh
@@ -12,6 +46,8 @@ npm i eleventy-plugin-icons
 pnpm add eleventy-plugin-icons
 yarn add eleventy-plugin-icons
 ```
+
+To enable the plugin with 11ty, you need to add the following to your [11ty configuration file](https://www.11ty.dev/docs/config/#default-filenames).
 
 ```js
 const pluginIcons = require('eleventy-plugin-icons');
@@ -81,13 +117,15 @@ If that syntax looks too ugly for you, or if you only have one source, you can m
 { name: 'custom', path: './src/icons', default: true }
 ```
 
-There are no sources defined out of the box, but here are some popular ones for reference:
+#### Popular icon sets
 
-|                                      | Package                                                      | Icons Directory                           |
-| ------------------------------------ | ------------------------------------------------------------ | ----------------------------------------- |
-| [Tabler](https://tabler-icons.io/)   | [@tabler/icons](https://www.npmjs.com/package/@tabler/icons) | `"node_modules/@tabler/icons/icons"`      |
-| [Lucide](https://lucide.dev/)        | [lucide-static](https://www.npmjs.com/package/lucide-static) | `"node_modules/lucide-static/icons"`      |
-| [Feather](https://feathericons.com/) | [feather-icons](https://www.npmjs.com/package/feather-icons) | `"node_modules/feather-icons/dist/icons"` |
+There are no sources defined out of the box, but here are some popular icon sets for reference:
+
+|                                      | Package                                                      | Icons Directory                         |
+| ------------------------------------ | ------------------------------------------------------------ | --------------------------------------- |
+| [Tabler](https://tabler-icons.io/)   | [@tabler/icons](https://www.npmjs.com/package/@tabler/icons) | `node_modules/@tabler/icons/icons`      |
+| [Lucide](https://lucide.dev/)        | [lucide-static](https://www.npmjs.com/package/lucide-static) | `node_modules/lucide-static/icons`      |
+| [Feather](https://feathericons.com/) | [feather-icons](https://www.npmjs.com/package/feather-icons) | `node_modules/feather-icons/dist/icons` |
 
 To use icons from a package, install the package and define the source in `sources`. For example, to use a source called `tabler` that points to the icons in `node_modules/@tabler/icons/icons`:
 
