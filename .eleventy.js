@@ -9,78 +9,37 @@ const { reduceAttrs, attrsToString, filterArrayDuplicates } = require('./src/uti
 const { Logger } = require('./src/log');
 const log = new Logger(require('./package.json').name);
 
-const defaultOptions = {
-	mode: 'inline', // 'inline' | 'sprite'
-	sources: [], // [ { name: '', path: '', default?: true | false }, ... ]
-	icon: {
-		shortcode: 'icon', // string
-		delimiter: ':', // string
-		transform: async function (content) {
-			return content;
-		},
-		class: function (name, source) {
-			return `icon icon-${name}`;
-		},
-		id: function (name, source) {
-			return `icon-${name}`;
-		},
-		attributes: {}, // { 'attribute': 'value', ... }
-		attributesBySource: {}, // { 'source': { 'attribute': 'value', ... }, ... }
-		overwriteExistingAttributes: true, // true | false
-		errorNotFound: true, // true | false
-	},
-	sprite: {
-		shortcode: 'spriteSheet', // string
-		attributes: {
-			// { 'attribute': 'value', ... }
-			class: 'sprite-sheet',
-			'aria-hidden': 'true',
-			xmlns: 'http://www.w3.org/2000/svg',
-		},
-		extraIcons: {
-			all: false, // true | false
-			sources: [], // ['', '', '']
-			icons: [], // [ { name: '', source: '' }]
-		},
-		writeFile: false, // false | 'path/to/file'
-	},
-};
-
 class Icon {
 	constructor(input, options) {
-		this.options = options;
+		const defaultSource = options.sources.find((source) => source.default === true)?.name;
 		if (typeof input === 'object') {
-			this.name = input.name;
-			this.source = input.source;
+			this.name = input.name || log.error(`invalid icon name: ${JSON.stringify(input.name)}`);
+			this.source = input.source || defaultSource;
 		} else if (typeof input === 'string') {
 			if (!input.includes(options.icon.delimiter)) {
-				const defaultSource = options.sources.find((source) => source.default === true);
 				if (defaultSource) {
 					this.name = input;
-					this.source = defaultSource.name;
+					this.source = defaultSource;
 				} else {
 					log.error(`'${input}' does not contain a delimiter and no default source is set`);
 				}
 			} else {
 				const [source, icon] = input.split(options.icon.delimiter);
-				if (options.sources.find((x) => x.name === this.source)) {
-					log.error(`'${source}' is not a registered source`);
-				}
 				this.name = icon;
 				this.source = source;
 			}
+		} else {
+			log.error(`Icon constructor recieved invalid input type: '${typeof input}'`);
 		}
-		this.path = path.join(
-			options.sources.find((source) => source.name === this.source).path,
-			`${this.name}.svg`,
-		);
+		const sourceObj = options.sources.find((source) => source.name === this.source);
+		if (!sourceObj) log.error(`'${this.source}' is not a registered source`);
+		this.path = path.join(sourceObj.path, `${this.name}.svg`);
 	}
 
 	name = this.name;
 	source = this.source;
 
-	content = memoize(async () => {
-		const options = this.options;
+	content = memoize(async (options) => {
 		try {
 			let content = await fs.readFile(this.path, 'utf-8');
 			if (!content) {
@@ -100,24 +59,65 @@ class Icon {
 
 class Plugin {
 	constructor(options) {
-		this.options = merge(defaultOptions, options);
+		this.options = merge(
+			{
+				mode: 'inline', // 'inline' | 'sprite'
+				sources: [], // [ { name: '', path: '', default?: true | false }, ... ]
+				icon: {
+					shortcode: 'icon', // string
+					delimiter: ':', // string
+					transform: async function (content) {
+						return content;
+					},
+					class: function (name, source) {
+						return `icon icon-${name}`;
+					},
+					id: function (name, source) {
+						return `icon-${name}`;
+					},
+					attributes: {}, // { 'attribute': 'value', ... }
+					attributesBySource: {}, // { 'source': { 'attribute': 'value', ... }, ... }
+					overwriteExistingAttributes: true, // true | false
+					errorNotFound: true, // true | false
+				},
+				sprite: {
+					shortcode: 'spriteSheet', // string
+					attributes: {
+						// { 'attribute': 'value', ... }
+						class: 'sprite-sheet',
+						'aria-hidden': 'true',
+						xmlns: 'http://www.w3.org/2000/svg',
+					},
+					extraIcons: {
+						all: false, // true | false
+						sources: [], // ['', '', '']
+						icons: [], // [ { name: '', source: '' }]
+					},
+					writeFile: false, // false | 'path/to/file'
+				},
+			},
+			options,
+		);
 	}
 
 	createIcon = memoize((icon) => new Icon(icon, this.options));
 
 	createSprite = memoize(async (icons) => {
-		let symbols = '';
+		const symbols = [];
 		for (const icon of icons) {
-			let content = await icon.content();
+			const content = await icon.content(this.options);
 			if (content) {
 				const attributes = { id: this.options.icon.id(icon.name, icon.source) };
-				let symbol = applyAttributes(content, attributes);
-				symbol = symbol.replace(/<svg/, '<symbol').replace(/<\/svg>/, '</symbol>');
-				symbols += symbol;
+				const symbol = applyAttributes(content, attributes)
+					.replace(/<svg/, '<symbol')
+					.replace(/<\/svg>/, '</symbol>');
+				symbols.push(symbol);
 			}
 		}
-		if (symbols !== '') {
-			return `<svg ${attrsToString(this.options.sprite.attributes)}><defs>${symbols}</defs></svg>`;
+		if (symbols.length > 0) {
+			return `<svg ${attrsToString(this.options.sprite.attributes)}><defs>${symbols.join(
+				'',
+			)}</defs></svg>`;
 		}
 		return '';
 	});
@@ -182,15 +182,11 @@ module.exports = function (eleventyConfig, options = {}) {
 	this.plugin = new Plugin(options);
 	options = this.plugin.options;
 
-	const defaultSources = options.sources.filter((source) => source.default === true);
-	if (defaultSources.length > 1) {
-		log.error(`options.sources: too many default sources (max: 1)`);
-	}
+	if (options.sources.filter((source) => source.default === true).length > 1)
+		log.error(`options.sources: too many default sources`);
 
-	const uniqueSourceNames = options.sources.map((source) => source.name);
-	if (new Set(uniqueSourceNames).length < uniqueSourceNames.length) {
+	if ([...new Set(options.sources.map((source) => source.name))].length !== options.sources.length)
 		log.error('options.sources: source names must be unique');
-	}
 
 	eleventyConfig.addAsyncShortcode(
 		options.icon.shortcode,
@@ -198,7 +194,7 @@ module.exports = function (eleventyConfig, options = {}) {
 			const icon = this.plugin.createIcon(input);
 			this.usedIcons.push(icon);
 
-			const content = await icon.content();
+			const content = await icon.content(options);
 			if (!content) return '';
 
 			switch (typeof attrs) {
