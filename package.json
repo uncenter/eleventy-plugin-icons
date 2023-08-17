@@ -13,7 +13,7 @@
 		"eleventy-plugin"
 	],
 	"license": "MIT",
-	"main": "index.js",
+	"main": ".eleventy.js",
 	"dependencies": {
 		"just-memoize": "^2.2.0",
 		"kleur": "^4.1.5",
