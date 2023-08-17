@@ -6,7 +6,6 @@
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^2.0.1",
-		"@tabler/icons": "^2.30.0",
 		"lucide-static": "^0.268.0"
 	},
 	"packageManager": "pnpm@8.6.12"

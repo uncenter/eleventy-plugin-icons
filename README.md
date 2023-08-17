@@ -123,19 +123,19 @@ There are no sources defined out of the box, but here are some popular icon sets
 
 |                                      | Package                                                      | Icons Directory                         |
 | ------------------------------------ | ------------------------------------------------------------ | --------------------------------------- |
-| [Tabler](https://tabler-icons.io/)   | [@tabler/icons](https://www.npmjs.com/package/@tabler/icons) | `node_modules/@tabler/icons/icons`      |
 | [Lucide](https://lucide.dev/)        | [lucide-static](https://www.npmjs.com/package/lucide-static) | `node_modules/lucide-static/icons`      |
+| [Tabler](https://tabler-icons.io/)   | [@tabler/icons](https://www.npmjs.com/package/@tabler/icons) | `node_modules/@tabler/icons/icons`      |
 | [Feather](https://feathericons.com/) | [feather-icons](https://www.npmjs.com/package/feather-icons) | `node_modules/feather-icons/dist/icons` |
 
-To use icons from a package, install the package and define the source in `sources`. For example, to use a source called `tabler` that points to the icons in `node_modules/@tabler/icons/icons`:
+To use icons from a package, install the package and define the source in `sources`. For example, to use a source called `lucide` that points to the icons in `node_modules/lucide-static/icons`:
 
 ```sh
-npm i @tabler/icons
+npm i lucide-static
 ```
 
 ```js
 {
-    sources: [{ name: 'tabler', path: 'node_modules/@tabler/icons/icons' }],
+    sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
 }
 ```
 

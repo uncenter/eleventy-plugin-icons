@@ -5,13 +5,10 @@ module.exports = (eleventyConfig) => {
 		mode: 'inline',
 		sources: [
 			{ name: 'custom', path: './icons', default: true },
-			{ name: 'tabler', path: 'node_modules/@tabler/icons/icons' },
+			{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
 		],
 		icon: {
 			attributesBySource: {
-				tabler: {
-					class: 'this-icon-is-from-tabler',
-				},
 				custom: {
 					class: 'custom-icon',
 				},
@@ -21,7 +18,7 @@ module.exports = (eleventyConfig) => {
 		sprite: {
 			writeFile: 'path/to/assets/sprite',
 			extraIcons: {
-				icons: [{ name: '2fa', source: 'tabler' }],
+				icons: [{ name: 'apple', source: 'lucide' }],
 			},
 		},
 	});

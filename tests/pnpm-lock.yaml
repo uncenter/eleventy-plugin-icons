@@ -8,9 +8,6 @@ dependencies:
   '@11ty/eleventy':
     specifier: ^2.0.1
     version: 2.0.1
-  '@tabler/icons':
-    specifier: ^2.30.0
-    version: 2.30.0
   lucide-static:
     specifier: ^0.268.0
     version: 0.268.0
@@ -170,10 +167,6 @@ packages:
     dependencies:
       escape-string-regexp: 2.0.0
       lodash.deburr: 4.1.0
-    dev: false
-
-  /@tabler/icons@2.30.0:
-    resolution: {integrity: sha512-tvtmkI4ALjKThVVORh++sB9JnkFY7eGInKxNy+Df7WVQiF7T85tlvGADzlgX4Ic+CK5MIUzZ0jhOlQ/RRlgXpg==}
     dev: false
 
   /@types/minimatch@3.0.5:
