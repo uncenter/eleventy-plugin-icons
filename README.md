@@ -26,13 +26,13 @@ You can change/set attributes for an icon right in the shortcode:
 
 > **Note**
 >
-> Using keyword arguments as seen above might not be available in all template languages - all examples in this README are using Nunjucks, which [supports kwargs](https://mozilla.github.io/nunjucks/templating.html#keyword-arguments). You can instead provide an attributes object as the second argument (or even a JSON string of an object) like this:
+> Using keyword arguments as seen above might not be available in all template languages - all examples in this README are using Nunjucks, which [supports kwargs](https://mozilla.github.io/nunjucks/templating.html#keyword-arguments). You can instead provide an attributes object as the second argument like this:
 >
 > ```twig
 > {% icon "star", { "stroke": "#ed8a19", "class": "starry-night" } %}
 > ```
 >
-> or...
+> or even a JSON string of an object:
 >
 > ```twig
 > {% icon "star", '{ "stroke": "#ed8a19", "class": "starry-night" }' %}
