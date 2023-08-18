@@ -36,33 +36,30 @@ class Icon {
 		 */
 		this.path;
 
-		// Find default source from options.sources.
-		const defaultSource = options.sources.find((source) => source.default === true)?.name;
 		if (typeof input === 'object') {
 			this.name = input.name;
-			if (!this.name) log.error(`Invalid icon name: ${JSON.stringify(this.name)}`);
-			this.source = input.source || defaultSource;
-			if (!this.source) log.error(`No default source is set`);
+			this.source = input.source;
 		} else if (typeof input === 'string') {
 			if (!input.includes(options.icon.delimiter)) {
-				if (defaultSource) {
-					this.name = input;
-					this.source = defaultSource;
-				} else {
-					log.error(`Icon '${input}' lacks a delimiter and no default source is set`);
-				}
+				this.name = input;
+				this.source =
+					options.sources.find((source) => source.default === true)?.name ||
+					log.error(`Icon '${input}' lacks a delimiter and no default source is set.`);
 			} else {
 				const [source, icon] = input.split(options.icon.delimiter);
 				this.name = icon;
 				this.source = source;
 			}
 		} else {
-			log.error(`Invalid input type for Icon constructor: '${typeof input}'`);
+			log.error(`Invalid input type for Icon constructor: '${typeof input}'.`);
 		}
-		// Find the actual source object in options.sources based on the this.source name.
-		const sourceObj = options.sources.find((source) => source.name === this.source);
-		if (!sourceObj) log.error(`Icon source '${this.source}' is not defined in options.sources`);
-		this.path = path.join(sourceObj.path, `${this.name}.svg`);
+
+		const sourceObject = options.sources.find((source) => source.name === this.source);
+		if (sourceObject) {
+			this.path = path.join(sourceObject.path, `${this.name}.svg`);
+		} else {
+			log.error(`Source '${this.source}' is not defined in options.sources.`);
+		}
 	}
 
 	/**
@@ -76,16 +73,12 @@ class Icon {
 		try {
 			let content = await fs.readFile(this.path, 'utf-8');
 			if (!content) {
-				log.warn(
-					`Icon '${this.name}' in source '${this.source}' (${this.path}) appears to be empty`,
-				);
+				log.warn(`Icon ${JSON.stringify(this)} appears to be empty.`);
 				content = '';
 			}
 			return options.icon.transform ? await options.icon.transform(content) : content;
 		} catch {
-			log[options.icon.errorNotFound ? 'error' : 'warn'](
-				`Icon '${this.name}' in source '${this.source}' not found`,
-			);
+			log[options.icon.errorNotFound ? 'error' : 'warn'](`Icon ${JSON.stringify(this)} not found.`);
 		}
 	});
 }
@@ -97,7 +90,7 @@ class Plugin {
 	/**
 	 * Creates an instance of the Plugin class.
 	 * @param {object} options - Plugin configuration options.
-	 * @param {string} options.mode - The mode of the plugin ('inline' or 'sprite').
+	 * @param {'inline'|'sprite'} options.mode - The mode of the plugin ('inline' or 'sprite').
 	 * @param {Array<object>} options.sources - List of icon sources.
 	 * @param {object} options.icon - Configuration options for individual icons.
 	 * @param {string} options.icon.shortcode - Shortcode for icons.
@@ -116,7 +109,7 @@ class Plugin {
 	 * @param {boolean} options.sprite.extraIcons.all - Whether to include all sources for extra icons.
 	 * @param {Array<string>} options.sprite.extraIcons.sources - List of source names for extra icons.
 	 * @param {Array<object>} options.sprite.extraIcons.icons - List of additional icons.
-	 * @param {boolean|string} options.sprite.writeFile - Whether to write sprite sheet to a file.
+	 * @param {false|string} options.sprite.writeFile - Whether to write sprite sheet to a file.
 	 */
 	constructor(options) {
 		this.options = merge(
@@ -168,16 +161,16 @@ class Plugin {
 	createIcon = memoize((icon) => new Icon(icon, this.options));
 
 	/**
-	 * Generates a sprite sheet with memoized icon content.
+	 * Generates a sprite sheet with symbol definitions.
 	 * @param {Array<Icon>} icons - List of icons to include in the sprite sheet.
 	 * @returns {Promise<string>} A string representing the generated sprite sheet.
 	 */
 	generateSprite = memoize(async (icons) => {
-		const uniqueIcons = [...new Set(icons || [])];
-
+		// Create an array of promises that generate symbol definitions for each icon.
 		const symbols = await Promise.all(
-			uniqueIcons.map(async (icon) => {
+			[...new Set(icons || [])].map(async (icon) => {
 				const content = await icon.content(this.options);
+				// If content exists, convert it to a symbol element and add attributes.
 				if (content) {
 					return addAttributesToSVG(
 						content,
@@ -191,12 +184,13 @@ class Plugin {
 			}),
 		);
 
+		// Combine the generated symbol strings and filter out empty ones.
 		const symbolsString = symbols.filter(Boolean).join('');
 		return symbolsString
 			? `<svg ${attributesToString(
 					this.options.sprite.attributes,
 			  )}><defs>${symbolsString}</defs></svg>`
-			: '';
+			: ''; // Return an empty string if no symbols were generated.
 	});
 
 	/**
@@ -205,36 +199,34 @@ class Plugin {
 	 */
 	extraIcons = async function () {
 		let icons = [];
-		let sourceNames = [];
+		let sources = [];
 
 		const extraIcons = this.options.sprite.extraIcons;
 
 		if (extraIcons.all === true) {
-			sourceNames.push(...this.options.sources.map((source) => source.name));
+			sources.push(...this.options.sources);
 		} else {
 			if (Array.isArray(extraIcons.sources)) {
 				extraIcons.sources.forEach((name) => {
 					const source = this.options.sources.find((source) => source.name === name);
 					if (!source) {
 						log.error(
-							`options.extraIcons.sources: source '${name}' is not defined in options.sources`,
+							`options.sprite.extraIcons.sources: Source '${name}' is not defined in options.sources.`,
 						);
 					}
-					sourceNames.push(source);
+					sources.push(source);
 				});
 			} else if (Array.isArray(extraIcons.icons)) {
 				for (const icon of extraIcons.icons) {
+					if (!icon.name || !icon.source)
+						log.error(`options.sprite.extraIcons.icons: Invalid icon: ${JSON.stringify(icon)}.`);
 					icons.push(this.createIcon(icon));
 				}
 			}
 		}
 
-		const sources = sourceNames.map((name) =>
-			this.options.sources.find((source) => source.name === name),
-		);
 		for (const source of sources) {
-			const files = await fs.readdir(source.path);
-			for (const file of files) {
+			for (const file of await fs.readdir(source.path)) {
 				if (file.endsWith('.svg')) {
 					icons.push(
 						this.createIcon({
@@ -254,10 +246,10 @@ module.exports = function (eleventyConfig, options = {}) {
 	options = this.options;
 
 	if (options.sources.filter((source) => source.default === true).length > 1)
-		log.error(`options.sources: too many default sources`);
+		log.error(`options.sources: Only one default source is allowed.`);
 
 	if ([...new Set(options.sources.map((source) => source.name))].length !== options.sources.length)
-		log.error('options.sources: source names must be unique');
+		log.error('options.sources: Source names must be unique.');
 
 	eleventyConfig.addAsyncShortcode(
 		options.icon.shortcode,
@@ -271,7 +263,7 @@ module.exports = function (eleventyConfig, options = {}) {
 
 			switch (typeof attrs) {
 				case 'string': {
-					attrs = JSON.parse(attrs);
+					attrs = JSON.parse(attrs || {});
 				}
 				case 'object': {
 					// Nunjucks inserts an __keywords key when kwargs are used (https://github.com/mozilla/nunjucks/blob/ea0d6d5396d39d9eed1b864febb36fbeca908f23/nunjucks/src/runtime.js#L123).
