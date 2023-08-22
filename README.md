@@ -24,8 +24,7 @@ You can change/set attributes for an icon right in the shortcode:
 {% icon "star", stroke="#ed8a19", class="starry-night" %}
 ```
 
-> **Note**
->
+> [!WARNING]
 > Using keyword arguments as seen above might not be available in all template languages - all examples in this README are using Nunjucks, which [supports kwargs](https://mozilla.github.io/nunjucks/templating.html#keyword-arguments). You can instead provide an attributes object as the second argument like this:
 >
 > ```twig
@@ -198,8 +197,7 @@ The `mode` option can be either `inline` or `sprite`. If `inline` is used, the `
 
 ### sources
 
-> **Note**
->
+> [!NOTE]
 > See [Adding a source](#adding-a-source).
 
 The `sources` option is an array of source objects; `[{ name: '', path: '', default?: true | false }]`. The source name is used in the shortcode (e.g. the word `custom` in `custom:my-icon`), and the path is the directory of the SVGs.
