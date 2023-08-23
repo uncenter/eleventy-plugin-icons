@@ -13,6 +13,12 @@
 		"eleventy-plugin"
 	],
 	"license": "MIT",
+	"files": [
+		"LICENSE",
+		"README.md",
+		"src/",
+		".eleventy.js"
+	],
 	"main": ".eleventy.js",
 	"dependencies": {
 		"fast-xml-parser": "^4.2.7",
