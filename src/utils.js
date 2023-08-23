@@ -1,4 +1,7 @@
-const { parseHTML } = require('linkedom');
+const { XMLParser, XMLBuilder } = require('fast-xml-parser');
+
+const { Logger } = require('./log');
+const log = new Logger(require('../package.json').name);
 
 /**
  * Recursively merges two objects, prioritizing values from the second object (`b`)
@@ -43,7 +46,7 @@ function combineAttributes(keysToCombine, objects) {
 
 		// Overwrite/set non-combined keys.
 		Object.keys(object).forEach((key) => {
-			if (!(key in keysToCombine)) {
+			if (!keysToCombine.includes(key)) {
 				acc[key] = object[key];
 			}
 		});
@@ -64,44 +67,72 @@ function attributesToString(attrs) {
 		.join(' ');
 }
 
+const parser = new XMLParser({
+	ignoreAttributes: false,
+	ignoreDeclaration: true,
+	commentPropName: '#comment',
+	preserveOrder: true,
+});
+const builder = new XMLBuilder({
+	ignoreAttributes: false,
+	commentPropName: '#comment',
+	preserveOrder: true,
+	format: true,
+	suppressEmptyNode: true,
+	unpairedTags: ['hr', 'br', 'link', 'meta'],
+});
+
 /**
- * Adds attributes to an SVG string and returns the modified SVG string.
+ * Parses an SVG string, merges given attributes with existing ones, and returns the modified SVG string.
  *
- * @param {string} svg - The raw SVG string to which attributes will be added.
+ * @param {string} raw - The raw SVG string.
  * @param {Object.<string, string>} attributes - The attributes to be added or combined.
  * @param {boolean} overwrite - Flag indicating whether to overwrite existing attributes.
- * @returns {string} The modified SVG string with added attributes.
+ * @returns {string} The modified SVG string.
  */
-function addAttributesToSVG(svg, attributes, overwrite) {
-	const { document } = parseHTML(svg);
+function parseSVG(raw, attributes, overwrite) {
+	const parsed = parser.parse(raw);
+	let svg;
+	let existingAttributes = {};
+	for (const node of parsed) {
+		if ('svg' in node) {
+			svg = node.svg;
 
-	// Extract existing attributes from the SVG into an object.
-	const existingAttributes = Object.fromEntries(
-		Array.from(document.firstChild?.attributes || {}).map((attr) => [attr.name, attr.value]),
-	);
+			if (':@' in node) {
+				existingAttributes = node[':@'];
+				existingAttributes = Object.keys(existingAttributes).reduce((acc, key) => {
+					acc[key.replace(/^@_/, '')] = existingAttributes[key];
+					return acc;
+				}, {});
+			}
 
-	Object.entries(
-		combineAttributes(
-			// Combine given attributes with existing ones depending on `overwrite`.
-			overwrite
-				? // Overwrite all:
-				  []
-				: // Combine all:
-				  [...new Set([existingAttributes, attributes].flatMap((obj) => Object.keys(obj)))],
-			// Existing attributes will be overwritten by newer ones because `attributes` is after `existingAttributes`.
-			[existingAttributes, attributes],
-		),
-	).forEach(([key, value]) => {
-		// // Set/overwrite attributes on the SVG.
-		document.firstChild.setAttribute(key, value);
-	});
+			let newAttributes = combineAttributes(
+				// Combine given attributes with existing ones depending on `overwrite`.
+				overwrite
+					? // Overwrite all:
+					  []
+					: // Combine all:
+					  [...new Set([existingAttributes, attributes].flatMap((obj) => Object.keys(obj)))],
+				// Existing attributes will be overwritten by newer ones because `attributes` is after `existingAttributes`.
+				[existingAttributes, attributes],
+			);
 
-	return document.firstChild.outerHTML;
+			node[':@'] = Object.keys(newAttributes).reduce((acc, key) => {
+				acc['@_' + key] = newAttributes[key];
+				return acc;
+			}, {});
+
+			break;
+		}
+	}
+	if (!svg) log.error('No SVG element found.');
+
+	return builder.build(parsed);
 }
 
 module.exports = {
 	merge,
 	combineAttributes,
 	attributesToString,
-	addAttributesToSVG,
+	parseSVG,
 };

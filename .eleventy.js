@@ -2,7 +2,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const memoize = require('just-memoize');
 
-const { merge, combineAttributes, attributesToString, addAttributesToSVG } = require('./src/utils');
+const { merge, combineAttributes, attributesToString, parseSVG } = require('./src/utils');
 const { Logger } = require('./src/log');
 
 const log = new Logger(require('./package.json').name);
@@ -172,11 +172,7 @@ class Plugin {
 				const content = await icon.content(this.options);
 				// If content exists, convert it to a symbol element and add attributes.
 				if (content) {
-					return addAttributesToSVG(
-						content,
-						{ id: this.options.icon.id(icon.name, icon.source) },
-						true,
-					)
+					return parseSVG(content, { id: this.options.icon.id(icon.name, icon.source) }, true)
 						.replace(/<svg/, '<symbol')
 						.replace(/<\/svg>/, '</symbol>');
 				}
@@ -284,7 +280,7 @@ module.exports = function (eleventyConfig, options = {}) {
 			);
 
 			if (options.mode === 'inline') {
-				return addAttributesToSVG(content, attributes, options.icon.overwriteExistingAttributes);
+				return parseSVG(content, attributes, options.icon.overwriteExistingAttributes);
 			} else if (options.mode === 'sprite') {
 				return `<svg ${attributesToString(attributes)}><use href="#${options.icon.id(
 					icon.name,

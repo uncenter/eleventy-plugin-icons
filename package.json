@@ -15,9 +15,9 @@
 	"license": "MIT",
 	"main": ".eleventy.js",
 	"dependencies": {
+		"fast-xml-parser": "^4.2.7",
 		"just-memoize": "^2.2.0",
-		"kleur": "^4.1.5",
-		"linkedom": "^0.15.1"
+		"kleur": "^4.1.5"
 	},
 	"devDependencies": {
 		"eslint": "^8.47.0",
