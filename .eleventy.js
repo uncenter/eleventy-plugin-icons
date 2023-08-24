@@ -4,8 +4,8 @@ const memoize = require('just-memoize');
 const extend = require('just-extend');
 
 const { combineAttributes, attributesToString, parseSVG } = require('./src/utils');
-const { Logger } = require('./src/log');
 
+const { Logger } = require('loogu');
 const log = new Logger(require('./package.json').name);
 
 /**

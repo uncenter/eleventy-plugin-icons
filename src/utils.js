@@ -1,6 +1,6 @@
 const { XMLParser, XMLBuilder } = require('fast-xml-parser');
 
-const { Logger } = require('./log');
+const { Logger } = require('loogu');
 const log = new Logger(require('../package.json').name);
 
 /**

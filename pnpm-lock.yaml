@@ -17,6 +17,9 @@ dependencies:
   kleur:
     specifier: ^4.1.5
     version: 4.1.5
+  loogu:
+    specifier: ^0.1.1
+    version: 0.1.1
 
 devDependencies:
   eslint:
@@ -516,6 +519,12 @@ packages:
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
+
+  /loogu@0.1.1:
+    resolution: {integrity: sha512-/y39Muiq7x/U9NXe51/4nDWchtcdmIbwiIfx0hVJY+D9hDgcrXv+pRCpn1KHt/A8bK4KwLm3IpUIIHR9iAoQgQ==}
+    dependencies:
+      kleur: 4.1.5
+    dev: false
 
   /minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
