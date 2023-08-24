@@ -4,30 +4,6 @@ const { Logger } = require('./log');
 const log = new Logger(require('../package.json').name);
 
 /**
- * Recursively merges two objects, prioritizing values from the second object (`b`)
- * when keys exist in both objects. If a value is an object (excluding arrays),
- * the function will perform a deep merge.
- *
- * @param {Object} a - The base object to be merged.
- * @param {Object} [b={}] - The object with values to merge into the base object.
- * @returns {Object} - A new object containing the merged properties from both objects.
- */
-function merge(a, b = {}) {
-	return Object.entries(a).reduce((acc, [key, value]) => {
-		if (key in b) {
-			if (typeof value === 'object' && !Array.isArray(value)) {
-				acc[key] = merge(value, b[key]);
-			} else {
-				acc[key] = b[key];
-			}
-		} else {
-			acc[key] = value;
-		}
-		return acc;
-	}, {});
-}
-
-/**
  * Combines specified attributes from an array of attribute objects and overwrite/set the rest,
  * creating a new object with the attributes.
  *
@@ -131,7 +107,6 @@ function parseSVG(raw, attributes, overwrite) {
 }
 
 module.exports = {
-	merge,
 	combineAttributes,
 	attributesToString,
 	parseSVG,

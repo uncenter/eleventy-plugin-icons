@@ -1,8 +1,9 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const memoize = require('just-memoize');
+const extend = require('just-extend');
 
-const { merge, combineAttributes, attributesToString, parseSVG } = require('./src/utils');
+const { combineAttributes, attributesToString, parseSVG } = require('./src/utils');
 const { Logger } = require('./src/log');
 
 const log = new Logger(require('./package.json').name);
@@ -112,44 +113,42 @@ class Plugin {
 	 * @param {false|string} options.sprite.writeFile - Whether to write sprite sheet to a file.
 	 */
 	constructor(options) {
-		this.options = merge(
-			{
-				mode: 'inline',
-				sources: [],
-				icon: {
-					shortcode: 'icon',
-					delimiter: ':',
-					transform: async function (content) {
-						return content;
-					},
-					class: function (name, source) {
-						return `icon icon-${name}`;
-					},
-					id: function (name, source) {
-						return `icon-${name}`;
-					},
-					attributes: {},
-					attributesBySource: {},
-					overwriteExistingAttributes: true,
-					errorNotFound: true,
+		const defaultOptions = {
+			mode: 'inline',
+			sources: [],
+			icon: {
+				shortcode: 'icon',
+				delimiter: ':',
+				transform: async function (content) {
+					return content;
 				},
-				sprite: {
-					shortcode: 'spriteSheet',
-					attributes: {
-						class: 'sprite-sheet',
-						'aria-hidden': 'true',
-						xmlns: 'http://www.w3.org/2000/svg',
-					},
-					extraIcons: {
-						all: false,
-						sources: [],
-						icons: [],
-					},
-					writeFile: false,
+				class: function (name, source) {
+					return `icon icon-${name}`;
 				},
+				id: function (name, source) {
+					return `icon-${name}`;
+				},
+				attributes: {},
+				attributesBySource: {},
+				overwriteExistingAttributes: true,
+				errorNotFound: true,
 			},
-			options,
-		);
+			sprite: {
+				shortcode: 'spriteSheet',
+				attributes: {
+					class: 'sprite-sheet',
+					'aria-hidden': 'true',
+					xmlns: 'http://www.w3.org/2000/svg',
+				},
+				extraIcons: {
+					all: false,
+					sources: [],
+					icons: [],
+				},
+				writeFile: false,
+			},
+		};
+		this.options = extend(true, defaultOptions, options);
 		this.usedIcons = [];
 	}
 
