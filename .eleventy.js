@@ -9,6 +9,69 @@ const { Logger } = require('./src/log');
 const log = new Logger(require('./package.json').name);
 
 /**
+ * @typedef {Object} PluginOptions
+ * @property {'inline'|'sprite'} mode - The mode of the plugin.
+ * @property {Array<{ name: string, path: string, default?: boolean }>} sources - List of icon sources.
+ * @property {Object} icon - Configuration options for individual icons.
+ * @property {string} icon.shortcode - Shortcode for icons.
+ * @property {string} icon.delimiter - Delimiter used for icons.
+ * @property {Function} icon.transform - Async function to transform icon content.
+ * @property {Function} icon.class - Function to generate icon class names.
+ * @property {Function} icon.id - Function to generate icon IDs.
+ * @property {Object.<string, string>} icon.attributes - Default attributes for icons.
+ * @property {Object.<string, Object.<string, string>>} icon.attributesBySource - Icon attributes by source.
+ * @property {boolean} icon.overwriteExistingAttributes - Whether to overwrite existing attributes.
+ * @property {boolean} icon.errorNotFound - Whether to show an error when an icon is not found.
+ * @property {Object} sprite - Configuration options for sprite sheet generation.
+ * @property {string} sprite.shortcode - Shortcode for sprite sheets.
+ * @property {Object.<string, string>} sprite.attributes - Default attributes for sprite sheets.
+ * @property {Object} sprite.extraIcons - Extra icons configuration.
+ * @property {boolean} sprite.extraIcons.all - Whether to include all sources for extra icons.
+ * @property {Array<string>} sprite.extraIcons.sources - List of source names for extra icons.
+ * @property {Array<{ name: string, source: string }>} sprite.extraIcons.icons - List of additional icons.
+ * @property {false|string} sprite.writeFile - Whether to write sprite sheet to a file.
+ */
+
+/**
+ * @type {PluginOptions}
+ */
+const defaultOptions = {
+	mode: 'inline',
+	sources: [],
+	icon: {
+		shortcode: 'icon',
+		delimiter: ':',
+		transform: async function (content) {
+			return content;
+		},
+		class: function (name, source) {
+			return `icon icon-${name}`;
+		},
+		id: function (name, source) {
+			return `icon-${name}`;
+		},
+		attributes: {},
+		attributesBySource: {},
+		overwriteExistingAttributes: true,
+		errorNotFound: true,
+	},
+	sprite: {
+		shortcode: 'spriteSheet',
+		attributes: {
+			class: 'sprite-sheet',
+			'aria-hidden': 'true',
+			xmlns: 'http://www.w3.org/2000/svg',
+		},
+		extraIcons: {
+			all: false,
+			sources: [],
+			icons: [],
+		},
+		writeFile: false,
+	},
+};
+
+/**
  * Represents an icon.
  */
 class Icon {
@@ -16,7 +79,7 @@ class Icon {
 	 * Create a new Icon instance.
 	 *
 	 * @param {Object|string} input - The icon information, either as an object or a string.
-	 * @param {Object} options - Plugin options.
+	 * @param {PluginOptions} options - Plugin options.
 	 */
 	constructor(input, options) {
 		/**
@@ -67,21 +130,28 @@ class Icon {
 	 * Retrieves the content of the SVG icon.
 	 *
 	 * @async
-	 * @param {Object} options - Plugin options.
+	 * @param {PluginOptions} options - Plugin options.
 	 * @returns {Promise<string>} The SVG content of the icon.
 	 */
-	content = memoize(async (options) => {
-		try {
-			let content = await fs.readFile(this.path, 'utf-8');
-			if (!content) {
-				log.warn(`Icon ${JSON.stringify(this)} appears to be empty.`);
-				content = '';
+	content = memoize(
+		/**
+		 * @param {PluginOptions} options
+		 */
+		async (options) => {
+			try {
+				let content = await fs.readFile(this.path, 'utf-8');
+				if (!content) {
+					log.warn(`Icon ${JSON.stringify(this)} appears to be empty.`);
+					content = '';
+				}
+				return options.icon.transform ? await options.icon.transform(content) : content;
+			} catch {
+				log[options.icon.errorNotFound ? 'error' : 'warn'](
+					`Icon ${JSON.stringify(this)} not found.`,
+				);
 			}
-			return options.icon.transform ? await options.icon.transform(content) : content;
-		} catch {
-			log[options.icon.errorNotFound ? 'error' : 'warn'](`Icon ${JSON.stringify(this)} not found.`);
-		}
-	});
+		},
+	);
 }
 
 /**
@@ -90,109 +160,62 @@ class Icon {
 class Plugin {
 	/**
 	 * Creates an instance of the Plugin class.
-	 * @param {object} options - Plugin configuration options.
-	 * @param {'inline'|'sprite'} options.mode - The mode of the plugin ('inline' or 'sprite').
-	 * @param {Array<object>} options.sources - List of icon sources.
-	 * @param {object} options.icon - Configuration options for individual icons.
-	 * @param {string} options.icon.shortcode - Shortcode for icons.
-	 * @param {string} options.icon.delimiter - Delimiter used for icons.
-	 * @param {Function} options.icon.transform - Async function to transform icon content.
-	 * @param {Function} options.icon.class - Function to generate icon class names.
-	 * @param {Function} options.icon.id - Function to generate icon IDs.
-	 * @param {object} options.icon.attributes - Default attributes for icons.
-	 * @param {object} options.icon.attributesBySource - Icon attributes by source.
-	 * @param {boolean} options.icon.overwriteExistingAttributes - Whether to overwrite existing attributes.
-	 * @param {boolean} options.icon.errorNotFound - Whether to show an error when an icon is not found.
-	 * @param {object} options.sprite - Configuration options for sprite sheet generation.
-	 * @param {string} options.sprite.shortcode - Shortcode for sprite sheets.
-	 * @param {object} options.sprite.attributes - Default attributes for sprite sheets.
-	 * @param {object} options.sprite.extraIcons - Extra icons configuration.
-	 * @param {boolean} options.sprite.extraIcons.all - Whether to include all sources for extra icons.
-	 * @param {Array<string>} options.sprite.extraIcons.sources - List of source names for extra icons.
-	 * @param {Array<object>} options.sprite.extraIcons.icons - List of additional icons.
-	 * @param {false|string} options.sprite.writeFile - Whether to write sprite sheet to a file.
+	 * @param {PluginOptions} options - Plugin configuration options.
 	 */
 	constructor(options) {
-		const defaultOptions = {
-			mode: 'inline',
-			sources: [],
-			icon: {
-				shortcode: 'icon',
-				delimiter: ':',
-				transform: async function (content) {
-					return content;
-				},
-				class: function (name, source) {
-					return `icon icon-${name}`;
-				},
-				id: function (name, source) {
-					return `icon-${name}`;
-				},
-				attributes: {},
-				attributesBySource: {},
-				overwriteExistingAttributes: true,
-				errorNotFound: true,
-			},
-			sprite: {
-				shortcode: 'spriteSheet',
-				attributes: {
-					class: 'sprite-sheet',
-					'aria-hidden': 'true',
-					xmlns: 'http://www.w3.org/2000/svg',
-				},
-				extraIcons: {
-					all: false,
-					sources: [],
-					icons: [],
-				},
-				writeFile: false,
-			},
-		};
+		/**
+		 * @type {PluginOptions}
+		 */
 		this.options = extend(true, defaultOptions, options);
 		this.usedIcons = [];
 	}
 
 	/**
 	 * Creates an Icon instance with memoization.
-	 * @param {object} icon - Icon configuration.
+	 * @param {Object|string} icon
 	 * @returns {Icon} An instance of the Icon class.
 	 */
 	createIcon = memoize((icon) => new Icon(icon, this.options));
 
 	/**
 	 * Generates a sprite sheet with symbol definitions.
-	 * @param {Array<Icon>} icons - List of icons to include in the sprite sheet.
+	 * @param {Array<Icon>} icons
 	 * @returns {Promise<string>} A string representing the generated sprite sheet.
 	 */
-	generateSprite = memoize(async (icons) => {
-		// Create an array of promises that generate symbol definitions for each icon.
-		const symbols = await Promise.all(
-			[...new Set(icons || [])].map(async (icon) => {
-				const content = await icon.content(this.options);
-				// If content exists, convert it to a symbol element and add attributes.
-				if (content) {
-					return parseSVG(content, { id: this.options.icon.id(icon.name, icon.source) }, true)
-						.replace(/<svg/, '<symbol')
-						.replace(/<\/svg>/, '</symbol>');
-				}
-				return '';
-			}),
-		);
+	generateSprite = memoize(
+		/**
+		 * @param {Array<Icon>} icons
+		 */
+		async (icons) => {
+			// Create an array of promises that generate symbol definitions for each icon.
+			const symbols = await Promise.all(
+				[...new Set(icons || [])].map(async (icon) => {
+					const content = await icon.content(this.options);
+					// If content exists, convert it to a symbol element and add attributes.
+					if (content) {
+						return parseSVG(content, { id: this.options.icon.id(icon.name, icon.source) }, true)
+							.replace(/<svg/, '<symbol')
+							.replace(/<\/svg>/, '</symbol>');
+					}
+					return '';
+				}),
+			);
 
-		// Combine the generated symbol strings and filter out empty ones.
-		const symbolsString = symbols.filter(Boolean).join('');
-		return symbolsString
-			? `<svg ${attributesToString(
-					this.options.sprite.attributes,
-			  )}><defs>${symbolsString}</defs></svg>`
-			: ''; // Return an empty string if no symbols were generated.
-	});
+			// Combine the generated symbol strings and filter out empty ones.
+			const symbolsString = symbols.filter(Boolean).join('');
+			return symbolsString
+				? `<svg ${attributesToString(
+						this.options.sprite.attributes,
+				  )}><defs>${symbolsString}</defs></svg>`
+				: ''; // Return an empty string if no symbols were generated.
+		},
+	);
 
 	/**
 	 * Retrieves extra icons based on configuration.
 	 * @returns {Promise<Array<Icon>>} List of extra icons.
 	 */
-	extraIcons = async function () {
+	extraIcons = async () => {
 		let icons = [];
 		let sources = [];
 
@@ -236,6 +259,11 @@ class Plugin {
 	};
 }
 
+/**
+ *
+ * @param eleventyConfig
+ * @param {PluginOptions} options
+ */
 module.exports = function (eleventyConfig, options = {}) {
 	Object.assign(this, new Plugin(options));
 	options = this.options;
