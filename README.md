@@ -50,15 +50,17 @@ You can set attributes for all icons:
 }
 ```
 
-You can add **any directory** as a source for your icons, including icons from packages (in `node_modules`, see [Popular icon sets](#popular-icon-sets)).
+You can add **any directory** as a source for your icons, including icons from NPM packages (in `node_modules`, see [Popular icon sets](#popular-icon-sets)).
 
-## Getting started
+## Install
 
 ```sh
 npm i eleventy-plugin-icons
 pnpm add eleventy-plugin-icons
 yarn add eleventy-plugin-icons
 ```
+
+## Usage
 
 To enable the plugin with 11ty, you need to add the following to your [11ty configuration file](https://www.11ty.dev/docs/config/#default-filenames).
 
@@ -72,38 +74,44 @@ module.exports = (eleventyConfig) => {
 
 To give you an idea of the level of customization this plugin offers, take a look at the base configuration. If that looks intimidating, you can [just skip to the first step](#adding-a-source).
 
+> [!NOTE]
+> Future examples of options will just be an object, like the default options object below. To edit your options, edit the `{}` object from the line:
+>
+> ```js
+> eleventyConfig.addPlugin(pluginIcons, {});
+> ```
+
 ```js
 {
-    mode: 'inline', // 'inline' | 'sprite'
-    sources: [], // [ { name: '', path: '', default?: true | false }, ... ]
+    mode: 'inline',
+    sources: [],
     icon: {
-        shortcode: 'icon', // string
-        delimiter: ':', // string
+        shortcode: 'icon',
+        delimiter: ':',
         class: function (name, source) {
             return `icon icon-${name}`;
         },
         id: function (name, source) {
             return `icon-${name}`;
         },
-        attributes: {}, // { 'attribute': 'value', ... }
-        attributesBySource: {}, // { 'source': { 'attribute': 'value', ... }, ... }
-        overwriteExistingAttributes: true, // true | false
-        errorNotFound: true, // true | false
+        attributes: {},
+        attributesBySource: {},
+        overwriteExistingAttributes: true,
+        errorNotFound: true,
     },
     sprite: {
-        shortcode: 'spriteSheet', // string
+        shortcode: 'spriteSheet',
         attributes: {
-            // { 'attribute': 'value', ... }
             class: 'sprite-sheet',
             'aria-hidden': 'true',
             xmlns: 'http://www.w3.org/2000/svg',
         },
         extraIcons: {
-            all: false, // true | false
-            sources: [], // ['', '', '']
-            icons: [], // [ { name: '', source: '' }]
+            all: false,
+            sources: [],
+            icons: [],
         },
-        writeFile: false, // false | 'path/to/file'
+        writeFile: false,
     },
 }
 ```
@@ -124,23 +132,28 @@ Now in your templates you can insert your icons using the `icon` shortcode.
 {% icon "custom:my-icon" %}
 ```
 
-If that syntax looks too ugly for you, or if you only have one source, you can make it the default source. With a default source, icons can be used like `{% icon "my-icon" %}` instead of `{% icon "custom:my-icon" %}`.
+If that syntax looks too ugly for you, or if you only have one source, you can make it the default source with `default: true`. With a default source, icons can be used like `{% icon "my-icon" %}` instead of `{% icon "custom:my-icon" %}`.
 
 ```js
-{ name: 'custom', path: './src/icons', default: true }
+{
+	sources: [{ name: 'custom', path: './src/icons', default: true }];
+}
 ```
+
+You can add as many sources as you want but you can only have one default source.
 
 #### Popular icon sets
 
 There are no sources defined out of the box, but here are some popular icon sets for reference:
 
-|                                      | Package                                                      | Icons Directory                         |
-| ------------------------------------ | ------------------------------------------------------------ | --------------------------------------- |
-| [Lucide](https://lucide.dev/)        | [lucide-static](https://www.npmjs.com/package/lucide-static) | `node_modules/lucide-static/icons`      |
-| [Tabler](https://tabler-icons.io/)   | [@tabler/icons](https://www.npmjs.com/package/@tabler/icons) | `node_modules/@tabler/icons/icons`      |
-| [Feather](https://feathericons.com/) | [feather-icons](https://www.npmjs.com/package/feather-icons) | `node_modules/feather-icons/dist/icons` |
+|                                         | Package                                                      | Icons Directory                         |
+| --------------------------------------- | ------------------------------------------------------------ | --------------------------------------- |
+| [Simple Icons](https://simpleicons.org) | [simple-icons](https://www.npmjs.com/package/simple-icons)   | `node_modules/simple-icons/icons`       |
+| [Lucide](https://lucide.dev/)           | [lucide-static](https://www.npmjs.com/package/lucide-static) | `node_modules/lucide-static/icons`      |
+| [Tabler](https://tabler-icons.io/)      | [@tabler/icons](https://www.npmjs.com/package/@tabler/icons) | `node_modules/@tabler/icons/icons`      |
+| [Feather](https://feathericons.com/)    | [feather-icons](https://www.npmjs.com/package/feather-icons) | `node_modules/feather-icons/dist/icons` |
 
-To use icons from a package, install the package and define the source in `sources`. For example, to use a source called `lucide` that points to the icons in `node_modules/lucide-static/icons`:
+To use icons from a package, install the package and define the source in `sources`. For example, to use a source named `lucide` that points to the icons in `node_modules/lucide-static/icons`:
 
 ```sh
 npm i lucide-static
@@ -164,7 +177,6 @@ To change this, you can use the `icon.id` and `icon.class` functions. For exampl
 
 ```js
  {
-    // ...
     icon: {
         class: function (name, source) {
             return `icon icon-${source}-${name}`;
@@ -200,7 +212,7 @@ The `mode` option can be either `inline` or `sprite`. If `inline` is used, the `
 > [!NOTE]
 > See [Adding a source](#adding-a-source).
 
-The `sources` option is an array of source objects; `[{ name: '', path: '', default?: true | false }]`. The source name is used in the shortcode (e.g. the word `custom` in `custom:my-icon`), and the path is the directory of the SVGs.
+The `sources` option is an array of source objects of the type `{ name: string, path: string, default?: boolean }`. The source name is used in the shortcode (e.g. the word `custom` in `custom:my-icon`), and the path is the directory of the SVGs.
 
 To make a source the default source, set the `default` property to `true`.
 
