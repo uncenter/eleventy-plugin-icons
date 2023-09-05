@@ -1,17 +1,20 @@
-const { XMLParser, XMLBuilder } = require('fast-xml-parser');
+import { XMLParser, XMLBuilder } from 'fast-xml-parser';
+import { Logger } from 'loogu';
+import { PluginOptions, defaultOptions } from './options';
+import extend from 'just-extend';
+import { Attributes } from './types';
 
-const { Logger } = require('loogu');
-const log = new Logger(require('../package.json').name);
+export const log = new Logger('eleventy-plugin-icons');
 
 /**
  * Combines specified attributes from an array of attribute objects and overwrite/set the rest,
  * creating a new object with the attributes.
  *
- * @param {string[]} keysToCombine - An array of keys representing the attributes to combine.
- * @param {Object.<string, string>[]} objects - An array of objects to process.
- * @returns {Object.<string, string>} - A new object with combined attributes based on the specified keys.
+ * @param keysToCombine - An array of keys representing the attributes to combine.
+ * @param objects - An array of objects to process.
+ * @returns A new object with combined attributes based on the specified keys.
  */
-function combineAttributes(keysToCombine, objects) {
+export function combineAttributes(keysToCombine: string[], objects: Attributes[]): Attributes {
 	return objects.reduce((acc, object) => {
 		// Combine specified keys.
 		keysToCombine.forEach((key) => {
@@ -34,10 +37,10 @@ function combineAttributes(keysToCombine, objects) {
 /**
  * Converts an object of attributes into a string for HTML tags.
  *
- * @param {Object} attrs - An object containing attribute-key pairs to be converted.
- * @returns {string} - A string representation of attributes in the format key="value".
+ * @param attrs - An object containing attribute-key pairs to be converted.
+ * @returns A string representation of attributes in the format key="value".
  */
-function attributesToString(attrs) {
+export function attributesToString(attrs: Attributes): string {
 	return Object.entries(attrs)
 		.map(([key, value]) => `${key}="${value}"`)
 		.join(' ');
@@ -49,6 +52,7 @@ const parser = new XMLParser({
 	commentPropName: '#comment',
 	preserveOrder: true,
 });
+
 const builder = new XMLBuilder({
 	ignoreAttributes: false,
 	commentPropName: '#comment',
@@ -61,25 +65,28 @@ const builder = new XMLBuilder({
 /**
  * Parses an SVG string, merges given attributes with existing ones, and returns the modified SVG string.
  *
- * @param {string} raw - The raw SVG string.
- * @param {Object.<string, string>} attributes - The attributes to be added or combined.
- * @param {boolean} overwrite - Flag indicating whether to overwrite existing attributes.
- * @returns {string} The modified SVG string.
+ * @param raw - The raw SVG string.
+ * @param attributes - The attributes to be added or combined.
+ * @param overwrite - Flag indicating whether to overwrite existing attributes.
+ * @returns The modified SVG string.
  */
-function parseSVG(raw, attributes, overwrite) {
+export function parseSVG(raw: string, attributes: Attributes, overwrite: boolean) {
 	const parsed = parser.parse(raw);
 	let svg;
-	let existingAttributes = {};
+	let existingAttributes: Attributes = {};
 	for (const node of parsed) {
 		if ('svg' in node) {
 			svg = node.svg;
 
 			if (':@' in node) {
 				existingAttributes = node[':@'];
-				existingAttributes = Object.keys(existingAttributes).reduce((acc, key) => {
-					acc[key.replace(/^@_/, '')] = existingAttributes[key];
-					return acc;
-				}, {});
+				existingAttributes = Object.keys(existingAttributes).reduce(
+					(acc: typeof existingAttributes, key) => {
+						acc[key.replace(/^@_/, '')] = existingAttributes[key];
+						return acc;
+					},
+					{},
+				);
 			}
 
 			let newAttributes = combineAttributes(
@@ -93,7 +100,7 @@ function parseSVG(raw, attributes, overwrite) {
 				[existingAttributes, attributes],
 			);
 
-			node[':@'] = Object.keys(newAttributes).reduce((acc, key) => {
+			node[':@'] = Object.keys(newAttributes).reduce((acc: typeof newAttributes, key) => {
 				acc['@_' + key] = newAttributes[key];
 				return acc;
 			}, {});
@@ -106,8 +113,6 @@ function parseSVG(raw, attributes, overwrite) {
 	return builder.build(parsed);
 }
 
-module.exports = {
-	combineAttributes,
-	attributesToString,
-	parseSVG,
-};
+export function mergeOptions(options: PluginOptions): PluginOptions {
+	return extend(true, defaultOptions, options) as PluginOptions;
+}
