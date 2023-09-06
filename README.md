@@ -41,12 +41,12 @@ You can set attributes for all icons:
 
 ```js
 {
-    icon: {
-        attributes: {
-            width: "50",
-            height: "50"
-        },
-    }
+	icon: {
+		attributes: {
+			width: "50",
+			height: "50"
+		},
+	}
 }
 ```
 
@@ -83,36 +83,33 @@ To give you an idea of the level of customization this plugin offers, take a loo
 
 ```js
 {
-    mode: 'inline',
-    sources: [],
-    icon: {
-        shortcode: 'icon',
-        delimiter: ':',
-        class: function (name, source) {
-            return `icon icon-${name}`;
-        },
-        id: function (name, source) {
-            return `icon-${name}`;
-        },
-        attributes: {},
-        attributesBySource: {},
-        overwriteExistingAttributes: true,
-        errorNotFound: true,
-    },
-    sprite: {
-        shortcode: 'spriteSheet',
-        attributes: {
-            class: 'sprite-sheet',
-            'aria-hidden': 'true',
-            xmlns: 'http://www.w3.org/2000/svg',
-        },
-        extraIcons: {
-            all: false,
-            sources: [],
-            icons: [],
-        },
-        writeFile: false,
-    },
+	mode: 'inline',
+	sources: [],
+	icon: {
+		shortcode: 'icon',
+		delimiter: ':',
+		transform: async (content) => content,
+		class: (name, source) => `icon icon-${name}`,
+		id: (name, source) => `icon-${name}`,
+		attributes: {},
+		attributesBySource: {},
+		overwriteExistingAttributes: true,
+		errorNotFound: true,
+	},
+	sprite: {
+		shortcode: 'spriteSheet',
+		attributes: {
+			class: 'sprite-sheet',
+			'aria-hidden': 'true',
+			xmlns: 'http://www.w3.org/2000/svg',
+		},
+		extraIcons: {
+			all: false,
+			sources: [],
+			icons: [],
+		},
+		writeFile: false,
+	},
 }
 ```
 
@@ -161,7 +158,7 @@ npm i lucide-static
 
 ```js
 {
-    sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
+	sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
 }
 ```
 
@@ -176,15 +173,15 @@ By default, the plugin uses the icon name as the ID and class of the inserted ic
 To change this, you can use the `icon.id` and `icon.class` functions. For example, the following would change the class and ID to include the source name:
 
 ```js
- {
-    icon: {
-        class: function (name, source) {
-            return `icon icon-${source}-${name}`;
-        },
-        id: function (name, source) {
-            return `icon-${source}-${name}`;
-        },
-    },
+{
+	icon: {
+		class: function (name, source) {
+			return `icon icon-${source}-${name}`;
+		},
+		id: function (name, source) {
+			return `icon-${source}-${name}`;
+		},
+	},
 }
 ```
 
@@ -234,14 +231,20 @@ To make a source the default source, set the `default` property to `true`.
 | `overwriteExistingAttributes` | `true`                        | `true`, `false`                                | Override existing attributes on the original SVG. If `true`, existing attributes will be replaced with supplied attributes. If `false`, existing attributes will be kept.                              |
 | `errorNotFound`               | `true`                        | `true`, `false`                                | Warn instead of error on icons that are not found. If `true`, an error will be thrown. If `false`, only a warning will be shown.                                                                       |
 
+#### icon.transform
+
+By default, the icon content is transformed using the following function:
+
+```js
+async (content) => content;
+```
+
 #### icon.class
 
 By default, the class of the inserted icon is `icon icon-{name}`, using the following function:
 
 ```js
-function (name, source) {
-    return `icon icon-${name}`;
-}
+(name, source) => `icon icon-${name}`;
 ```
 
 #### icon.id
@@ -249,9 +252,7 @@ function (name, source) {
 By default, the ID of the inserted icon is `icon-{name}`, using the following function:
 
 ```js
-function (name, source) {
-    return `icon-${name}`;
-}
+(name, source) => `icon-${name}`;
 ```
 
 ### sprite
@@ -268,13 +269,13 @@ function (name, source) {
 
 ```js
 {
-    all: false,
-    sources: [],
-    icons: [],
+	all: false,
+	sources: [],
+	icons: [],
 };
 ```
 
-If `all` is set to `true`, all icons from every source will be inserted into the sprite sheet, even if they are not used in the page. If `sources` is set, all icons from the source names in `sources` will be inserted, even if they are not used in the page. If `icons` is set, you can provide an array of icon objects, `{ name: '', source: '' }`, to be inserted.
+If `all` is set to `true`, all icons from every source will be inserted into the sprite sheet, even if they are not used in the page. If `sources` is set, all icons from the source names in `sources` will be inserted, even if they are not used in the page. If `icons` is set, you can provide an array of icon objects (`{ name: string, source: string }`) to be inserted.
 
 ## Credits
 
