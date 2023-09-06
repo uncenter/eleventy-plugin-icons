@@ -1,15 +1,15 @@
+import memoize from 'just-memoize';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import memoize from 'just-memoize';
-
-import { attributesToString, combineAttributes, mergeOptions, parseSVG, log } from './utils';
 
 import { Icon, type IconObject } from './icon';
-import { type PluginOptions } from './options';
+import { mergeOptions, validateOptions, type Options } from './options';
 import type { Attributes } from './types';
+import { attributesToString, combineAttributes, log, parseSVG } from './utils';
 
-export default function (eleventyConfig: any, opts: PluginOptions) {
+export default function (eleventyConfig: any, opts: Options) {
 	const options = mergeOptions(opts);
+	validateOptions(options);
 	const usedIcons: Icon[] = [];
 
 	const createIcon = memoize((icon: IconObject | string): Icon => new Icon(icon, options));
@@ -83,12 +83,6 @@ export default function (eleventyConfig: any, opts: PluginOptions) {
 		}
 		return icons;
 	};
-
-	if (options.sources.filter((source) => source.default === true).length > 1)
-		log.error(`options.sources: Only one default source is allowed.`);
-
-	if ([...new Set(options.sources.map((source) => source.name))].length !== options.sources.length)
-		log.error('options.sources: Source names must be unique.');
 
 	eleventyConfig.addAsyncShortcode(
 		options.icon.shortcode,

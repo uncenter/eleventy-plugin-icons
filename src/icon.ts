@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import memoize from 'just-memoize';
 import { log } from './utils';
 
-import { type PluginOptions } from './options';
+import { type Options } from './options';
 
 export type IconObject = { name: string; source: string };
 
@@ -12,7 +12,7 @@ export class Icon {
 	public source: string = '';
 	public path: string = '';
 
-	constructor(input: IconObject | string, options: PluginOptions) {
+	constructor(input: IconObject | string, options: Options) {
 		if (typeof input === 'object') {
 			this.name = input.name;
 			this.source = input.source;
@@ -42,7 +42,7 @@ export class Icon {
 	/**
 	 * Retrieves the content of the SVG icon.
 	 */
-	content = memoize(async (options: PluginOptions) => {
+	content = memoize(async (options: Options) => {
 		try {
 			let content = await fs.readFile(this.path, 'utf-8');
 			if (!content) {
