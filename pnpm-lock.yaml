@@ -18,8 +18,8 @@ dependencies:
     specifier: ^4.1.5
     version: 4.1.5
   loogu:
-    specifier: ^0.1.1
-    version: 0.1.3
+    specifier: ^0.2.0
+    version: 0.2.0
   zod:
     specifier: ^3.22.2
     version: 3.22.2
@@ -32,13 +32,13 @@ devDependencies:
     specifier: ^20.5.9
     version: 20.5.9
   eslint:
-    specifier: ^8.47.0
+    specifier: ^8.48.0
     version: 8.48.0
   eslint-config-prettier:
     specifier: ^9.0.0
     version: 9.0.0(eslint@8.48.0)
   prettier:
-    specifier: ^3.0.2
+    specifier: ^3.0.3
     version: 3.0.3
   unbuild:
     specifier: ^2.0.0
@@ -85,7 +85,7 @@ packages:
       '@babel/helper-compilation-targets': 7.22.15
       '@babel/helper-module-transforms': 7.22.15(@babel/core@7.22.15)
       '@babel/helpers': 7.22.15
-      '@babel/parser': 7.22.15
+      '@babel/parser': 7.22.16
       '@babel/template': 7.22.15
       '@babel/traverse': 7.22.15
       '@babel/types': 7.22.15
@@ -210,16 +210,16 @@ packages:
       js-tokens: 4.0.0
     dev: true
 
-  /@babel/parser@7.22.15:
-    resolution: {integrity: sha512-RWmQ/sklUN9BvGGpCDgSubhHWfAx24XDTDObup4ffvxaYsptOg2P3KG0j+1eWKLxpkX0j0uHxmpq2Z1SP/VhxA==}
+  /@babel/parser@7.22.16:
+    resolution: {integrity: sha512-+gPfKv8UWeKKeJTUxe59+OobVcrYHETCsORl61EmSkmgymguYk/X5bp7GuUIXaFsc6y++v8ZxPsLSSuujqDphA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
     dependencies:
       '@babel/types': 7.22.15
     dev: true
 
-  /@babel/standalone@7.22.15:
-    resolution: {integrity: sha512-8qE83Gths6g29KOpYF9uaFPOXa3oaFF1/88ejKwgkGAZRIkdmoR/jPIzVviAsWNSaZdIdMLWwKSoXpuk9iNGmw==}
+  /@babel/standalone@7.22.16:
+    resolution: {integrity: sha512-3bBKOuoOYCwiSVH5TlsfF+3wmKQRk9hVJbQ+L7EfGuZiUBwJYRWxkJeNQJKEPkDuuaoihTP0hRzal0Pichzb7w==}
     engines: {node: '>=6.9.0'}
     dev: true
 
@@ -228,7 +228,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/code-frame': 7.22.13
-      '@babel/parser': 7.22.15
+      '@babel/parser': 7.22.16
       '@babel/types': 7.22.15
     dev: true
 
@@ -242,7 +242,7 @@ packages:
       '@babel/helper-function-name': 7.22.5
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/parser': 7.22.15
+      '@babel/parser': 7.22.16
       '@babel/types': 7.22.15
       debug: 4.3.4
       globals: 11.12.0
@@ -1739,8 +1739,8 @@ packages:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
 
-  /loogu@0.1.3:
-    resolution: {integrity: sha512-TpHEKAKk+z5GcoPgZ1Dss/ii0gCXbPqRTQGDvqLjTMk/ph34RITldUqT9JfECk6SsU2VUiv8HU2q0rCkEOataA==}
+  /loogu@0.2.0:
+    resolution: {integrity: sha512-aMbKdnhpRd6Q2v0PIhienRFKuaoFmBF87Bsnv6W9jGTcykpcRzWn7DPhb/nn3b92UqbFJ6PrbwU9rTYzmUYFWw==}
     dependencies:
       kleur: 4.1.5
     dev: false
@@ -2240,7 +2240,7 @@ packages:
     hasBin: true
     dependencies:
       '@babel/core': 7.22.15
-      '@babel/standalone': 7.22.15
+      '@babel/standalone': 7.22.16
       '@babel/types': 7.22.15
       defu: 6.1.2
       jiti: 1.19.3
