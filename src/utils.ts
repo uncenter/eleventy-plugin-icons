@@ -1,10 +1,7 @@
-import extend from 'just-extend';
-import { XMLParser, XMLBuilder } from 'fast-xml-parser';
-
-import { defaultOptions, type PluginOptions } from './options';
+import { XMLBuilder, XMLParser } from 'fast-xml-parser';
+import { Logger } from 'loogu';
 import type { Attributes } from './types';
 
-import { Logger } from 'loogu';
 export const log = new Logger('eleventy-plugin-icons');
 
 /**
@@ -112,8 +109,4 @@ export function parseSVG(raw: string, attributes: Attributes, overwrite: boolean
 	if (!svg) log.error('No SVG element found.');
 
 	return builder.build(parsed);
-}
-
-export function mergeOptions(options: PluginOptions): PluginOptions {
-	return extend(true, defaultOptions, options) as PluginOptions;
 }
