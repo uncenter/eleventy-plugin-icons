@@ -13,10 +13,7 @@ export default function (eleventyConfig: any, opts: Options) {
 	const usedIcons: Icon[] = [];
 
 	const createIcon = memoize((icon: IconObject | string): Icon => new Icon(icon, options));
-	/**
-	 * Generates a sprite sheet with symbol definitions.
-	 * @returns An SVG string representing the generated sprite sheet.
-	 */
+
 	const generateSprite = memoize(async (icons: Icon[]): Promise<string> => {
 		// Create an array of promises that generate symbol definitions for each icon.
 		const symbols = await Promise.all(
@@ -39,11 +36,7 @@ export default function (eleventyConfig: any, opts: Options) {
 			: ''; // Return an empty string if no symbols were generated.
 	});
 
-	/**
-	 * Retrieves extra icons based on configuration.
-	 * @returns List of extra icons.
-	 */
-	const extraIcons = async (): Promise<Array<Icon>> => {
+	const extraIcons = async (): Promise<Icon[]> => {
 		let icons = [];
 		let sources = [];
 
