@@ -1,4 +1,4 @@
-const pluginIcons = require('../.eleventy.js');
+const pluginIcons = require('../dist/index.cjs');
 
 module.exports = (eleventyConfig) => {
 	eleventyConfig.addPlugin(pluginIcons, {
