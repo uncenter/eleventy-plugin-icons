@@ -1,9 +1,10 @@
-import { XMLParser, XMLBuilder } from 'fast-xml-parser';
-import { Logger } from 'loogu';
-import { PluginOptions, defaultOptions } from './options';
 import extend from 'just-extend';
-import { Attributes } from './types';
+import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 
+import { defaultOptions, type PluginOptions } from './options';
+import type { Attributes } from './types';
+
+import { Logger } from 'loogu';
 export const log = new Logger('eleventy-plugin-icons');
 
 /**

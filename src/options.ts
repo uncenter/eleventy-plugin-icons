@@ -1,4 +1,5 @@
-import { Attributes, IconObject } from './types';
+import { type IconObject } from './icon';
+import type { Attributes } from './types';
 
 export type PluginOptions = {
 	mode: 'inline' | 'sprite';
