@@ -8,7 +8,8 @@
 		"url": "https://github.com/uncenter/eleventy-plugin-icons.git"
 	},
 	"scripts": {
-		"build": "unbuild"
+		"build": "unbuild",
+		"test": "vitest"
 	},
 	"keywords": [
 		"11ty",
@@ -45,7 +46,8 @@
 		"eslint": "^8.47.0",
 		"eslint-config-prettier": "^9.0.0",
 		"prettier": "^3.0.2",
-		"unbuild": "^2.0.0"
+		"unbuild": "^2.0.0",
+		"vitest": "^0.34.3"
 	},
 	"engines": {
 		"node": ">=16.0.0"
