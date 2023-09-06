@@ -4,7 +4,8 @@ import memoize from 'just-memoize';
 import { log } from './utils';
 
 import { type PluginOptions } from './options';
-import type { IconObject } from './types';
+
+export type IconObject = { name: string; source: string };
 
 export class Icon {
 	public name: string = '';

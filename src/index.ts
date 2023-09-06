@@ -2,11 +2,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import memoize from 'just-memoize';
 
-import { attributesToString, combineAttributes, log, mergeOptions, parseSVG } from './utils';
-import { Icon } from './icon';
+import { attributesToString, combineAttributes, mergeOptions, parseSVG, log } from './utils';
 
+import { Icon, type IconObject } from './icon';
 import { type PluginOptions } from './options';
-import type { Attributes, IconObject } from './types';
+import type { Attributes } from './types';
 
 export default function (eleventyConfig: any, opts: PluginOptions) {
 	const options = mergeOptions(opts);
