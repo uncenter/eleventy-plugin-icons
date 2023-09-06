@@ -39,6 +39,8 @@ export class Icon {
 		}
 	}
 
+	repr = () => JSON.stringify(this, undefined, 4);
+
 	/**
 	 * Retrieves the content of the SVG icon.
 	 */
@@ -46,12 +48,12 @@ export class Icon {
 		try {
 			let content = await fs.readFile(this.path, 'utf-8');
 			if (!content) {
-				log.warn(`Icon ${JSON.stringify(this)} appears to be empty.`);
+				log.warn(`Icon ${this.repr()} appears to be empty.`);
 				content = '';
 			}
 			return options.icon.transform ? await options.icon.transform(content) : content;
 		} catch {
-			log[options.icon.errorNotFound ? 'error' : 'warn'](`Icon ${JSON.stringify(this)} not found.`);
+			log[options.icon.errorNotFound ? 'error' : 'warn'](`Icon ${this.repr()} not found.`);
 		}
 	});
 }
