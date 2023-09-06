@@ -8,7 +8,7 @@ import { Icon } from './icon';
 import { type PluginOptions } from './options';
 import type { Attributes, IconObject } from './types';
 
-module.exports = function (eleventyConfig: any, opts: PluginOptions) {
+export default function (eleventyConfig: any, opts: PluginOptions) {
 	const options = mergeOptions(opts);
 	const usedIcons: Icon[] = [];
 
@@ -103,12 +103,14 @@ module.exports = function (eleventyConfig: any, opts: PluginOptions) {
 			switch (typeof attrs) {
 				case 'string': {
 					attrs = JSON.parse(attrs || '{}') as Attributes;
+					break;
 				}
 				case 'object': {
 					// Nunjucks inserts an __keywords key when kwargs are used (https://github.com/mozilla/nunjucks/blob/ea0d6d5396d39d9eed1b864febb36fbeca908f23/nunjucks/src/runtime.js#L123).
 					if (attrs['__keywords' as keyof typeof attrs]) {
 						delete attrs['__keywords' as keyof typeof attrs];
 					}
+					break;
 				}
 			}
 
@@ -165,4 +167,4 @@ module.exports = function (eleventyConfig: any, opts: PluginOptions) {
 	options.sources.forEach((source) => {
 		eleventyConfig.addWatchTarget(source.path);
 	});
-};
+}

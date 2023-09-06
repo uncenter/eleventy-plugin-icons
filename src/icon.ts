@@ -1,21 +1,16 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { PluginOptions } from './options';
-import { IconObject } from './types';
-import { log } from './utils';
 import memoize from 'just-memoize';
+import { log } from './utils';
+
+import { type PluginOptions } from './options';
+import type { IconObject } from './types';
 
 export class Icon {
 	public name: string = '';
 	public source: string = '';
 	public path: string = '';
 
-	/**
-	 * Create a new Icon instance.
-	 *
-	 * @param input - The icon information, either as an object or a string.
-	 * @param options - Plugin options.
-	 */
 	constructor(input: IconObject | string, options: PluginOptions) {
 		if (typeof input === 'object') {
 			this.name = input.name;
@@ -45,8 +40,6 @@ export class Icon {
 
 	/**
 	 * Retrieves the content of the SVG icon.
-	 * @param options - Plugin options.
-	 * @returns The SVG content of the icon.
 	 */
 	content = memoize(async (options: PluginOptions) => {
 		try {
