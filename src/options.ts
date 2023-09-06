@@ -97,10 +97,10 @@ export function validateOptions(options: Options) {
 						expecteds.length === 1 ? expecteds[0] : expecteds.join(' or ')
 					}, received ${
 						receiveds.length === 1 ? receiveds[0] : receiveds.join(' / ')
-					} (${codes.join(', ')})`,
+					} (${codes.join(', ')}).`,
 				);
 			} else {
-				log.error(`${path}: ${error.message}`);
+				log.error(`${path}: ${error.message}.`);
 			}
 		}
 	}
