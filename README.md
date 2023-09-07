@@ -198,7 +198,7 @@ This would lead to the following class and ID for the `heart` icon from the `cus
 - **Type**: `'inline' | 'sprite'`
 - **Default**: `'inline'`
 
-The `mode` option specifies how the library handles icons. It can take one of two values:
+The `mode` option specifies how icons are handled. It can take one of two values:
 
 - `'inline'`: When set to `'inline'`, the `icon` shortcode will insert SVGs directly into the page. No "sprite sheet" is required in this mode.
 - `'sprite'`: When set to `'sprite'`, the `icon` shortcode will insert `<use>` references for each icon. This mode should be used in conjunction with the `sprites` shortcode.
@@ -317,7 +317,7 @@ The `attributes` option allows you to set additional attributes for the sprite S
 
 #### `extraIcons`
 
-- **Type**: `{ all: boolean, sources: string[], icons: { name: string, source: string }[] }`
+- **Type**: `{ all: boolean, sources: string[], icons: Array<{ name: string, source: string }> }`
 - **Default**: `{ all: false, sources: [], icons: [] }`
 
 The `extraIcons` option lets you add additional icons to the sprite sheet, even if they are not directly used in your content. It has the following properties:
