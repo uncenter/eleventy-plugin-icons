@@ -67,10 +67,19 @@ export const defaultOptions: Options = {
 	},
 };
 
+/**
+ *
+ * @param options Options to merge with the default options.
+ * @returns Merged options object.
+ */
 export function mergeOptions(options: Options): Options {
 	return extend(true, defaultOptions, options) as Options;
 }
 
+/**
+ *
+ * @param options Options to validate against the schema.
+ */
 export function validateOptions(options: Options) {
 	try {
 		OptionsSchema.parse(options);

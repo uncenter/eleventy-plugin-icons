@@ -2,85 +2,22 @@ import memoize from 'just-memoize';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { Icon, type IconObject } from './icon';
+import { attributesToString, mergeAttributes, parseSVG } from './utils';
 import { mergeOptions, validateOptions, type Options } from './options';
+import { Icon, createSprite, getExtraIcons } from './icon';
+
 import type { Attributes } from './types';
-import { attributesToString, combineAttributes, log, parseSVG } from './utils';
 
 export default function (eleventyConfig: any, opts: Options) {
-	const options = mergeOptions(opts);
-	validateOptions(options);
 	const usedIcons: Icon[] = [];
 
-	const createIcon = memoize((icon: IconObject | string): Icon => new Icon(icon, options));
-
-	const generateSprite = memoize(async (icons: Icon[]): Promise<string> => {
-		// Create an array of promises that generate symbol definitions for each icon.
-		const symbols = await Promise.all(
-			[...new Set(icons || [])].map(async (icon) => {
-				const content = await icon.content(options);
-				// If content exists, convert it to a symbol element and add attributes.
-				if (content) {
-					return parseSVG(content, { id: options.icon.id(icon.name, icon.source) }, true)
-						.replace(/<svg/, '<symbol')
-						.replace(/<\/svg>/, '</symbol>');
-				}
-				return '';
-			}),
-		);
-
-		// Combine the generated symbol strings and filter out empty ones.
-		const symbolsString = symbols.filter(Boolean).join('');
-		return symbolsString
-			? `<svg ${attributesToString(options.sprite.attributes)}><defs>${symbolsString}</defs></svg>`
-			: ''; // Return an empty string if no symbols were generated.
-	});
-
-	const extraIcons = async (): Promise<Icon[]> => {
-		let icons = [];
-		let sources = [];
-
-		if (options.sprite.extraIcons.all === true) {
-			sources.push(...options.sources);
-		} else {
-			if (Array.isArray(options.sprite.extraIcons.sources)) {
-				options.sprite.extraIcons.sources.forEach((name) => {
-					const source = options.sources.find((source) => source.name === name);
-					if (!source) {
-						log.error(
-							`options.sprite.extraIcons.sources: Source '${name}' is not defined in options.sources.`,
-						);
-					}
-					sources.push(source);
-				});
-			} else if (Array.isArray(options.sprite.extraIcons.icons)) {
-				for (const icon of options.sprite.extraIcons.icons) {
-					if (!icon.name || !icon.source)
-						log.error(`options.sprite.extraIcons.icons: Invalid icon: ${JSON.stringify(icon)}.`);
-					icons.push(createIcon(icon));
-				}
-			}
-		}
-
-		for (const source of sources) {
-			for (const file of await fs.readdir(source.path)) {
-				if (file.endsWith('.svg')) {
-					icons.push(
-						createIcon({
-							name: file.replace('.svg', ''),
-							source: source.name,
-						}),
-					);
-				}
-			}
-		}
-		return icons;
-	};
+	const options = mergeOptions(opts);
+	validateOptions(options);
 
 	eleventyConfig.addAsyncShortcode(
 		options.icon.shortcode,
 		memoize(async (input: any, attrs: Attributes | string = {}) => {
-			const icon = createIcon(input);
+			const icon = new Icon(input, options);
 			// Keep track of used icons for generating sprite.
 			usedIcons.push(icon);
 
@@ -101,7 +38,7 @@ export default function (eleventyConfig: any, opts: Options) {
 				}
 			}
 
-			const attributes = combineAttributes(
+			const attributes = mergeAttributes(
 				['class', 'id'],
 				[
 					attrs,
@@ -124,7 +61,7 @@ export default function (eleventyConfig: any, opts: Options) {
 
 	eleventyConfig.addShortcode(options.sprite.shortcode, async function () {
 		// @ts-expect-error
-		return await generateSprite(this?.page?.icons);
+		return await createSprite(this?.page?.icons);
 	});
 
 	if (typeof options.sprite.writeFile === 'string') {
@@ -138,7 +75,10 @@ export default function (eleventyConfig: any, opts: Options) {
 					output: string;
 				};
 			}) => {
-				const sprite = await generateSprite([...usedIcons, ...(await extraIcons())]);
+				const sprite = await createSprite(
+					[...usedIcons, ...(await getExtraIcons(options))],
+					options,
+				);
 				const file = path.join(dir.output, options.sprite.writeFile as string);
 				const fileDir = path.parse(file).dir;
 				try {

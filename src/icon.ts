@@ -1,18 +1,16 @@
-import path from 'node:path';
-import fs from 'node:fs/promises';
 import memoize from 'just-memoize';
-import { log } from './utils';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 import { type Options } from './options';
-
-export type IconObject = { name: string; source: string };
+import { attributesToString, log, parseSVG } from './utils';
 
 export class Icon {
 	public name: string = '';
 	public source: string = '';
 	public path: string = '';
 
-	constructor(input: IconObject | string, options: Options) {
+	constructor(input: { name: string; source: string } | string, options: Options) {
 		if (typeof input === 'object') {
 			this.name = input.name;
 			this.source = input.source;
@@ -39,21 +37,84 @@ export class Icon {
 		}
 	}
 
-	repr = () => JSON.stringify(this, undefined, 4);
+	stringified = () => JSON.stringify(this, undefined, 4);
 
-	/**
-	 * Retrieves the content of the SVG icon.
-	 */
 	content = memoize(async (options: Options) => {
 		try {
 			let content = await fs.readFile(this.path, 'utf-8');
 			if (!content) {
-				log.warn(`Icon ${this.repr()} appears to be empty.`);
+				log.warn(`Icon ${this.stringified()} appears to be empty.`);
 				content = '';
 			}
 			return options.icon.transform ? await options.icon.transform(content) : content;
 		} catch {
-			log[options.icon.errorNotFound ? 'error' : 'warn'](`Icon ${this.repr()} not found.`);
+			log[options.icon.errorNotFound ? 'error' : 'warn'](`Icon ${this.stringified()} not found.`);
 		}
 	});
 }
+
+export const createSprite = memoize(async (icons: Icon[], options: Options): Promise<string> => {
+	// Create an array of promises that generate symbol definitions for each icon.
+	const symbols = await Promise.all(
+		[...new Set(icons || [])].map(async (icon) => {
+			const content = await icon.content(options);
+			// If content exists, convert it to a symbol element and add attributes.
+			if (content) {
+				return parseSVG(content, { id: options.icon.id(icon.name, icon.source) }, true)
+					.replace(/<svg/, '<symbol')
+					.replace(/<\/svg>/, '</symbol>');
+			}
+			return '';
+		}),
+	);
+
+	// Combine the generated symbol strings and filter out empty ones.
+	const symbolsString = symbols.filter(Boolean).join('');
+	return symbolsString
+		? `<svg ${attributesToString(options.sprite.attributes)}><defs>${symbolsString}</defs></svg>`
+		: ''; // Return an empty string if no symbols were generated.
+});
+
+export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
+	let icons = [];
+	let sources = [];
+
+	if (options.sprite.extraIcons.all === true) {
+		sources.push(...options.sources);
+	} else {
+		if (Array.isArray(options.sprite.extraIcons.sources)) {
+			options.sprite.extraIcons.sources.forEach((name) => {
+				const source = options.sources.find((source) => source.name === name);
+				if (!source) {
+					log.error(
+						`options.sprite.extraIcons.sources: Source '${name}' is not defined in options.sources.`,
+					);
+				}
+				sources.push(source);
+			});
+		} else if (Array.isArray(options.sprite.extraIcons.icons)) {
+			for (const icon of options.sprite.extraIcons.icons) {
+				if (!icon.name || !icon.source)
+					log.error(`options.sprite.extraIcons.icons: Invalid icon: ${JSON.stringify(icon)}.`);
+				icons.push(new Icon(icon, options));
+			}
+		}
+	}
+
+	for (const source of sources) {
+		for (const file of await fs.readdir(source.path)) {
+			if (file.endsWith('.svg')) {
+				icons.push(
+					new Icon(
+						{
+							name: file.replace('.svg', ''),
+							source: source.name,
+						},
+						options,
+					),
+				);
+			}
+		}
+	}
+	return icons;
+};

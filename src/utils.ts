@@ -5,17 +5,15 @@ import type { Attributes } from './types';
 export const log = new Logger('eleventy-plugin-icons');
 
 /**
- * Combines specified attributes from an array of attribute objects and overwrite/set the rest,
- * creating a new object with the attributes.
+ * Merges specified attributes from an array of attribute objects and overwrite the rest.
  *
- * @param keysToCombine - An array of keys representing the attributes to combine.
- * @param objects - An array of objects to process.
- * @returns A new object with combined attributes based on the specified keys.
+ * @param mergeKeys - An array of attribute keys to combine across the given objects.
+ * @param objects - An array of attribute objects to merge. Attributes from objects later in the array overwrite earlier ones.
  */
-export function combineAttributes(keysToCombine: string[], objects: Attributes[]): Attributes {
+export function mergeAttributes(mergeKeys: string[], objects: Attributes[]): Attributes {
 	return objects.reduce((acc, object) => {
 		// Combine specified keys.
-		keysToCombine.forEach((key) => {
+		mergeKeys.forEach((key) => {
 			if (object[key]) {
 				acc[key] = acc[key] ? `${acc[key]} ${object[key]}` : object[key];
 			}
@@ -23,7 +21,7 @@ export function combineAttributes(keysToCombine: string[], objects: Attributes[]
 
 		// Overwrite/set non-combined keys.
 		Object.keys(object).forEach((key) => {
-			if (!keysToCombine.includes(key)) {
+			if (!mergeKeys.includes(key)) {
 				acc[key] = object[key];
 			}
 		});
@@ -33,10 +31,10 @@ export function combineAttributes(keysToCombine: string[], objects: Attributes[]
 }
 
 /**
- * Converts an object of attributes into a string for HTML tags.
+ * Converts an object of attributes into a string suitable for XML tags.
  *
- * @param attrs - An object containing attribute-key pairs to be converted.
- * @returns A string representation of attributes in the format key="value".
+ * @param attrs - An attribute object.
+ * @returns A string representation of the attributes in the format key="value".
  */
 export function attributesToString(attrs: Attributes): string {
 	return Object.entries(attrs)
@@ -61,10 +59,10 @@ const builder = new XMLBuilder({
 });
 
 /**
- * Parses an SVG string, merges given attributes with existing ones, and returns the modified SVG string.
+ * Parses an SVG string and merges given attributes with existing ones.
  *
  * @param raw - The raw SVG string.
- * @param attributes - The attributes to be added or combined.
+ * @param attributes - The attributes to be merged.
  * @param overwrite - Flag indicating whether to overwrite existing attributes.
  * @returns The modified SVG string.
  */
@@ -87,7 +85,7 @@ export function parseSVG(raw: string, attributes: Attributes, overwrite: boolean
 				);
 			}
 
-			let newAttributes = combineAttributes(
+			let newAttributes = mergeAttributes(
 				// Combine given attributes with existing ones depending on `overwrite`.
 				overwrite
 					? // Overwrite all:
