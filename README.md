@@ -193,89 +193,145 @@ This would lead to the following class and ID for the `heart` icon from the `cus
 
 ## Configuration
 
-| Option                | Default             |
-| --------------------- | ------------------- |
-| [`mode`](#mode)       | `'inline'`          |
-| [`sources`](#sources) | `[]`                |
-| [`icon`](#icon)       | _see section below_ |
-| [`sprite`](#sprite)   | _see section below_ |
+### `mode`
 
-### mode
+- **Type**: `'inline' | 'sprite'`
+- **Default**: `'inline'`
 
-The `mode` option can be either `inline` or `sprite`. If `inline` is used, the `icon` shortcode will insert the SVG directly into the page (no "sprite sheet" required). If `sprite` is used, using the `icon` shortcode will instead insert a `<use>` reference for each icon, and should be used in conjunction with the `sprites` shortcode.
+The `mode` option specifies how the library handles icons. It can take one of two values:
 
-### sources
+- `'inline'`: When set to `'inline'`, the `icon` shortcode will insert SVGs directly into the page. No "sprite sheet" is required in this mode.
+- `'sprite'`: When set to `'sprite'`, the `icon` shortcode will insert `<use>` references for each icon. This mode should be used in conjunction with the `sprites` shortcode.
 
-> [!NOTE]
-> See [Adding a source](#adding-a-source).
+### `sources`
 
-The `sources` option is an array of source objects of the type `{ name: string, path: string, default?: boolean }`. The source name is used in the shortcode (e.g. the word `custom` in `custom:my-icon`), and the path is the directory of the SVGs.
+- **Type**: `Array<{ name: string, path: string, default?: boolean }>`
+- **Default**: `[]`
 
-To make a source the default source, set the `default` property to `true`.
+The `sources` option is an array of source objects, each of which has the following properties:
 
-```js
+- `name` (string): A unique name for the source used in the shortcode (e.g., the word `custom` in `custom:my-icon`).
+- `path` (string): The directory path where the SVGs for this source are located.
+- `default` (boolean, optional): If set to `true`, this source becomes the default source.
+
+You can add multiple sources to categorize and organize your icons.
+
+```javascript
 { name: 'custom', path: './src/icons', default: true }
 ```
 
-### icon
+> [!NOTE]
+> You can refer to [Adding a source](#adding-a-source) for more information.
 
-|                               | Default                       | Values                                         | Description                                                                                                                                                                                            |
-| ----------------------------- | ----------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `shortcode`                   | `'icon'`                      | string                                         | The shortcode name (e.g. `{% icon %}`) used to insert the icon.                                                                                                                                        |
-| `delimiter`                   | `:`                           | string                                         | The delimiter between the source and icon name (e.g. `:` in `custom:my-icon`).                                                                                                                         |
-| `transform`                   | [_see below_](#icontransform) | `async function (content) { return content 		};` | Transform/modify raw content from SVG before attribute manipulation.                                                                                                                                   |
-| `class`                       | [_see below_](#iconclass)     |                                                | Dynamic `class` of the inserted icon (e.g. `class="icon icon-my-icon"`). Define a function that takes in the icon name and source and returns a string.                                                |
-| `id`                          | [_see below_](#iconid)        |                                                | Dynamic `id` of sprite icons (e.g. `id="icon-my-icon"`), the `href` of sprite references (e.g. `href="#icon-my-icon"`). Define a function that takes in the icon name and source and returns a string. |
-| `attributes`                  | `{}`                          |                                                | Set icon attributes: `{ 'aria-hidden': 'true' }` would set `aria-hidden="true"`.                                                                                                                       |
-| `attributesBySource`          | `{}`                          |                                                | Set icon attributes per-class: `{ custom: { 'aria-hidden': 'true' } }` would set `aria-hidden="true"` if the source is `custom`.                                                                       |
-| `overwriteExistingAttributes` | `true`                        | `true`, `false`                                | Override existing attributes on the original SVG. If `true`, existing attributes will be replaced with supplied attributes. If `false`, existing attributes will be kept.                              |
-| `errorNotFound`               | `true`                        | `true`, `false`                                | Warn instead of error on icons that are not found. If `true`, an error will be thrown. If `false`, only a warning will be shown.                                                                       |
+### `icon`
 
-#### icon.transform
+This section outlines various options related to the `icon` shortcode.
 
-By default, the icon content is transformed using the following function:
+#### `shortcode`
 
-```js
-async (content) => content;
-```
+- **Type**: `string`
+- **Default**: `'icon'`
 
-#### icon.class
+The `shortcode` option specifies the name of the shortcode used to insert icons. For example, if you set `shortcode` to `'insertIcon'`, you would use `{% insertIcon %}` to insert an icon.
 
-By default, the class of the inserted icon is `icon icon-{name}`, using the following function:
+#### `delimiter`
 
-```js
-(name, source) => `icon icon-${name}`;
-```
+- **Type**: `string`
+- **Default**: `':'`
 
-#### icon.id
+The `delimiter` option defines the character used to separate the source and icon name in the shortcode. For example, if the delimiter is set to `'@'`, you would use `custom@my-icon` to reference an icon from the `custom` source.
 
-By default, the ID of the inserted icon is `icon-{name}`, using the following function:
+#### `transform`
 
-```js
-(name, source) => `icon-${name}`;
-```
+- **Type**: `async function (content: string) => string`
+- **Default**: `async (content) => content`
 
-### sprite
+The `transform` option is an asynchronous function that allows you to modify the raw content of an SVG before attribute manipulation. By default, it simply returns the original content. You can customize this function to perform transformations as needed.
 
-| Option       | Default                                                                                  | Values            | Description                                                                                                                                |
-| ------------ | ---------------------------------------------------------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `shortcode`  | `'spriteSheet'`                                                                          | string            | The shortcode name (e.g. `{% spriteSheet %}`) used to insert the sprite sheet. It takes no arguments. Used when `mode` is set to `sprite`. |
-| `class`      | `'sprite-sheet'`                                                                         | string            | The class of the inserted sprite SVG.                                                                                                      |
-| `attributes` | `{ "class: "sprite-sheet", "aria-hidden": "true", xmlns: 'http://www.w3.org/2000/svg' }` |                   | Attributes set on the sprite SVG.                                                                                                          |
-| `extraIcons` | [_see below_](#extraicons)                                                               |                   | Add additional icons not directly used in your content                                                                                     |
-| `writeFile`  | `false`                                                                                  | `string`, `false` | Write the generated sprite SVG to specified path in the 11ty output directory. Disable by setting it to `false`.                           |
+#### `class`
 
-#### sprite.extraIcons
+- **Type**: `function (name: string, source: string) => string`
+- **Default**: `(name, source) => 'icon icon-'+ name`
 
-```js
-{
-	all: false,
-	sources: [],
-	icons: [],
-};
-```
+The `class` option adds a dynamically generated class to the class attribute of the inserted icon. The function takes the icon name and source as arguments and should return a string. By default, it generates a class like `icon icon-my-icon`.
 
-If `all` is set to `true`, all icons from every source will be inserted into the sprite sheet, even if they are not used in the page. If `sources` is set, all icons from the source names in `sources` will be inserted, even if they are not used in the page. If `icons` is set, you can provide an array of icon objects (`{ name: string, source: string }`) to be inserted.
+#### `id`
+
+- **Type**: `function (name: string, source: string) => string`
+- **Default**: `(name, source) => 'icon-' + name`
+
+The `id` option defines the dynamic `id` attribute for sprite icons and the `href` attribute for sprite references. This function takes the icon name and source as arguments and should return a string. By default, it generates an ID like `icon-my-icon`.
+
+#### `attributes`
+
+- **Type**: `Record<string, string>`
+- **Default**: `{}`
+
+The `attributes` option allows you to set additional (static) attributes for the icon. It takes an object where keys represent attribute names, and values represent attribute values. For example, `{ 'aria-hidden': 'true' }` sets `aria-hidden="true"`.
+
+#### `attributesBySource`
+
+- **Type**: `Record<string, Record<string, string>>`
+- **Default**: `{}`
+
+The `attributesBySource` option allows you to set icon attributes based on their source. It takes an object where each key represents a source name, and the corresponding value is another object specifying attribute-value pairs. For example, `{ custom: { 'aria-hidden': 'true' } }` sets `aria-hidden="true"` if the source is `custom`.
+
+#### `overwriteExistingAttributes`
+
+- **Type**: `boolean`
+- **Default**: `true`
+
+The `overwriteExistingAttributes` option determines whether existing attributes on the original SVG should be overwritten. When set to `true`, existing attributes will be replaced with the new attributes. If set to `false`, existing attributes will be merged with new ones.
+
+#### `errorNotFound`
+
+- **Type**: `boolean`
+- **Default**: `true`
+
+The `errorNotFound` option controls error handling for icons that are not found. When set to `true`, an error will be thrown for missing icons. If set to `false`, only a warning will be displayed.
+
+### `sprite`
+
+This section outlines options related to the `sprite` shortcode.
+
+#### `shortcode`
+
+- **Type**: `string`
+- **Default**: `'spriteSheet'`
+
+The `shortcode` option specifies the name of the shortcode used to insert the sprite sheet. For example, if you set `shortcode` to `'insertSprite'`, you would use `{% insertSprite %}` to insert the sprite sheet. This shortcode takes no arguments and is used when `mode` is set to `'sprite'`.
+
+#### `class`
+
+- **Type**: `string`
+- **Default**: `'sprite-sheet'`
+
+The `class` option defines the class attribute of the inserted sprite SVG.
+
+#### `attributes`
+
+- **Type**: `Record<string, string>`
+- **Default**: `{ "class: "sprite-sheet", "aria-hidden": "true", xmlns: 'http://www.w3.org/2000/svg' }`
+
+The `attributes` option allows you to set additional attributes for the sprite SVG. It takes an object where keys represent attribute names, and values represent attribute values.
+
+#### `extraIcons`
+
+- **Type**: `{ all: boolean, sources: string[], icons: { name: string, source: string }[] }`
+- **Default**: `{ all: false, sources: [], icons: [] }`
+
+The `extraIcons` option lets you add additional icons to the sprite sheet, even if they are not directly used in your content. It has the following properties:
+
+- `all` (boolean): If set to `true`, all icons from every source will be inserted into the sprite sheet, regardless of whether they are used on the page.
+- `sources` (string[]): If `sources` is specified, all icons from the sources listed in this array will be inserted into the sprite sheet, even if they are not used on the page.
+- `icons` (Object[]): You can provide an array of icon objects, where each object has a `name` and a `source`. These icons will be included in the sprite sheet.
+
+#### `writeFile`
+
+- **Type**: `string | false`
+- **Default**: `false`
+
+The `writeFile` option controls whether the generated sprite SVG is written to a specified path in the 11ty output directory. If you want to write the sprite SVG to a file, provide a string representing the file path. To disable writing the file, set `writeFile` to `false`.
 
 ## Credits
 
