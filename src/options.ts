@@ -87,7 +87,8 @@ export function validateOptions(options: Options) {
 			log.error(`options.sources: Only one default source is allowed.`);
 
 		if (
-			[...new Set(options.sources.map((source) => source.name))].length !== options.sources.length
+			[...new Set(options.sources.map((source) => source.name))].length !==
+			options.sources.length
 		)
 			log.error('options.sources: Source names must be unique.');
 	} catch (err) {
@@ -100,7 +101,9 @@ export function validateOptions(options: Options) {
 				const receiveds = error.unionErrors.flatMap((error) =>
 					error.issues.map((issue: any) => issue.received),
 				);
-				const codes = error.unionErrors.flatMap((error) => error.issues.map((issue) => issue.code));
+				const codes = error.unionErrors.flatMap((error) =>
+					error.issues.map((issue) => issue.code),
+				);
 				log.error(
 					`${path}: Expected ${
 						expecteds.length === 1 ? expecteds[0] : expecteds.join(' or ')

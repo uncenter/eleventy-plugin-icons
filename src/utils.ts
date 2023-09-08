@@ -10,7 +10,10 @@ export const log = new Logger('eleventy-plugin-icons');
  * @param mergeKeys - An array of attribute keys to combine across the given objects.
  * @param objects - An array of attribute objects to merge. Attributes from objects later in the array overwrite earlier ones.
  */
-export function mergeAttributes(mergeKeys: string[], objects: Attributes[]): Attributes {
+export function mergeAttributes(
+	mergeKeys: string[],
+	objects: Attributes[],
+): Attributes {
 	return objects.reduce((acc, object) => {
 		// Combine specified keys.
 		mergeKeys.forEach((key) => {
@@ -66,7 +69,11 @@ const builder = new XMLBuilder({
  * @param overwrite - Flag indicating whether to overwrite existing attributes.
  * @returns The modified SVG string.
  */
-export function parseSVG(raw: string, attributes: Attributes, overwrite: boolean) {
+export function parseSVG(
+	raw: string,
+	attributes: Attributes,
+	overwrite: boolean,
+) {
 	const parsed = parser.parse(raw);
 	let svg;
 	let existingAttributes: Attributes = {};
@@ -91,15 +98,24 @@ export function parseSVG(raw: string, attributes: Attributes, overwrite: boolean
 					? // Overwrite all:
 					  []
 					: // Combine all:
-					  [...new Set([existingAttributes, attributes].flatMap((obj) => Object.keys(obj)))],
+					  [
+							...new Set(
+								[existingAttributes, attributes].flatMap((obj) =>
+									Object.keys(obj),
+								),
+							),
+					  ],
 				// Existing attributes will be overwritten by newer ones because `attributes` is after `existingAttributes`.
 				[existingAttributes, attributes],
 			);
 
-			node[':@'] = Object.keys(newAttributes).reduce((acc: typeof newAttributes, key) => {
-				acc['@_' + key] = newAttributes[key];
-				return acc;
-			}, {});
+			node[':@'] = Object.keys(newAttributes).reduce(
+				(acc: typeof newAttributes, key) => {
+					acc['@_' + key] = newAttributes[key];
+					return acc;
+				},
+				{},
+			);
 
 			break;
 		}
