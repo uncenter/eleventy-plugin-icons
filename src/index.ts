@@ -18,6 +18,7 @@ export default function (eleventyConfig: any, opts: Options) {
 		options.icon.shortcode,
 		memoize(async (input: any, attrs: Attributes | string = {}) => {
 			const icon = new Icon(input, options);
+
 			// Keep track of used icons for generating sprite.
 			usedIcons.push(icon);
 
@@ -49,9 +50,15 @@ export default function (eleventyConfig: any, opts: Options) {
 			);
 
 			if (options.mode === 'inline') {
-				return parseSVG(content, attributes, options.icon.overwriteExistingAttributes);
+				return parseSVG(
+					content,
+					attributes,
+					options.icon.overwriteExistingAttributes,
+				);
 			} else if (options.mode === 'sprite') {
-				return `<svg ${attributesToString(attributes)}><use href="#${options.icon.id(
+				return `<svg ${attributesToString(
+					attributes,
+				)}><use href="#${options.icon.id(
 					icon.name,
 					icon.source,
 				)}"></use></svg>`;

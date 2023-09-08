@@ -10,16 +10,22 @@ export class Icon {
 	public source: string = '';
 	public path: string = '';
 
-	constructor(input: { name: string; source: string } | string, options: Options) {
+	constructor(
+		input: { name: string; source: string } | string,
+		options: Options,
+	) {
 		if (typeof input === 'object') {
 			this.name = input.name;
 			this.source = input.source;
 		} else if (typeof input === 'string') {
 			if (!input.includes(options.icon.delimiter)) {
 				this.name = input;
-				this.source = options.sources.find((source) => source.default === true)?.name || '';
+				this.source =
+					options.sources.find((source) => source.default === true)?.name || '';
 				if (!this.source)
-					log.error(`Icon '${input}' lacks a delimiter and no default source is set.`);
+					log.error(
+						`Icon '${input}' lacks a delimiter and no default source is set.`,
+					);
 			} else {
 				const [source, icon] = input.split(options.icon.delimiter);
 				this.name = icon;
@@ -29,7 +35,9 @@ export class Icon {
 			log.error(`Invalid input type for Icon constructor: '${typeof input}'.`);
 		}
 
-		const sourceObject = options.sources.find((source) => source.name === this.source);
+		const sourceObject = options.sources.find(
+			(source) => source.name === this.source,
+		);
 		if (sourceObject) {
 			this.path = path.join(sourceObject.path, `${this.name}.svg`);
 		} else {
@@ -46,34 +54,46 @@ export class Icon {
 				log.warn(`Icon ${this.stringified()} appears to be empty.`);
 				content = '';
 			}
-			return options.icon.transform ? await options.icon.transform(content) : content;
+			return options.icon.transform
+				? await options.icon.transform(content)
+				: content;
 		} catch {
-			log[options.icon.errorNotFound ? 'error' : 'warn'](`Icon ${this.stringified()} not found.`);
+			log[options.icon.errorNotFound ? 'error' : 'warn'](
+				`Icon ${this.stringified()} not found.`,
+			);
 		}
 	});
 }
 
-export const createSprite = memoize(async (icons: Icon[], options: Options): Promise<string> => {
-	// Create an array of promises that generate symbol definitions for each icon.
-	const symbols = await Promise.all(
-		[...new Set(icons || [])].map(async (icon) => {
-			const content = await icon.content(options);
-			// If content exists, convert it to a symbol element and add attributes.
-			if (content) {
-				return parseSVG(content, { id: options.icon.id(icon.name, icon.source) }, true)
-					.replace(/<svg/, '<symbol')
-					.replace(/<\/svg>/, '</symbol>');
-			}
-			return '';
-		}),
-	);
+export const createSprite = memoize(
+	async (icons: Icon[], options: Options): Promise<string> => {
+		// Create an array of promises that generate symbol definitions for each icon.
+		const symbols = await Promise.all(
+			[...new Set(icons || [])].map(async (icon) => {
+				const content = await icon.content(options);
+				// If content exists, convert it to a symbol element and add attributes.
+				if (content) {
+					return parseSVG(
+						content,
+						{ id: options.icon.id(icon.name, icon.source) },
+						true,
+					)
+						.replace(/<svg/, '<symbol')
+						.replace(/<\/svg>/, '</symbol>');
+				}
+				return '';
+			}),
+		);
 
-	// Combine the generated symbol strings and filter out empty ones.
-	const symbolsString = symbols.filter(Boolean).join('');
-	return symbolsString
-		? `<svg ${attributesToString(options.sprite.attributes)}><defs>${symbolsString}</defs></svg>`
-		: ''; // Return an empty string if no symbols were generated.
-});
+		// Combine the generated symbol strings and filter out empty ones.
+		const symbolsString = symbols.filter(Boolean).join('');
+		return symbolsString
+			? `<svg ${attributesToString(
+					options.sprite.attributes,
+			  )}><defs>${symbolsString}</defs></svg>`
+			: ''; // Return an empty string if no symbols were generated.
+	},
+);
 
 export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 	let icons = [];
@@ -95,7 +115,11 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 		} else if (Array.isArray(options.sprite.extraIcons.icons)) {
 			for (const icon of options.sprite.extraIcons.icons) {
 				if (!icon.name || !icon.source)
-					log.error(`options.sprite.extraIcons.icons: Invalid icon: ${JSON.stringify(icon)}.`);
+					log.error(
+						`options.sprite.extraIcons.icons: Invalid icon: ${JSON.stringify(
+							icon,
+						)}.`,
+					);
 				icons.push(new Icon(icon, options));
 			}
 		}
