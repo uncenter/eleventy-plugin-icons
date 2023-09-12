@@ -6,10 +6,6 @@ on:
       - 'v*.*.*'
 
 jobs:
-  test:
-    uses: ./.github/workflows/test.yml
-  build:
-    uses: ./.github/workflows/build.yml
   release:
     runs-on: ubuntu-latest
     permissions:
@@ -30,6 +26,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
 
       - name: Publish
         env:
