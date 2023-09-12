@@ -162,35 +162,6 @@ npm i lucide-static
 }
 ```
 
-### Changing attributes
-
-By default, the plugin uses the icon name as the ID and class of the inserted icon. For example, the `heart` icon from any source would have the following class and ID:
-
-```html
-<svg class="icon icon-heart" id="icon-heart"></svg>
-```
-
-To change this, you can use the `icon.id` and `icon.class` functions. For example, the following would change the class and ID to include the source name:
-
-```js
-{
-	icon: {
-		class: function (name, source) {
-			return `icon icon-${source}-${name}`;
-		},
-		id: function (name, source) {
-			return `icon-${source}-${name}`;
-		},
-	},
-}
-```
-
-This would lead to the following class and ID for the `heart` icon from the `custom` source:
-
-```html
-<svg class="icon icon-custom-heart" id="icon-custom-heart"></svg>
-```
-
 ## Configuration
 
 ### `mode`
