@@ -58,6 +58,7 @@ You can add **any directory** as a source for your icons, including icons from N
 npm i eleventy-plugin-icons
 pnpm add eleventy-plugin-icons
 yarn add eleventy-plugin-icons
+bun add eleventy-plugin-icons
 ```
 
 ## Usage
@@ -72,7 +73,7 @@ module.exports = (eleventyConfig) => {
 };
 ```
 
-To give you an idea of the level of customization this plugin offers, take a look at the base configuration. If that looks intimidating, you can [just skip to the first step](#adding-a-source).
+To give you an idea of the level of customization this plugin offers, take a look at the default configuration. To start configuring right now, skip to [Configuration](#configuration).
 
 > [!NOTE]
 > Future examples of options will just be an object, like the default options object below. To edit your options, edit the `{}` object from the line:
@@ -113,9 +114,9 @@ To give you an idea of the level of customization this plugin offers, take a loo
 }
 ```
 
-### Adding a source
+### Getting started
 
-To get started, you need a source to pull the icons from. For example, if you have some custom icons in the `src/icons` directory, you can add those as a source like so:
+To start, you need a source to pull icons from. For example, if you have some custom icons in the `src/icons` directory, you can add those as a source like so:
 
 ```js
 {
@@ -129,7 +130,7 @@ Now in your templates you can insert your icons using the `icon` shortcode.
 {% icon "custom:my-icon" %}
 ```
 
-If that syntax looks too ugly for you, or if you only have one source, you can make it the default source with `default: true`. With a default source, icons can be used like `{% icon "my-icon" %}` instead of `{% icon "custom:my-icon" %}`.
+If you only have one source, you can make it the default source with `default: true`. With a default source, icons can be used like `{% icon "my-icon" %}` instead of `{% icon "custom:my-icon" %}`.
 
 ```js
 {
@@ -139,9 +140,9 @@ If that syntax looks too ugly for you, or if you only have one source, you can m
 
 You can add as many sources as you want but you can only have one default source.
 
-#### Popular icon sets
+### Popular icon sets
 
-There are no sources defined out of the box, but here are some popular icon sets for reference:
+Often you will want to use your favorite icon set; since you can use icons from any folder, we can pull them from the `node_modules` folder. There are no sources defined out of the box, but here are some popular icon sets for reference:
 
 |                                         | Package                                                      | Icons Directory                         |
 | --------------------------------------- | ------------------------------------------------------------ | --------------------------------------- |
@@ -192,7 +193,7 @@ You can add multiple sources to categorize and organize your icons.
 ```
 
 > [!NOTE]
-> You can refer to [Adding a source](#adding-a-source) for more information.
+> You can refer to [Getting started](#getting-started) for more information on adding sources.
 
 ### `icon`
 
