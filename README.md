@@ -304,10 +304,6 @@ The `extraIcons` option lets you add additional icons to the sprite sheet, even 
 
 The `writeFile` option controls whether the generated sprite SVG is written to a specified path in the 11ty output directory. If you want to write the sprite SVG to a file, provide a string representing the file path. To disable writing the file, set `writeFile` to `false`.
 
-## Credits
-
-- [eleventy-plugin-template](https://github.com/5t3ph/eleventy-plugin-template)
-
 ## License
 
 [MIT](LICENSE)
