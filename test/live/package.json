@@ -6,7 +6,7 @@
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^2.0.1",
-		"lucide-static": "^0.276.0"
+		"lucide-static": "^0.279.0"
 	},
-	"packageManager": "pnpm@8.7.4"
+	"packageManager": "pnpm@8.7.6"
 }
