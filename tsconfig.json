@@ -3,6 +3,7 @@
 		"strict": true,
 		"esModuleInterop": true,
 		"target": "es2021",
+		"module": "esnext",
 		"moduleResolution": "node",
 		"outDir": "dist"
 	}

@@ -43,9 +43,9 @@ export const defaultOptions: Options = {
 	icon: {
 		shortcode: 'icon',
 		delimiter: ':',
-		transform: async (content) => content,
-		class: (name) => `icon icon-${name}`,
-		id: (name) => `icon-${name}`,
+		transform: async (content: string) => content,
+		class: (name: string) => `icon icon-${name}`,
+		id: (name: string) => `icon-${name}`,
 		attributes: {},
 		attributesBySource: {},
 		overwriteExistingAttributes: true,
@@ -72,7 +72,7 @@ export const defaultOptions: Options = {
  * @param options Options to merge with the default options.
  * @returns Merged options object.
  */
-export function mergeOptions(options: Options): Options {
+export function mergeOptions(options: Partial<Options>): Options {
 	return extend(true, defaultOptions, options) as Options;
 }
 
@@ -82,7 +82,7 @@ export function mergeOptions(options: Options): Options {
  */
 export function validateOptions(options: Options) {
 	try {
-		OptionsSchema.parse(options);
+		options = OptionsSchema.parse(options) as Options;
 		if (options.sources.filter((source) => source.default === true).length > 1)
 			log.error(`options.sources: Only one default source is allowed.`);
 
