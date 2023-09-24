@@ -9,7 +9,8 @@
 	},
 	"scripts": {
 		"build": "unbuild",
-		"test": "vitest",
+		"test:install": "cd test/live && pnpm install",
+		"test": "pnpm test:install && vitest",
 		"format": "prettier --write ."
 	},
 	"keywords": [

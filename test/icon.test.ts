@@ -13,24 +13,6 @@ test('should match content from filesystem', async () => {
 	const options = mergeOptions({
 		mode: 'inline',
 		sources: [
-			{ name: 'custom', path: './icons' },
-			{
-				name: 'lucide',
-				path: icons,
-			},
-		],
-	});
-	const icon = new Icon('lucide:star', options);
-	expect(await icon.content(options)).toEqual(
-		await readFile(join(icons, 'star.svg'), 'utf-8'),
-	);
-});
-
-test('should match content from filesystem', async () => {
-	const icons = join(__dirname, './live/node_modules/lucide-static/icons');
-	const options = mergeOptions({
-		mode: 'inline',
-		sources: [
 			{
 				name: 'lucide',
 				path: icons,
