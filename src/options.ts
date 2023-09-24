@@ -1,41 +1,47 @@
 import extend from 'just-extend';
-import { z, type ZodError } from 'zod';
-import { fromZodError } from 'zod-validation-error';
 import { log } from './utils';
+import { Attributes } from './types';
 
-export const OptionsSchema = z.object({
-	mode: z.enum(['inline', 'sprite']),
-	sources: z.array(
-		z.object({
-			name: z.string(),
-			path: z.string(),
-			default: z.optional(z.boolean()),
-		}),
-	),
-	icon: z.object({
-		shortcode: z.string(),
-		delimiter: z.string(),
-		transform: z.function().args(z.string()).returns(z.promise(z.string())),
-		class: z.function().args(z.string(), z.string()).returns(z.string()),
-		id: z.function().args(z.string(), z.string()).returns(z.string()),
-		attributes: z.record(z.string()),
-		attributesBySource: z.record((z.string(), z.record(z.string()))),
-		overwriteExistingAttributes: z.boolean(),
-		errorNotFound: z.boolean(),
-	}),
-	sprite: z.object({
-		shortcode: z.string(),
-		attributes: z.record(z.string()),
-		extraIcons: z.object({
-			all: z.boolean(),
-			sources: z.array(z.string()),
-			icons: z.array(z.object({ name: z.string(), source: z.string() })),
-		}),
-		writeFile: z.union([z.literal(false), z.string()]),
-	}),
-});
-
-export type Options = z.infer<typeof OptionsSchema>;
+export type Options = {
+	mode: 'inline' | 'sprite';
+	sources: {
+		name: string;
+		path: string;
+		default?: boolean;
+	}[];
+	icon: {
+		shortcode: string;
+		delimiter: string;
+		transform: (content: string) => Promise<string>;
+		class: (name: string, source: string) => string;
+		id: (name: string, source: string) => string;
+		attributes: {
+			[x: string]: string;
+		};
+		attributesBySource: {
+			[x: string]: {
+				[x: string]: string;
+			};
+		};
+		overwriteExistingAttributes: boolean;
+		errorNotFound: boolean;
+	};
+	sprite: {
+		shortcode: string;
+		attributes: {
+			[x: string]: string;
+		};
+		extraIcons: {
+			all: boolean;
+			sources: string[];
+			icons: {
+				name: string;
+				source: string;
+			}[];
+		};
+		writeFile: false | string;
+	};
+};
 
 export const defaultOptions: Options = {
 	mode: 'inline',
@@ -76,44 +82,192 @@ export function mergeOptions(options: Partial<Options>): Options {
 	return extend(true, defaultOptions, options) as Options;
 }
 
-/**
- *
- * @param options Options to validate against the schema.
- */
-export function validateOptions(options: Options) {
-	try {
-		options = OptionsSchema.parse(options) as Options;
-		if (options.sources.filter((source) => source.default === true).length > 1)
-			log.error(`options.sources: Only one default source is allowed.`);
+function validateAttributes(attributes: Attributes): attributes is Attributes {
+	if (typeof attributes !== 'object' || attributes === null) return false;
 
-		if (
-			[...new Set(options.sources.map((source) => source.name))].length !==
-			options.sources.length
-		)
-			log.error('options.sources: Source names must be unique.');
-	} catch (err) {
-		for (const error of fromZodError(err as ZodError).details) {
-			const path = `options.${error.path.join('.')}`;
-			if (error.code === 'invalid_union') {
-				const expecteds = error.unionErrors.flatMap((error) =>
-					error.issues.map((issue: any) => issue.expected),
-				);
-				const receiveds = error.unionErrors.flatMap((error) =>
-					error.issues.map((issue: any) => issue.received),
-				);
-				const codes = error.unionErrors.flatMap((error) =>
-					error.issues.map((issue) => issue.code),
-				);
-				log.error(
-					`${path}: Expected ${
-						expecteds.length === 1 ? expecteds[0] : expecteds.join(' or ')
-					}, received ${
-						receiveds.length === 1 ? receiveds[0] : receiveds.join(' / ')
-					} (${codes.join(', ')}).`,
-				);
-			} else {
-				log.error(`${path}: ${error.message}.`);
+	for (const key in attributes) {
+		if (attributes.hasOwnProperty(key)) {
+			const value = attributes[key];
+
+			if (typeof key !== 'string' || typeof value !== 'string') {
+				return false;
 			}
 		}
 	}
+
+	return true;
+}
+
+export function validateOptions(options: Options): options is Options {
+	if (options.mode !== 'inline' && options.mode !== 'sprite') {
+		log.error(
+			`options.mode: expected 'inline' or 'sprite' but received ${typeof options.mode}`,
+		);
+	}
+
+	if (!Array.isArray(options.sources)) {
+		log.error(
+			`options.sources: expected an array but received ${typeof options.sources}`,
+		);
+	}
+	for (let i = 0; i < options.sources.length; i++) {
+		const source = options.sources[i];
+		if (typeof source.name !== 'string')
+			log.error(
+				`options.sources[${i}].name: expected a string but received ${typeof source.name}`,
+			);
+		if (typeof source.path !== 'string')
+			log.error(
+				`options.sources[${i}].path: expected a string but received ${typeof source.path}`,
+			);
+		if (
+			typeof source.default !== 'boolean' &&
+			typeof source.default !== 'undefined'
+		)
+			log.error(
+				`options.sources[${i}].default: expected boolean or undefined but receieved ${typeof source.default}`,
+			);
+	}
+	if (options.sources.filter((source) => source.default === true).length > 1)
+		log.error(`options.sources: only one default source is allowed`);
+
+	if (
+		[...new Set(options.sources.map((source) => source.name))].length !==
+		options.sources.length
+	)
+		log.error('options.sources: source names must be unique');
+
+	if (typeof options.icon !== 'object') {
+		log.error(
+			`options.icon: expected an object but received ${typeof options.icon}`,
+		);
+	}
+	if (typeof options.icon.shortcode !== 'string') {
+		log.error(
+			`options.icon.shortcode: expected a string but received ${typeof options
+				.icon.shortcode}`,
+		);
+	}
+	if (typeof options.icon.delimiter !== 'string') {
+		log.error(
+			`options.icon.delimiter: expected a string but received ${typeof options
+				.icon.delimiter}`,
+		);
+	}
+	if (typeof options.icon.transform !== 'function') {
+		log.error(
+			`options.icon.transform: expected a function but received ${typeof options
+				.icon.transform}`,
+		);
+	}
+	if (typeof options.icon.class !== 'function') {
+		log.error(
+			`options.icon.class: expected a function but received ${typeof options
+				.icon.class}`,
+		);
+	}
+	if (typeof options.icon.id !== 'function') {
+		log.error(
+			`options.icon.id: expected a function but received ${typeof options.icon
+				.id}`,
+		);
+	}
+	if (typeof options.icon.attributes !== 'object') {
+		log.error(
+			`options.icon.attributes: expected an object but received ${typeof options
+				.icon.attributes}`,
+		);
+	}
+	if (typeof options.icon.attributesBySource !== 'object') {
+		log.error(
+			`options.icon.attributesBySource: expected an object but received ${typeof options
+				.icon.attributesBySource}`,
+		);
+	}
+	if (typeof options.icon.overwriteExistingAttributes !== 'boolean') {
+		log.error(
+			`options.icon.overwriteExistingAttributes: expected a boolean but received ${typeof options
+				.icon.overwriteExistingAttributes}`,
+		);
+	}
+	if (typeof options.icon.errorNotFound !== 'boolean') {
+		log.error(
+			`options.icon.errorNotFound: expected a boolean but received ${typeof options
+				.icon.errorNotFound}`,
+		);
+	}
+
+	if (typeof options.sprite !== 'object') {
+		log.error(
+			`options.sprite: expected an object but received ${typeof options.sprite}`,
+		);
+	}
+	if (typeof options.sprite.shortcode !== 'string') {
+		log.error(
+			`options.sprite.shortcode: expected a string but received ${typeof options
+				.sprite.shortcode}`,
+		);
+	}
+	if (typeof options.sprite.attributes !== 'object') {
+		log.error(
+			`options.sprite.attributes: expected an object but received ${typeof options
+				.sprite.attributes}`,
+		);
+	}
+	if (typeof options.sprite.extraIcons !== 'object') {
+		log.error(
+			`options.sprite.extraIcons: expected an object but received ${typeof options
+				.sprite.extraIcons}`,
+		);
+	}
+	if (typeof options.sprite.extraIcons.all !== 'boolean') {
+		log.error(
+			`options.sprite.extraIcons.all: expected a boolean but received ${typeof options
+				.sprite.extraIcons.all}`,
+		);
+	}
+	if (!Array.isArray(options.sprite.extraIcons.sources)) {
+		log.error(
+			`options.sprite.extraIcons.sources: expected an array but received ${typeof options
+				.sprite.extraIcons.all}`,
+		);
+	}
+	for (let i = 0; i < options.sprite.extraIcons.sources.length; i++) {
+		const source = options.sprite.extraIcons.sources[i];
+		if (typeof source !== 'string')
+			log.error(
+				`options.sprite.extraIcons.sources[${i}]: expected a string but received ${typeof source}`,
+			);
+	}
+	if (!Array.isArray(options.sprite.extraIcons.icons)) {
+		log.error(
+			`options.sprite.extraIcons.icons: expected an array but received ${typeof options
+				.sprite.extraIcons.all}`,
+		);
+	}
+	for (let i = 0; i < options.sprite.extraIcons.icons.length; i++) {
+		const icon = options.sprite.extraIcons.icons[i];
+		if (typeof icon !== 'object')
+			log.error(
+				`options.sprite.extraIcons.icons[${i}]: expected an object but received ${typeof icon}`,
+			);
+		if (typeof icon.name !== 'string')
+			log.error(
+				`options.sprite.extraIcons.icons[${i}].name: expected a string but received ${typeof icon}`,
+			);
+		if (typeof icon.source !== 'string')
+			log.error(
+				`options.sprite.extraIcons.icons[${i}].source: expected a string but received ${typeof icon}`,
+			);
+	}
+	if (
+		typeof options.sprite.writeFile !== 'boolean' &&
+		typeof options.sprite.writeFile !== 'string'
+	) {
+		log.error(
+			`options.sprite.writeFile: expected a boolean or string but received ${typeof options
+				.sprite.writeFile}`,
+		);
+	}
+	return true;
 }
