@@ -11,6 +11,8 @@ import type { Attributes } from './types';
 export default function (eleventyConfig: any, opts: Options) {
 	const usedIcons: Icon[] = [];
 
+	if (opts === null || typeof opts !== 'object')
+		throw new Error(`options: expected an object but received ${typeof opts}`);
 	const options = mergeOptions(opts);
 	validateOptions(options);
 
