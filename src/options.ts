@@ -1,7 +1,8 @@
 import extend from 'just-extend';
 import typeOf from 'just-typeof';
 
-import { PluginError, get } from './utils';
+import { PluginError } from './error';
+import { get } from './utils';
 
 export type Options = {
 	mode: 'inline' | 'sprite';
