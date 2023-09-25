@@ -73,7 +73,7 @@ module.exports = (eleventyConfig) => {
 };
 ```
 
-To give you an idea of the level of customization this plugin offers, take a look at the default configuration. To start configuring right now, skip to [Configuration](#configuration).
+To give you an idea of the level of customization this plugin offers, take a look at the default configuration below. To start configuring right now, skip to [Configuration](#configuration).
 
 > [!NOTE]
 > Future examples of options will just be an object, like the default options object below. To edit your options, edit the `{}` object from the line:
@@ -130,7 +130,7 @@ Now in your templates you can insert your icons using the `icon` shortcode.
 {% icon "custom:my-icon" %}
 ```
 
-If you only have one source, you can make it the default source with `default: true`. With a default source, icons can be used like `{% icon "my-icon" %}` instead of `{% icon "custom:my-icon" %}`.
+You can make a source the default source with `default: true`. With a default source, icons can be used like `{% icon "my-icon" %}` instead of `{% icon "custom:my-icon" %}`.
 
 ```js
 {
@@ -173,7 +173,7 @@ npm i lucide-static
 The `mode` option specifies how icons are handled. It can take one of two values:
 
 - `'inline'`: When set to `'inline'`, the `icon` shortcode will insert SVGs directly into the page. No "sprite sheet" is required in this mode.
-- `'sprite'`: When set to `'sprite'`, the `icon` shortcode will insert `<use>` references for each icon. This mode should be used in conjunction with the `sprites` shortcode.
+- `'sprite'`: When set to `'sprite'`, the `icon` shortcode will insert `<use>` references for each icon. This mode should be used in conjunction with the `sprite` shortcode, which inserts a sprite of all the icons used on a page; insert your icons normally but make sure you use the `sprite` shortcode on each page, like in a template. Alternatively, you can use the `sprite.writeFile` option to write the sprite to the output directory and include that file in each page instead.
 
 ### `sources`
 
