@@ -82,22 +82,6 @@ export function mergeOptions(options: Partial<Options>): Options {
 	return extend(true, defaultOptions, options) as Options;
 }
 
-function validateAttributes(attributes: Attributes): attributes is Attributes {
-	if (typeof attributes !== 'object' || attributes === null) return false;
-
-	for (const key in attributes) {
-		if (attributes.hasOwnProperty(key)) {
-			const value = attributes[key];
-
-			if (typeof key !== 'string' || typeof value !== 'string') {
-				return false;
-			}
-		}
-	}
-
-	return true;
-}
-
 export function validateOptions(options: Options): options is Options {
 	if (options.mode !== 'inline' && options.mode !== 'sprite') {
 		log.error(
@@ -172,17 +156,45 @@ export function validateOptions(options: Options): options is Options {
 				.id}`,
 		);
 	}
-	if (typeof options.icon.attributes !== 'object') {
+	if (
+		typeof options.icon.attributes !== 'object' ||
+		options.icon.attributes === null
+	) {
 		log.error(
 			`options.icon.attributes: expected an object but received ${typeof options
 				.icon.attributes}`,
 		);
+	}
+	for (let i = 0; i < Object.entries(options.icon.attributes).length; i++) {
+		const [key, value] = Object.entries(options.icon.attributes)[i];
+		if (typeof value !== 'string')
+			log.error(
+				`options.icon.attributes['${key}']: expected a string for the value but received ${typeof value}`,
+			);
 	}
 	if (typeof options.icon.attributesBySource !== 'object') {
 		log.error(
 			`options.icon.attributesBySource: expected an object but received ${typeof options
 				.icon.attributesBySource}`,
 		);
+	}
+	for (
+		let i = 0;
+		i < Object.entries(options.icon.attributesBySource).length;
+		i++
+	) {
+		const [key, value] = Object.entries(options.icon.attributesBySource)[i];
+		if (typeof value !== 'object')
+			log.error(
+				`options.icon.attributesBySource['${key}']: expected an object for the value but received ${typeof value}`,
+			);
+		for (let j = 0; j < Object.entries(value).length; j++) {
+			const [k, v] = Object.entries(value)[i];
+			if (typeof v !== 'string')
+				log.error(
+					`options.icon.attributesBySource['${key}']['${k}']: expected a string for the value but received ${typeof v}`,
+				);
+		}
 	}
 	if (typeof options.icon.overwriteExistingAttributes !== 'boolean') {
 		log.error(
