@@ -1,4 +1,3 @@
-import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import kleur from 'kleur';
 import type { Attributes } from './types';
 
@@ -88,86 +87,6 @@ export function attributesToString(attrs: Attributes): string {
 		.join(' ');
 }
 
-const parser = new XMLParser({
-	ignoreAttributes: false,
-	ignoreDeclaration: true,
-	commentPropName: '#comment',
-	preserveOrder: true,
-});
-
-const builder = new XMLBuilder({
-	ignoreAttributes: false,
-	commentPropName: '#comment',
-	preserveOrder: true,
-	format: true,
-	suppressEmptyNode: true,
-	unpairedTags: ['hr', 'br', 'link', 'meta'],
-});
-
-/**
- * Parses an SVG string and merges given attributes with existing ones.
- *
- * @param raw - The raw SVG string.
- * @param attributes - The attributes to be merged.
- * @param overwrite - Flag indicating whether to overwrite existing attributes.
- * @returns The modified SVG string.
- */
-export function parseSVG(
-	raw: string,
-	attributes: Attributes,
-	overwrite: boolean,
-) {
-	const parsed = parser.parse(raw);
-	let svg;
-	let existingAttributes: Attributes = {};
-	for (const node of parsed) {
-		if ('svg' in node) {
-			svg = node.svg;
-
-			if (':@' in node) {
-				existingAttributes = node[':@'];
-				existingAttributes = Object.keys(existingAttributes).reduce(
-					(acc: typeof existingAttributes, key) => {
-						acc[key.replace(/^@_/, '')] = existingAttributes[key];
-						return acc;
-					},
-					{},
-				);
-			}
-
-			let newAttributes = mergeAttributes(
-				// Combine given attributes with existing ones depending on `overwrite`.
-				overwrite
-					? // Overwrite all:
-					  []
-					: // Combine all:
-					  [
-							...new Set(
-								[existingAttributes, attributes].flatMap((obj) =>
-									Object.keys(obj),
-								),
-							),
-					  ],
-				// Existing attributes will be overwritten by newer ones because `attributes` is after `existingAttributes`.
-				[existingAttributes, attributes],
-			);
-
-			node[':@'] = Object.keys(newAttributes).reduce(
-				(acc: typeof newAttributes, key) => {
-					acc['@_' + key] = newAttributes[key];
-					return acc;
-				},
-				{},
-			);
-
-			break;
-		}
-	}
-	if (!svg) log.error('No SVG element found.');
-
-	return builder.build(parsed);
-}
-
 // https://github.com/fabiospampinato/json-oneline-stringify
 
 // The MIT License (MIT)
@@ -191,6 +110,7 @@ export function parseSVG(
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
+
 export function stringify(input: unknown): string | undefined {
 	const type = typeof input;
 

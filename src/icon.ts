@@ -3,7 +3,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { type Options } from './options';
-import { attributesToString, log, parseSVG, stringify } from './utils';
+import { parseSVG } from './svg';
+import { attributesToString, log, stringify } from './utils';
 
 export class Icon {
 	public name: string = '';
