@@ -2,6 +2,12 @@ import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import kleur from 'kleur';
 import type { Attributes } from './types';
 
+export class PluginError extends Error {
+	constructor(message: string) {
+		super(`[eleventy-plugin-icons] ${message}`);
+	}
+}
+
 export const log = {
 	log(msg: string) {
 		message(msg);
