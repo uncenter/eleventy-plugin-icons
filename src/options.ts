@@ -1,6 +1,5 @@
 import extend from 'just-extend';
 import { log } from './utils';
-import { Attributes } from './types';
 
 export type Options = {
 	mode: 'inline' | 'sprite';
