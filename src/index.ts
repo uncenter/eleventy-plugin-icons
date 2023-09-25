@@ -2,9 +2,9 @@ import memoize from 'just-memoize';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { attributesToString, mergeAttributes, parseSVG } from './utils';
-import { mergeOptions, validateOptions, type Options } from './options';
 import { Icon, createSprite, getExtraIcons } from './icon';
+import { mergeOptions, validateOptions, type Options } from './options';
+import { attributesToString, mergeAttributes, parseSVG } from './utils';
 
 import type { Attributes } from './types';
 
