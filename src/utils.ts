@@ -1,12 +1,6 @@
 import kleur from 'kleur';
 import type { Attributes } from './types';
 
-export class PluginError extends Error {
-	constructor(message: string) {
-		super(`[eleventy-plugin-icons] ${message}`);
-	}
-}
-
 export const log = {
 	log(msg: string) {
 		message(msg);
@@ -111,6 +105,11 @@ export function attributesToString(attrs: Attributes): string {
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+/**
+ * JSON-stringify a value into a formatted, single line string.
+ *
+ * @param input Value to stringify.
+ */
 export function stringify(input: unknown): string | undefined {
 	const type = typeof input;
 
@@ -150,8 +149,14 @@ export function stringify(input: unknown): string | undefined {
 	}
 }
 
-export function get(input: unknown, path: string, def?: any): any {
-	if (!input) return def;
+/**
+ * Get value at the given property/index string.
+ *
+ * @param input The value to access.
+ * @param path The properties and indicies to evaluate.
+ */
+export function get(input: unknown, path: string): any {
+	if (!input) return;
 
 	const accessors: { type: 'array' | 'object'; access: number | string }[] = [];
 
@@ -170,22 +175,22 @@ export function get(input: unknown, path: string, def?: any): any {
 	}
 
 	for (const accessor of accessors) {
-		if (!input) return def;
+		if (!input) return;
 
 		if (accessor.type === 'array' && Array.isArray(input)) {
 			const index = accessor.access as number;
 			if (isNaN(index) || index < 0 || index >= input.length) {
-				return def;
+				return;
 			}
 			input = input[index];
 		} else if (accessor.type === 'object' && typeof input === 'object') {
 			const prop = accessor.access as string;
 			input = input[prop as keyof typeof input];
 		} else {
-			return def;
+			return;
 		}
 
-		if (input === undefined) return def;
+		if (input === undefined) return;
 	}
 
 	return input;
