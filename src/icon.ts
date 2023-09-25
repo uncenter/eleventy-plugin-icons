@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { type Options } from './options';
-import { attributesToString, log, parseSVG } from './utils';
+import { attributesToString, log, parseSVG, stringify } from './utils';
 
 export class Icon {
 	public name: string = '';
@@ -45,7 +45,7 @@ export class Icon {
 		}
 	}
 
-	stringified = () => JSON.stringify(this, undefined, 4);
+	stringified = () => stringify(this);
 
 	content = memoize(async (options: Options) => {
 		try {
