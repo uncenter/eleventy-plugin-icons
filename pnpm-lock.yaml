@@ -14,9 +14,6 @@ dependencies:
   just-memoize:
     specifier: ^2.2.0
     version: 2.2.0
-  just-safe-get:
-    specifier: ^4.2.0
-    version: 4.2.0
   just-typeof:
     specifier: ^3.2.0
     version: 3.2.0
@@ -1699,10 +1696,6 @@ packages:
 
   /just-memoize@2.2.0:
     resolution: {integrity: sha512-zriv+MY+61RXT0QsrO1ZJtL5umouqqSWmCGBkp2wJm35kniunBAA4qhUKx8Lvg/QcwrF9xuw9E6PkevKFf4boQ==}
-    dev: false
-
-  /just-safe-get@4.2.0:
-    resolution: {integrity: sha512-+tS4Bvgr/FnmYxOGbwziJ8I2BFk+cP1gQHm6rm7zo61w1SbxBwWGEq/Ryy9Gb6bvnloPq6pz7Bmm4a0rjTNlXA==}
     dev: false
 
   /just-typeof@3.2.0:

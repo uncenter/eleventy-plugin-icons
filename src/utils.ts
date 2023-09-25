@@ -149,3 +149,44 @@ export function stringify(input: unknown): string | undefined {
 		}
 	}
 }
+
+export function get(input: unknown, path: string, def?: any): any {
+	if (!input) return def;
+
+	const accessors: { type: 'array' | 'object'; access: number | string }[] = [];
+
+	// Split the path using dot notation or square bracket notation.
+	const regex = /(\w+)|\['([^']+)'\]|\["([^"]+)"\]/g;
+	let matches: RegExpExecArray | null;
+	while ((matches = regex.exec(path))) {
+		const prop = matches[1] || matches[2] || matches[3];
+		if (/\d+/.test(prop)) {
+			// If the property is a number, assume it's an array.
+			accessors.push({ type: 'array', access: parseInt(prop, 10) });
+		} else {
+			// Otherwise, assume it's an object property.
+			accessors.push({ type: 'object', access: prop });
+		}
+	}
+
+	for (const accessor of accessors) {
+		if (!input) return def;
+
+		if (accessor.type === 'array' && Array.isArray(input)) {
+			const index = accessor.access as number;
+			if (isNaN(index) || index < 0 || index >= input.length) {
+				return def;
+			}
+			input = input[index];
+		} else if (accessor.type === 'object' && typeof input === 'object') {
+			const prop = accessor.access as string;
+			input = input[prop as keyof typeof input];
+		} else {
+			return def;
+		}
+
+		if (input === undefined) return def;
+	}
+
+	return input;
+}

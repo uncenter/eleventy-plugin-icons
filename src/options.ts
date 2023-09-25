@@ -1,8 +1,7 @@
 import extend from 'just-extend';
-import get from 'just-safe-get';
 import typeOf from 'just-typeof';
 
-import { PluginError } from './utils';
+import { PluginError, get } from './utils';
 
 export type Options = {
 	mode: 'inline' | 'sprite';
@@ -103,34 +102,31 @@ class CustomOptionsError extends PluginError {
 export function validateOptions(options: Options): options is Options {
 	function validateOption(
 		option: string,
-		expected: ReturnType<typeof typeOf>[],
+		expected: string[],
+		literal?: boolean,
 	) {
 		const value = get(options, option);
-		if (!expected.includes(typeOf(value))) {
-			throw new OptionsError(option, expected, value);
+		if (literal) {
+			if (!expected.includes(value)) {
+				throw new OptionsError(
+					option,
+					expected.map((x) => JSON.stringify(x)),
+					value,
+				);
+			}
+		} else {
+			if (!expected.includes(typeOf(value))) {
+				throw new OptionsError(option, expected, value);
+			}
 		}
 	}
 
-	if (options.mode !== 'inline' && options.mode !== 'sprite') {
-		throw new OptionsError('mode', ["'inline'", "'sprite'"], options.mode);
-	}
-
+	validateOption('mode', ['inline', 'sprite'], true);
 	validateOption('sources', ['array']);
 	for (let i = 0; i < options.sources.length; i++) {
-		const source = options.sources[i];
-		if (typeof source.name !== 'string')
-			throw new OptionsError(`sources[${i}].name`, ['string'], source.name);
-		if (typeof source.path !== 'string')
-			throw new OptionsError(`sources[${i}].path`, ['string'], source.path);
-		if (
-			typeof source.default !== 'boolean' &&
-			typeof source.default !== 'undefined'
-		)
-			throw new OptionsError(
-				`sources[${i}].default`,
-				['boolean', 'undefined'],
-				source.default,
-			);
+		validateOption(`sources[${i}].name`, ['string']);
+		validateOption(`sources[${i}].path`, ['string']);
+		validateOption(`sources[${i}].default`, ['boolean', 'undefined']);
 	}
 	if (options.sources.filter((source) => source.default === true).length > 1)
 		throw new CustomOptionsError(
@@ -143,21 +139,17 @@ export function validateOptions(options: Options): options is Options {
 		options.sources.length
 	)
 		throw new CustomOptionsError('sources', 'source names must be unique');
-
 	validateOption('icon', ['object']);
 	validateOption('icon.shortcode', ['string']);
 	validateOption('icon.delimiter', ['string']);
 	validateOption('icon.transform', ['function']);
 	validateOption('icon.class', ['function']);
 	validateOption('icon.id', ['function']);
-
 	validateOption('icon.attributes', ['object']);
 	for (let i = 0; i < Object.entries(options.icon.attributes).length; i++) {
 		const [key, value] = Object.entries(options.icon.attributes)[i];
-		if (typeof value !== 'string')
-			throw new OptionsError(`icon.attributes['${key}']`, ['string'], value);
+		validateOption(`icon.attributes['${key}']`, ['string']);
 	}
-
 	validateOption('icon.attributesBySource', ['object']);
 	for (
 		let i = 0;
@@ -165,23 +157,12 @@ export function validateOptions(options: Options): options is Options {
 		i++
 	) {
 		const [key, value] = Object.entries(options.icon.attributesBySource)[i];
-		if (typeof value !== 'object')
-			throw new OptionsError(
-				`icon.attributesBySource['${key}']`,
-				['object'],
-				value,
-			);
+		validateOption(`icon.attributesBySource['${key}']`, ['object']);
 		for (let j = 0; j < Object.entries(value).length; j++) {
 			const [k, v] = Object.entries(value)[i];
-			if (typeof v !== 'string')
-				throw new OptionsError(
-					`icon.attributesBySource['${key}']['${k}']`,
-					['string'],
-					v,
-				);
+			validateOption(`icon.attributesBySource['${key}']['${k}']`, ['string']);
 		}
 	}
-
 	validateOption('icon.overwriteExistingAttributes', ['boolean']);
 	validateOption('icon.errorNotFound', ['boolean']);
 	validateOption('sprite', ['object']);
@@ -189,37 +170,16 @@ export function validateOptions(options: Options): options is Options {
 	validateOption('sprite.attributes', ['object']);
 	validateOption('sprite.extraIcons', ['object']);
 	validateOption('sprite.extraIcons.all', ['boolean']);
-
 	validateOption('sprite.extraIcons.sources', ['array']);
 	for (let i = 0; i < options.sprite.extraIcons.sources.length; i++) {
-		const source = options.sprite.extraIcons.sources[i];
-		if (typeof source !== 'string')
-			throw new OptionsError(
-				`sprite.extraIcons.sources[${i}]`,
-				['string'],
-				source,
-			);
+		validateOption(`sprite.extraIcons.sources[${i}]`, ['string']);
 	}
-
 	validateOption('sprite.extraIcons.icons', ['array']);
 	for (let i = 0; i < options.sprite.extraIcons.icons.length; i++) {
-		const icon = options.sprite.extraIcons.icons[i];
-		if (typeof icon !== 'object')
-			throw new OptionsError(`sprite.extraIcons.icons[${i}]`, ['object'], icon);
-		if (typeof icon.name !== 'string')
-			throw new OptionsError(
-				`sprite.extraIcons.icons[${i}].name`,
-				['string'],
-				icon.name,
-			);
-		if (typeof icon.source !== 'string')
-			throw new OptionsError(
-				`sprite.extraIcons.icons[${i}].source`,
-				['string'],
-				icon.source,
-			);
+		validateOption(`sprite.extraIcons.icons[${i}]`, ['object']);
+		validateOption(`sprite.extraIcons.icons[${i}].name`, ['string']);
+		validateOption(`sprite.extraIcons.icons[${i}].source`, ['string']);
 	}
-
 	validateOption('sprite.writeFile', ['boolean', 'string']);
 
 	return true;
