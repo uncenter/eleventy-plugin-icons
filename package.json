@@ -7,17 +7,6 @@
 		"type": "git",
 		"url": "https://github.com/uncenter/eleventy-plugin-icons.git"
 	},
-	"scripts": {
-		"build": "unbuild",
-		"test:install": "cd test/live && pnpm install",
-		"test": "pnpm test:install && vitest",
-		"format": "prettier --write ."
-	},
-	"keywords": [
-		"11ty",
-		"eleventy",
-		"eleventy-plugin"
-	],
 	"license": "MIT",
 	"files": [
 		"LICENSE",
@@ -34,6 +23,18 @@
 		}
 	},
 	"type": "module",
+	"scripts": {
+		"build": "unbuild",
+		"test:install": "cd test/live && pnpm install",
+		"test": "pnpm test:install && vitest",
+		"lint": "eslint .",
+		"format": "prettier --write ."
+	},
+	"keywords": [
+		"11ty",
+		"eleventy",
+		"eleventy-plugin"
+	],
 	"dependencies": {
 		"fast-xml-parser": "^4.3.1",
 		"just-extend": "^6.2.0",
@@ -43,14 +44,19 @@
 	},
 	"devDependencies": {
 		"@types/node": "^20.7.0",
+		"@typescript-eslint/eslint-plugin": "^6.7.5",
+		"@typescript-eslint/parser": "^6.7.5",
 		"eslint": "^8.50.0",
 		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-unicorn": "^48.0.1",
+		"eslint-plugin-vitest": "^0.3.2",
 		"prettier": "^3.0.3",
+		"typescript": "^5.2.2",
 		"unbuild": "^2.0.0",
 		"vitest": "^0.34.5"
 	},
 	"engines": {
 		"node": ">=16.0.0"
 	},
-	"packageManager": "pnpm@8.7.6"
+	"packageManager": "pnpm@8.9.0"
 }

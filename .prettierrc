@@ -3,5 +3,14 @@
 	"printWidth": 80,
 	"trailingComma": "all",
 	"semi": true,
-	"singleQuote": true
+	"singleQuote": true,
+	"overrides": [
+		{
+			"files": "**/*.{yml,yaml}",
+			"options": {
+				"singleQuote": false,
+				"tabWidth": 2
+			}
+		}
+	]
 }

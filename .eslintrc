@@ -1,12 +1,32 @@
 {
-	"extends": ["eslint:recommended", "prettier"],
+	"root": true,
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["@typescript-eslint", "unicorn"],
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:unicorn/recommended",
+		"prettier"
+	],
 	"parserOptions": {
 		"ecmaVersion": "latest",
-		"sourceType": "script"
+		"sourceType": "module"
 	},
-	"env": {
-		"commonjs": true,
-		"node": true,
-		"es6": true
-	}
+	"rules": {
+		"unicorn/no-useless-undefined": ["error", { "checkArguments": false }],
+		"unicorn/text-encoding-identifier-case": 0
+	},
+	"overrides": [
+		{
+			"files": ["test/**"],
+			"plugins": ["vitest"],
+			"extends": ["plugin:vitest/recommended"],
+			"rules": {
+				"vitest/consistent-test-it": ["error", { "fn": "test" }],
+				"vitest/no-standalone-expect": "error",
+				"vitest/no-test-return-statement": "error",
+				"vitest/prefer-lowercase-title": "error"
+			}
+		}
+	]
 }
