@@ -7,14 +7,16 @@ describe('validateOptions()', () => {
 		try {
 			validateOptions(defaultOptions);
 			valid = true;
-		} catch {}
+		} catch {
+			true;
+		}
 		expect(valid).toBe(true);
 	});
 
 	test('should invalidate empty options', () => {
 		let valid;
 		try {
-			// @ts-ignore
+			// @ts-expect-error - {} is an invalid type for Options.
 			validateOptions({});
 			valid = true;
 		} catch {
@@ -26,7 +28,7 @@ describe('validateOptions()', () => {
 	test('should throw error for invalid property type', () => {
 		let valid;
 		try {
-			// @ts-ignore
+			// @ts-expect-error - Options.mode cannot be a boolean.
 			validateOptions({ ...defaultOptions, mode: false });
 			valid = true;
 		} catch {

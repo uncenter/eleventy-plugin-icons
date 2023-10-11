@@ -4,11 +4,11 @@ import { parseSVG } from '../src/svg';
 
 describe('attributesToString()', () => {
 	test('should convert single attribute to string', () => {
-		expect(attributesToString({ class: 'abc' })).toEqual('class="abc"');
+		expect(attributesToString({ class: 'abc' })).toBe('class="abc"');
 	});
 
 	test('should convert multiple attributes to string', () => {
-		expect(attributesToString({ class: 'abc', id: '123' })).toEqual(
+		expect(attributesToString({ class: 'abc', id: '123' })).toBe(
 			'class="abc" id="123"',
 		);
 	});

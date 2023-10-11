@@ -33,7 +33,7 @@ function message(
 	const prefix = '[eleventy-plugin-icons] ';
 	message = `${prefix}${message.split('\n').join(`\n${prefix}`)}`;
 	if (color) {
-		// @ts-expect-error
+		// @ts-expect-error - `color` can't index `kleur`.
 		console[type](kleur[color](message));
 	} else {
 		console[type](message);
@@ -50,22 +50,24 @@ export function mergeAttributes(
 	mergeKeys: string[],
 	objects: Attributes[],
 ): Attributes {
-	return objects.reduce((acc, object) => {
+	return objects.reduce((accumulator, object) => {
 		// Combine specified keys.
-		mergeKeys.forEach((key) => {
+		for (const key of mergeKeys) {
 			if (object[key]) {
-				acc[key] = acc[key] ? `${acc[key]} ${object[key]}` : object[key];
+				accumulator[key] = accumulator[key]
+					? `${accumulator[key]} ${object[key]}`
+					: object[key];
 			}
-		});
+		}
 
 		// Overwrite/set non-combined keys.
-		Object.keys(object).forEach((key) => {
+		for (const key of Object.keys(object)) {
 			if (!mergeKeys.includes(key)) {
-				acc[key] = object[key];
+				accumulator[key] = object[key];
 			}
-		});
+		}
 
-		return acc;
+		return accumulator;
 	}, {});
 }
 
@@ -134,12 +136,12 @@ export function stringify(input: unknown): string | undefined {
 		} else {
 			let children = '';
 
-			for (const prop in input) {
-				const value = stringify(input[prop as keyof typeof input]);
+			for (const property in input) {
+				const value = stringify(input[property as keyof typeof input]);
 
 				if (value === undefined) continue;
 
-				const key = stringify(prop);
+				const key = stringify(property);
 
 				children += children ? `, ${key}: ${value}` : `${key}: ${value}`;
 			}
@@ -155,22 +157,22 @@ export function stringify(input: unknown): string | undefined {
  * @param input The value to access.
  * @param path The properties and indicies to evaluate.
  */
-export function get(input: unknown, path: string): any {
+export function get(input: unknown, path: string): unknown {
 	if (!input) return;
 
 	const accessors: { type: 'array' | 'object'; access: number | string }[] = [];
 
 	// Split the path using dot notation or square bracket notation.
-	const regex = /(\w+)|\['([^']+)'\]|\["([^"]+)"\]/g;
+	const regex = /(\w+)|\['([^']+)']|\["([^"]+)"]/g;
 	let matches: RegExpExecArray | null;
 	while ((matches = regex.exec(path))) {
-		const prop = matches[1] || matches[2] || matches[3];
-		if (/\d+/.test(prop)) {
+		const property = matches[1] || matches[2] || matches[3];
+		if (/\d+/.test(property)) {
 			// If the property is a number, assume it's an array.
-			accessors.push({ type: 'array', access: parseInt(prop, 10) });
+			accessors.push({ type: 'array', access: Number.parseInt(property, 10) });
 		} else {
 			// Otherwise, assume it's an object property.
-			accessors.push({ type: 'object', access: prop });
+			accessors.push({ type: 'object', access: property });
 		}
 	}
 
@@ -179,13 +181,13 @@ export function get(input: unknown, path: string): any {
 
 		if (accessor.type === 'array' && Array.isArray(input)) {
 			const index = accessor.access as number;
-			if (isNaN(index) || index < 0 || index >= input.length) {
+			if (Number.isNaN(index) || index < 0 || index >= input.length) {
 				return;
 			}
 			input = input[index];
 		} else if (accessor.type === 'object' && typeof input === 'object') {
-			const prop = accessor.access as string;
-			input = input[prop as keyof typeof input];
+			const property = accessor.access as string;
+			input = input[property as keyof typeof input];
 		} else {
 			return;
 		}

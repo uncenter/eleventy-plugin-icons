@@ -19,7 +19,11 @@ export class Icon {
 			this.name = input.name;
 			this.source = input.source;
 		} else if (typeof input === 'string') {
-			if (!input.includes(options.icon.delimiter)) {
+			if (input.includes(options.icon.delimiter)) {
+				const [source, icon] = input.split(options.icon.delimiter);
+				this.name = icon;
+				this.source = source;
+			} else {
 				this.name = input;
 				this.source =
 					options.sources.find((source) => source.default === true)?.name || '';
@@ -27,10 +31,6 @@ export class Icon {
 					log.error(
 						`Icon '${input}' lacks a delimiter and no default source is set.`,
 					);
-			} else {
-				const [source, icon] = input.split(options.icon.delimiter);
-				this.name = icon;
-				this.source = source;
 			}
 		} else {
 			log.error(`Invalid input type for Icon constructor: '${typeof input}'.`);
@@ -48,6 +48,7 @@ export class Icon {
 
 	stringified = () => stringify(this);
 
+	// eslint-disable-next-line unicorn/consistent-function-scoping
 	content = memoize(async (options: Options) => {
 		try {
 			let content = await fs.readFile(this.path, 'utf-8');
@@ -97,22 +98,23 @@ export const createSprite = memoize(
 );
 
 export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
-	let icons = [];
-	let sources = [];
+	const icons = [];
+	const sources = [];
 
 	if (options.sprite.extraIcons.all === true) {
 		sources.push(...options.sources);
 	} else {
 		if (Array.isArray(options.sprite.extraIcons.sources)) {
-			options.sprite.extraIcons.sources.forEach((name) => {
+			for (const name of options.sprite.extraIcons.sources) {
 				const source = options.sources.find((source) => source.name === name);
-				if (!source) {
+				if (source) {
+					sources.push(source);
+				} else {
 					log.error(
 						`options.sprite.extraIcons.sources: Source '${name}' is not defined in options.sources.`,
 					);
 				}
-				sources.push(source);
-			});
+			}
 		} else if (Array.isArray(options.sprite.extraIcons.icons)) {
 			for (const icon of options.sprite.extraIcons.icons) {
 				if (!icon.name || !icon.source)

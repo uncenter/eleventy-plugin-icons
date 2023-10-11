@@ -41,15 +41,15 @@ export function parseSVG(
 			if (':@' in node) {
 				existingAttributes = node[':@'];
 				existingAttributes = Object.keys(existingAttributes).reduce(
-					(acc: typeof existingAttributes, key) => {
-						acc[key.replace(/^@_/, '')] = existingAttributes[key];
-						return acc;
+					(accumulator: typeof existingAttributes, key) => {
+						accumulator[key.replace(/^@_/, '')] = existingAttributes[key];
+						return accumulator;
 					},
 					{},
 				);
 			}
 
-			let newAttributes = mergeAttributes(
+			const newAttributes = mergeAttributes(
 				// Combine given attributes with existing ones depending on `overwrite`.
 				overwrite
 					? // Overwrite all:
@@ -57,8 +57,8 @@ export function parseSVG(
 					: // Combine all:
 					  [
 							...new Set(
-								[existingAttributes, attributes].flatMap((obj) =>
-									Object.keys(obj),
+								[existingAttributes, attributes].flatMap((object) =>
+									Object.keys(object),
 								),
 							),
 					  ],
@@ -67,9 +67,9 @@ export function parseSVG(
 			);
 
 			node[':@'] = Object.keys(newAttributes).reduce(
-				(acc: typeof newAttributes, key) => {
-					acc['@_' + key] = newAttributes[key];
-					return acc;
+				(accumulator: typeof newAttributes, key) => {
+					accumulator['@_' + key] = newAttributes[key];
+					return accumulator;
 				},
 				{},
 			);

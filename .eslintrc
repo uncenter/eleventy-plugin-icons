@@ -14,7 +14,21 @@
 	},
 	"rules": {
 		"unicorn/no-useless-undefined": ["error", { "checkArguments": false }],
-		"unicorn/text-encoding-identifier-case": 0
+		"unicorn/text-encoding-identifier-case": 0,
+		"unicorn/prevent-abbreviations": [
+			"error",
+			{
+				"replacements": {
+					"msg": false,
+					"opts": false,
+					"attrs": false,
+					"i": false,
+					"j": false
+				}
+			}
+		],
+		"unicorn/no-array-reduce": 0,
+		"@typescript-eslint/no-explicit-any": 0
 	},
 	"overrides": [
 		{

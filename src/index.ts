@@ -70,8 +70,8 @@ export default function (eleventyConfig: any, opts: Options) {
 	);
 
 	eleventyConfig.addShortcode(options.sprite.shortcode, async function () {
-		// @ts-expect-error
-		return await createSprite(this?.page?.icons);
+		// @ts-expect-error - `this` is implicitly any.
+		return await createSprite(this?.page?.icons, options);
 	});
 
 	if (typeof options.sprite.writeFile === 'string') {
@@ -90,18 +90,18 @@ export default function (eleventyConfig: any, opts: Options) {
 					options,
 				);
 				const file = path.join(dir.output, options.sprite.writeFile as string);
-				const fileDir = path.parse(file).dir;
+				const fileDirectory = path.parse(file).dir;
 				try {
-					await fs.readdir(fileDir);
+					await fs.readdir(fileDirectory);
 				} catch {
-					await fs.mkdir(fileDir, { recursive: true });
+					await fs.mkdir(fileDirectory, { recursive: true });
 				}
 				await fs.writeFile(file, sprite);
 			},
 		);
 	}
 
-	options.sources.forEach((source) => {
+	for (const source of options.sources) {
 		eleventyConfig.addWatchTarget(source.path);
-	});
+	}
 }

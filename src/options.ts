@@ -101,11 +101,7 @@ class CustomOptionsError extends PluginError {
 }
 
 export function validateOptions(options: Options): options is Options {
-	function validateOption(
-		option: string,
-		expected: string[],
-		literal?: boolean,
-	) {
+	function validateOption(option: string, expected: any[], literal?: boolean) {
 		const value = get(options, option);
 		if (literal) {
 			if (!expected.includes(value)) {
@@ -136,7 +132,7 @@ export function validateOptions(options: Options): options is Options {
 		);
 
 	if (
-		[...new Set(options.sources.map((source) => source.name))].length !==
+		new Set(options.sources.map((source) => source.name)).size !==
 		options.sources.length
 	)
 		throw new CustomOptionsError('sources', 'source names must be unique');
@@ -148,7 +144,7 @@ export function validateOptions(options: Options): options is Options {
 	validateOption('icon.id', ['function']);
 	validateOption('icon.attributes', ['object']);
 	for (let i = 0; i < Object.entries(options.icon.attributes).length; i++) {
-		const [key, value] = Object.entries(options.icon.attributes)[i];
+		const [key] = Object.entries(options.icon.attributes)[i];
 		validateOption(`icon.attributes['${key}']`, ['string']);
 	}
 	validateOption('icon.attributesBySource', ['object']);
@@ -160,7 +156,7 @@ export function validateOptions(options: Options): options is Options {
 		const [key, value] = Object.entries(options.icon.attributesBySource)[i];
 		validateOption(`icon.attributesBySource['${key}']`, ['object']);
 		for (let j = 0; j < Object.entries(value).length; j++) {
-			const [k, v] = Object.entries(value)[i];
+			const [k] = Object.entries(value)[i];
 			validateOption(`icon.attributesBySource['${key}']['${k}']`, ['string']);
 		}
 	}
