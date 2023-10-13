@@ -229,22 +229,22 @@ const pluginIcons = require('eleventy-plugin-icons');
 
 module.exports = (eleventyConfig) => {
 	eleventyConfig.addPlugin(pluginIcons, {
-        // ...
-        icon: {
-            transform: async (svg) => {
-                try {
-                    const config = await loadConfig('./svgo.config.js');
-                    try {
-                        const result = optimize(svg, config);
-                        return result.data;
-                    } catch (error) {
-                        throw new Error('Error optimizing content with SVGO.');
-                    }
-                } catch (error) {
-                    throw new Error('Error loading SVGO config file.');
-                }
-        }
-    });
+		// ...
+		icon: {
+			transform: async (svg) => {
+				try {
+					const config = await loadConfig('./svgo.config.js');
+					try {
+						const result = optimize(svg, config);
+						return result.data;
+					} catch (error) {
+						throw new Error('Error optimizing content with SVGO.');
+					}
+				} catch (error) {
+					throw new Error('Error loading SVGO config file.');
+				}
+		}
+	});
 };
 ```
 
