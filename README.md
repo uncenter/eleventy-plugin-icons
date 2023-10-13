@@ -220,6 +220,34 @@ The `delimiter` option defines the character used to separate the source and ico
 
 The `transform` option is an asynchronous function that allows you to modify the raw content of an SVG before attribute manipulation. By default, it simply returns the original content. You can customize this function to perform transformations as needed.
 
+For example, you could optimize each icon with SVGO:
+
+```js
+const { optimize, loadConfig } = require('svgo');
+
+const pluginIcons = require('eleventy-plugin-icons');
+
+module.exports = (eleventyConfig) => {
+	eleventyConfig.addPlugin(pluginIcons, {
+        // ...
+        icon: {
+            transform: async (svg) => {
+                try {
+                    const config = await loadConfig('./svgo.config.js');
+                    try {
+                        const result = optimize(svg, config);
+                        return result.data;
+                    } catch (error) {
+                        throw new Error('Error optimizing content with SVGO.');
+                    }
+                } catch (error) {
+                    throw new Error('Error loading SVGO config file.');
+                }
+        }
+    });
+};
+```
+
 #### `class`
 
 - **Type**: `function (name: string, source: string) => string`
