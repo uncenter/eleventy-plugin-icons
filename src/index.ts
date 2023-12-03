@@ -77,10 +77,15 @@ export default function (eleventyConfig: any, opts: Options) {
 		}),
 	);
 
-	eleventyConfig.addShortcode(options.sprite.shortcode, async function () {
-		// @ts-expect-error - `this` is implicitly any.
-		return await createSprite(this?.page?.icons, options);
-	});
+	eleventyConfig.addShortcode(
+		options.sprite.shortcode,
+		async function (this: { page: { icons: Icon[] } }) {
+			return await createSprite(
+				[...(this?.page?.icons || []), ...(await getExtraIcons(options))],
+				options,
+			);
+		},
+	);
 
 	if (typeof options.sprite.writeFile === 'string') {
 		eleventyConfig.on(
