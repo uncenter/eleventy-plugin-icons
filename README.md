@@ -175,6 +175,9 @@ The `mode` option specifies how icons are handled. It can take one of two values
 - `'inline'`: When set to `'inline'`, the `icon` shortcode will insert SVGs directly into the page. No "sprite sheet" is required in this mode.
 - `'sprite'`: When set to `'sprite'`, the `icon` shortcode will insert `<use>` references for each icon. This mode should be used in conjunction with the `sprite` shortcode, which inserts a sprite of all the icons used on a page; insert your icons normally but make sure you use the `sprite` shortcode on each page, like in a template. Alternatively, you can use the `sprite.writeFile` option to write the sprite to the output directory and include that file in each page instead.
 
+> [!IMPORTANT]
+> Adding attributes on a per-icon basis that affect the appearance of the icon (e.g. `fill` or `stroke`) in `sprite` mode will not function correctly due to the limitations of SVG sprites.
+
 ### `sources`
 
 - **Type**: `Array<{ name: string, path: string, default?: boolean }>`
