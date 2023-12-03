@@ -88,7 +88,7 @@ export const createSprite = memoize(
 		);
 
 		// Combine the generated symbol strings and filter out empty ones.
-		const symbolsString = symbols.filter(Boolean).join('');
+		const symbolsString = [...new Set(symbols.filter(Boolean))].join('');
 		return symbolsString
 			? `<svg ${attributesToString(
 					options.sprite.attributes,
