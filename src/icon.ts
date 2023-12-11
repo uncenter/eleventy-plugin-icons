@@ -92,7 +92,7 @@ export const createSprite = memoize(
 		return symbolsString
 			? `<svg ${attributesToString(
 					options.sprite.attributes,
-			  )}><defs>${symbolsString}</defs></svg>`
+				)}><defs>${symbolsString}</defs></svg>`
 			: ''; // Return an empty string if no symbols were generated.
 	},
 );

@@ -53,15 +53,15 @@ export function parseSVG(
 				// Combine given attributes with existing ones depending on `overwrite`.
 				overwrite
 					? // Overwrite all:
-					  []
+						[]
 					: // Combine all:
-					  [
+						[
 							...new Set(
 								[existingAttributes, attributes].flatMap((object) =>
 									Object.keys(object),
 								),
 							),
-					  ],
+						],
 				// Existing attributes will be overwritten by newer ones because `attributes` is after `existingAttributes`.
 				[existingAttributes, attributes],
 			);
