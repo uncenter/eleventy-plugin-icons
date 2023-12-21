@@ -1,6 +1,6 @@
 {
 	"name": "eleventy-plugin-icons",
-	"version": "4.4.0",
+	"version": "4.4.1",
 	"description": "A plugin for Eleventy to add and transform icons from any icon set.",
 	"author": "uncenter <hi@uncenter.dev>",
 	"repository": {
