@@ -1,8 +1,10 @@
-import memoize from 'just-memoize';
+import type {Options} from './options';
+
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { type Options } from './options';
+import memoize from 'just-memoize';
+
 import { parseSVG } from './svg';
 import { attributesToString, log, stringify } from './utils';
 

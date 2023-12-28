@@ -1,5 +1,6 @@
-import kleur from 'kleur';
 import type { Attributes } from './types';
+
+import kleur from 'kleur';
 
 export const log = {
 	log(msg: string) {

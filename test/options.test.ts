@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { defaultOptions, validateOptions } from '../src/options';
 
 describe('validateOptions()', () => {

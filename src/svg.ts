@@ -1,5 +1,7 @@
+import type { Attributes } from './types';
+
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
-import { Attributes } from './types';
+
 import { log, mergeAttributes } from './utils';
 
 const parser = new XMLParser({

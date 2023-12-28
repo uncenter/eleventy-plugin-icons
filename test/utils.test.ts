@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { attributesToString } from '../src/utils';
+
 import { parseSVG } from '../src/svg';
+import { attributesToString } from '../src/utils';
 
 describe('attributesToString()', () => {
 	test('should convert single attribute to string', () => {
