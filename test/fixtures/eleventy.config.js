@@ -1,6 +1,6 @@
-const pluginIcons = require('../../dist/index.cjs');
+import pluginIcons from '../../dist/index.mjs';
 
-module.exports = (eleventyConfig) => {
+export default (eleventyConfig) => {
 	eleventyConfig.addPlugin(pluginIcons, {
 		mode: 'sprite',
 		sources: [

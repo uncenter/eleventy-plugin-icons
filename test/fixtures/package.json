@@ -1,11 +1,12 @@
 {
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"dev": "eleventy --serve",
 		"build": "eleventy"
 	},
 	"dependencies": {
-		"@11ty/eleventy": "^2.0.1",
+		"@11ty/eleventy": "3.0.0-alpha.3",
 		"lucide-static": "^0.303.0"
 	},
 	"packageManager": "pnpm@8.13.1+sha256.9e5f62ce5f2b7d4ceb3c2848f41cf0b33032c24d683c7088b53f62b1885fb246"
