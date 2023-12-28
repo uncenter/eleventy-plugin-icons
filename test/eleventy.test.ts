@@ -1,15 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { describe, expect, test } from 'vitest';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-
-const OUTPUT_DIR = join(__dirname, 'fixtures/_site');
+import { FIXTURES_DIR } from './constants';
 
 function getFixture(mode: 'inline' | 'sprite', fixture: string) {
-	return readFileSync(join(OUTPUT_DIR, mode, fixture, 'index.html'), 'utf-8');
+	return readFileSync(
+		join(FIXTURES_DIR, '_site', mode, fixture, 'index.html'),
+		'utf-8',
+	);
 }
 
 describe('inline', () => {

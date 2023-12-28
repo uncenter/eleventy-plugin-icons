@@ -1,16 +1,15 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { expect, test } from 'vitest';
 
 import { Icon } from '../src/icon';
 import { mergeOptions } from '../src/options';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+import { FIXTURES_DIR } from './constants';
 
 test('should match content from filesystem', async () => {
-	const icons = join(__dirname, '../node_modules/lucide-static/icons');
+	const icons = join(FIXTURES_DIR, 'node_modules/lucide-static/icons');
 	const options = mergeOptions({
 		mode: 'inline',
 		sources: [
@@ -29,7 +28,7 @@ test('should accept and parse various attribute types', async () => {
 	// {% icon "lucide:star", stroke="#ed8a19", class="starry-night" %}
 	// {% icon "lucide:star", '{ "stroke": "#ed8a19", "class": "starry-night" }' %}
 	// {% icon "lucide:star", { "stroke": "#ed8a19", "class": "starry-night" } %}
-	const icons = join(__dirname, '../node_modules/lucide-static/icons');
+	const icons = join(FIXTURES_DIR, 'node_modules/lucide-static/icons');
 	const options = mergeOptions({
 		mode: 'inline',
 		sources: [

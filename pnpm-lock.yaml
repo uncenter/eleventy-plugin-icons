@@ -46,9 +46,6 @@ devDependencies:
   eslint-plugin-vitest:
     specifier: ^0.3.2
     version: 0.3.20(@typescript-eslint/eslint-plugin@6.16.0)(eslint@8.56.0)(typescript@5.3.3)(vitest@1.1.0)
-  lucide-static:
-    specifier: ^0.303.0
-    version: 0.303.0
   prettier:
     specifier: ^3.0.3
     version: 3.1.1
@@ -2933,10 +2930,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       yallist: 4.0.0
-    dev: true
-
-  /lucide-static@0.303.0:
-    resolution: {integrity: sha512-uXHewtx99MqbMHCaQzhPqc+k36kRZ6UDPIwQY8YuYae5MgW82Zpng7rwA3xL7SnFl6xUpGE4ZKNKPgyAuErJrQ==}
     dev: true
 
   /magic-string@0.27.0:
