@@ -8,6 +8,7 @@ export default defineBuildConfig({
 		esbuild: {
 			minifySyntax: true,
 			minifyWhitespace: true,
+			minifyIdentifiers: false,
 		},
 	},
 });
