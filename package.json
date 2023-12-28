@@ -25,7 +25,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "unbuild",
-		"test": "vitest",
+		"test:setup": "cd test/fixtures && pnpm install && pnpm build",
+		"test": "pnpm run test:setup && vitest",
 		"lint": "eslint .",
 		"format": "prettier --write ."
 	},
