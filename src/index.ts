@@ -1,4 +1,4 @@
-import type {Options} from './options';
+import type { Options } from './options';
 import type { Attributes } from './types';
 
 import fs from 'node:fs/promises';
@@ -7,10 +7,9 @@ import path from 'node:path';
 import memoize from 'just-memoize';
 
 import { Icon, createSprite, getExtraIcons } from './icon';
-import { mergeOptions, validateOptions  } from './options';
+import { mergeOptions, validateOptions } from './options';
 import { parseSVG } from './svg';
 import { attributesToString, mergeAttributes } from './utils';
-
 
 export default function (eleventyConfig: any, opts: Options) {
 	const usedIcons: Icon[] = [];

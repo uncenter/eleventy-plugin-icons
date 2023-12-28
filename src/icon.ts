@@ -1,4 +1,4 @@
-import type {Options} from './options';
+import type { Options } from './options';
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
