@@ -25,8 +25,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "unbuild",
-		"test:install": "cd test/live && pnpm install",
-		"test": "pnpm test:install && vitest",
+		"test": "vitest",
 		"lint": "eslint .",
 		"format": "prettier --write ."
 	},
@@ -50,6 +49,7 @@
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-unicorn": "^50.0.1",
 		"eslint-plugin-vitest": "^0.3.2",
+		"lucide-static": "^0.303.0",
 		"prettier": "^3.0.3",
 		"typescript": "^5.2.2",
 		"unbuild": "^2.0.0",
@@ -58,5 +58,5 @@
 	"engines": {
 		"node": ">=16.0.0"
 	},
-	"packageManager": "pnpm@8.9.0"
+	"packageManager": "pnpm@8.13.1+sha256.9e5f62ce5f2b7d4ceb3c2848f41cf0b33032c24d683c7088b53f62b1885fb246"
 }
