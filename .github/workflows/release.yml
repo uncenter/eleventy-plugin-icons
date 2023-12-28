@@ -6,7 +6,10 @@ on:
       - "v*.*.*"
 
 jobs:
+  check:
+    uses: ./.github/workflows/ci.yml
   release:
+    needs: [check]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
