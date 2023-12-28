@@ -9,8 +9,8 @@ dependencies:
     specifier: ^2.0.1
     version: 2.0.1
   lucide-static:
-    specifier: ^0.279.0
-    version: 0.279.0
+    specifier: ^0.303.0
+    version: 0.303.0
 
 packages:
 
@@ -847,8 +847,8 @@ packages:
       yallist: 4.0.0
     dev: false
 
-  /lucide-static@0.279.0:
-    resolution: {integrity: sha512-VQ/cR0TFYIfU3+Jsr8HNo2wFqpE7EkusgBYL7z/+TVCOBVbn9IDKhFE61/6yYiMwtc3MYeIBtj6pb6i2xcKb5Q==}
+  /lucide-static@0.303.0:
+    resolution: {integrity: sha512-uXHewtx99MqbMHCaQzhPqc+k36kRZ6UDPIwQY8YuYae5MgW82Zpng7rwA3xL7SnFl6xUpGE4ZKNKPgyAuErJrQ==}
     dev: false
 
   /luxon@3.4.3:
