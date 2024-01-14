@@ -9,6 +9,14 @@
 			"files": "**/*.{yml,yaml}",
 			"options": {
 				"singleQuote": false,
+				"useTabs": false,
+				"tabWidth": 2
+			}
+		},
+		{
+			"files": "**/*.md",
+			"options": {
+				"useTabs": false,
 				"tabWidth": 2
 			}
 		}
