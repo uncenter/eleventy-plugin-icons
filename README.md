@@ -41,12 +41,12 @@ You can set attributes for all icons:
 
 ```js
 {
-	icon: {
-		attributes: {
-			width: "50",
-			height: "50"
-		},
-	}
+  icon: {
+    attributes: {
+      width: "50",
+      height: "50"
+    },
+  }
 }
 ```
 
@@ -84,33 +84,33 @@ To give you an idea of the level of customization this plugin offers, take a loo
 
 ```js
 {
-	mode: 'inline',
-	sources: [],
-	icon: {
-		shortcode: 'icon',
-		delimiter: ':',
-		transform: async (content) => content,
-		class: (name, source) => `icon icon-${name}`,
-		id: (name, source) => `icon-${name}`,
-		attributes: {},
-		attributesBySource: {},
-		overwriteExistingAttributes: true,
-		errorNotFound: true,
-	},
-	sprite: {
-		shortcode: 'spriteSheet',
-		attributes: {
-			class: 'sprite-sheet',
-			'aria-hidden': 'true',
-			xmlns: 'http://www.w3.org/2000/svg',
-		},
-		extraIcons: {
-			all: false,
-			sources: [],
-			icons: [],
-		},
-		writeFile: false,
-	},
+  mode: 'inline',
+  sources: [],
+  icon: {
+    shortcode: 'icon',
+    delimiter: ':',
+    transform: async (content) => content,
+    class: (name, source) => `icon icon-${name}`,
+    id: (name, source) => `icon-${name}`,
+    attributes: {},
+    attributesBySource: {},
+    overwriteExistingAttributes: true,
+    errorNotFound: true,
+  },
+  sprite: {
+    shortcode: 'spriteSheet',
+    attributes: {
+      class: 'sprite-sheet',
+      'aria-hidden': 'true',
+      xmlns: 'http://www.w3.org/2000/svg',
+    },
+    extraIcons: {
+      all: false,
+      sources: [],
+      icons: [],
+    },
+    writeFile: false,
+  },
 }
 ```
 
@@ -159,7 +159,7 @@ npm i lucide-static
 
 ```js
 {
-	sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
+  sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
 }
 ```
 
@@ -231,23 +231,23 @@ const { optimize, loadConfig } = require('svgo');
 const pluginIcons = require('eleventy-plugin-icons');
 
 module.exports = (eleventyConfig) => {
-	eleventyConfig.addPlugin(pluginIcons, {
-		// ...
-		icon: {
-			transform: async (svg) => {
-				try {
-					const config = await loadConfig('./svgo.config.js');
-					try {
-						const result = optimize(svg, config);
-						return result.data;
-					} catch (error) {
-						throw new Error('Error optimizing content with SVGO.');
-					}
-				} catch (error) {
-					throw new Error('Error loading SVGO config file.');
-				}
-		}
-	});
+  eleventyConfig.addPlugin(pluginIcons, {
+    // ...
+    icon: {
+      transform: async (svg) => {
+        try {
+          const config = await loadConfig('./svgo.config.js');
+          try {
+            const result = optimize(svg, config);
+            return result.data;
+          } catch (error) {
+            throw new Error('Error optimizing content with SVGO.');
+          }
+        } catch (error) {
+          throw new Error('Error loading SVGO config file.');
+        }
+    }
+  });
 };
 ```
 
