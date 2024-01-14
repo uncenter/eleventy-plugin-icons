@@ -63,7 +63,7 @@ bun add eleventy-plugin-icons
 
 ## Usage
 
-To enable the plugin with 11ty, you need to add the following to your [11ty configuration file](https://www.11ty.dev/docs/config/#default-filenames).
+To enable this plugin, add the following to your [11ty configuration file](https://www.11ty.dev/docs/config/#default-filenames).
 
 ```js
 const pluginIcons = require('eleventy-plugin-icons');
@@ -130,7 +130,7 @@ Now in your templates you can insert your icons using the `icon` shortcode.
 {% icon "custom:my-icon" %}
 ```
 
-You can make a source the default source with `default: true`. With a default source, icons can be used like `{% icon "my-icon" %}` instead of `{% icon "custom:my-icon" %}`.
+As you can see, the icon "identifier" or name must be prefixed by the name of the source. However, you can make a source the default source with `default: true`. With a default source, icons can be inserted without an indentifier (`{% icon "my-icon" %}` instead of `{% icon "custom:my-icon" %}`).
 
 ```js
 {
@@ -138,7 +138,7 @@ You can make a source the default source with `default: true`. With a default so
 }
 ```
 
-You can add as many sources as you want but you can only have one default source.
+You can add as many sources as you want, but you can only have one default source.
 
 ### Popular icon sets
 
