@@ -69,7 +69,7 @@ To enable this plugin, add the following to your [11ty configuration file](https
 const pluginIcons = require('eleventy-plugin-icons');
 
 module.exports = (eleventyConfig) => {
-	eleventyConfig.addPlugin(pluginIcons, {});
+  eleventyConfig.addPlugin(pluginIcons, {});
 };
 ```
 
@@ -120,7 +120,7 @@ To start, you need a source to pull icons from. For example, if you have some cu
 
 ```js
 {
-	sources: [{ name: 'custom', path: './src/icons' }];
+  sources: [{ name: 'custom', path: './src/icons' }];
 }
 ```
 
@@ -134,7 +134,7 @@ As you can see, the icon "identifier" or name must be prefixed by the name of th
 
 ```js
 {
-	sources: [{ name: 'custom', path: './src/icons', default: true }];
+  sources: [{ name: 'custom', path: './src/icons', default: true }];
 }
 ```
 
