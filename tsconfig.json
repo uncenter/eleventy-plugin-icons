@@ -5,6 +5,6 @@
 		"target": "es2021",
 		"module": "esnext",
 		"moduleResolution": "node",
-		"outDir": "dist"
-	}
+		"outDir": "dist",
+	},
 }
