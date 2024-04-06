@@ -4,7 +4,12 @@ export default (eleventyConfig) => {
 	eleventyConfig.addPlugin(pluginIcons, {
 		mode: 'sprite',
 		sources: [
-			{ name: 'custom', path: './icons', default: true },
+			{
+				name: 'custom',
+				path: './icons',
+				default: true,
+				getFileName: (icon) => 'icon-' + icon,
+			},
 			{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
 		],
 		icon: {

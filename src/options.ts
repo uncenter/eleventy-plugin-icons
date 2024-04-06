@@ -10,6 +10,7 @@ export type Options = {
 		name: string;
 		path: string;
 		default?: boolean;
+		getFileName?: (icon: string) => string;
 	}[];
 	icon: {
 		shortcode: string;
