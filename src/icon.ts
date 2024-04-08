@@ -42,7 +42,10 @@ export class Icon {
 			(source) => source.name === this.source,
 		);
 		if (sourceObject) {
-			this.path = path.join(sourceObject.path, `${this.name}.svg`);
+			const fileName = sourceObject?.getFileName
+				? sourceObject.getFileName(this.name)
+				: `${this.name}.svg`;
+			this.path = path.join(sourceObject.path, fileName);
 		} else {
 			log.error(`Source '${this.source}' is not defined in options.sources.`);
 		}

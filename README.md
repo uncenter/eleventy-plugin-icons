@@ -188,6 +188,7 @@ The `sources` option is an array of source objects, each of which has the follow
 - `name` (string): A unique name for the source used in the shortcode (e.g., the word `custom` in `custom:my-icon`).
 - `path` (string): The directory path where the SVGs for this source are located.
 - `default` (boolean, optional): If set to `true`, this source becomes the default source.
+- `getFileName` (function, optional): Provide a function that takes in the icon name as the first arugment and returns a path to an SVG file. Defaults to `(iconName) => iconName + '.svg'`.
 
 You can add multiple sources to categorize and organize your icons.
 
