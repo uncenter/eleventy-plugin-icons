@@ -51,7 +51,7 @@
 		"eslint-plugin-vitest": "^0.4.1",
 		"lucide-static": "^0.379.0",
 		"prettier": "^3.2.5",
-		"typescript": "^5.4.3",
+		"typescript": "^5.4.5",
 		"unbuild": "^2.0.0",
 		"vitest": "^1.4.0"
 	},
