@@ -55,7 +55,7 @@ importers:
         specifier: ^0.379.0
         version: 0.379.0
       prettier:
-        specifier: ^3.2.4
+        specifier: ^3.2.5
         version: 3.2.5
       typescript:
         specifier: ^5.4.3
