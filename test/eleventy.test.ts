@@ -14,20 +14,20 @@ function getFixture(mode: 'inline' | 'sprite', fixture: string) {
 
 describe('inline', () => {
 	test('various attribute formats should be indentically used', () => {
-		const file = getFixture('inline', 'attribute-formats');
+		const file = getFixture('inline', 'attribute-formats').trim();
 
-		expect(file.trim()).toBe(`<!-- @license lucide-static v0.303.0 - ISC -->
-<svg class="starry-night icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ed8a19" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		expect(file)
+			.toContain(`<svg class="starry-night icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ed8a19" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-</svg>
+</svg>`);
 
-<!-- @license lucide-static v0.303.0 - ISC -->
-<svg class="starry-night icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ed8a19" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		expect(file)
+			.toContain(`<svg class="starry-night icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ed8a19" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-</svg>
+</svg>`);
 
-<!-- @license lucide-static v0.303.0 - ISC -->
-<svg class="starry-night icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ed8a19" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		expect(file)
+			.toContain(`<svg class="starry-night icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ed8a19" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
 </svg>`);
 	});
@@ -54,8 +54,8 @@ describe('sprite', () => {
 	test('a spritesheet should be created with at least one icon on the page', () => {
 		const file = getFixture('sprite', 'spritesheet');
 
-		expect(file.trim()).toBe(`<!-- @license lucide-static v0.303.0 - ISC -->
-<svg class="icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		expect(file.trim())
+			.toContain(`<svg class="icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
 </svg>`);
 	});

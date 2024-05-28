@@ -22,7 +22,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "unbuild",
-		"test:setup": "pnpm build && cd test/fixtures && pnpm install && pnpm build",
+		"test:setup": "pnpm build && cd test/fixtures && pnpm eleventy",
 		"test": "pnpm run test:setup && vitest",
 		"lint": "eslint .",
 		"format": "prettier --write ."
@@ -40,6 +40,7 @@
 		"kleur": "^4.1.5"
 	},
 	"devDependencies": {
+		"@11ty/eleventy": "3.0.0-alpha.10",
 		"@types/node": "^20.12.2",
 		"@typescript-eslint/eslint-plugin": "^7.4.0",
 		"@typescript-eslint/parser": "^7.4.0",
@@ -48,6 +49,7 @@
 		"eslint-plugin-import": "^2.29.1",
 		"eslint-plugin-unicorn": "^51.0.1",
 		"eslint-plugin-vitest": "^0.4.1",
+		"lucide-static": "^0.379.0",
 		"prettier": "^3.2.4",
 		"typescript": "^5.4.3",
 		"unbuild": "^2.0.0",

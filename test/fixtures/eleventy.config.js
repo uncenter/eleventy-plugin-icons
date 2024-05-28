@@ -10,7 +10,7 @@ export default (eleventyConfig) => {
 				default: true,
 				getFileName: (icon) => 'icon-' + icon + '.svg',
 			},
-			{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
+			{ name: 'lucide', path: '../../node_modules/lucide-static/icons' },
 		],
 		icon: {
 			shortcode: 'sprite',
@@ -22,7 +22,7 @@ export default (eleventyConfig) => {
 		mode: 'inline',
 		sources: [
 			{ name: 'custom', path: './icons', default: true },
-			{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
+			{ name: 'lucide', path: '../../node_modules/lucide-static/icons' },
 		],
 		icon: {
 			shortcode: 'inline',
