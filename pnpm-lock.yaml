@@ -52,8 +52,8 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1(@typescript-eslint/eslint-plugin@7.16.0(@typescript-eslint/parser@7.16.0(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3)(vitest@2.0.1(@types/node@20.12.2))
       lucide-static:
-        specifier: ^0.379.0
-        version: 0.379.0
+        specifier: ^0.407.0
+        version: 0.407.0
       prettier:
         specifier: ^3.3.1
         version: 3.3.1
@@ -1985,8 +1985,8 @@ packages:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
 
-  lucide-static@0.379.0:
-    resolution: {integrity: sha512-oe0EPcRHVb0ua/XHs7B63fgtGI/8B/MchpXr6LZcXEQlPmqJeOua207Ju2f08g/yc8+LelngiFM0mD/B7O6mZA==}
+  lucide-static@0.407.0:
+    resolution: {integrity: sha512-RkFYdnnkQ5K9/V7V1yY+KiZn0Ugc9b0r9I19yuGu8TRA7HcNzcpuP8Fq0+V5ariS8JMzYMgv0sQ5Thaualskeg==}
 
   luxon@3.4.4:
     resolution: {integrity: sha512-zobTr7akeGHnv7eBOXcRgMeCP6+uyYsczwmeRCauvpvaAltgNyTbLH/+VaEAPUeWBT+1GuNmz4wC/6jtQzbbVA==}
@@ -4753,7 +4753,7 @@ snapshots:
     dependencies:
       yallist: 4.0.0
 
-  lucide-static@0.379.0: {}
+  lucide-static@0.407.0: {}
 
   luxon@3.4.4: {}
 
