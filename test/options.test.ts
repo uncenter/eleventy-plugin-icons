@@ -4,12 +4,12 @@ import { defaultOptions, validateOptions } from '../src/options';
 
 describe('validateOptions()', () => {
 	test('should validate default options', () => {
-		let valid = false;
+		let valid;
 		try {
 			validateOptions(defaultOptions);
 			valid = true;
 		} catch {
-			true;
+			valid = false;
 		}
 		expect(valid).toBe(true);
 	});
