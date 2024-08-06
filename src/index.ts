@@ -1,5 +1,5 @@
 import type { Options } from './options';
-import type { Attributes } from './types';
+import type { Attributes, DeepPartialObject, Prettify } from './types';
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -11,12 +11,15 @@ import { mergeOptions, validateOptions } from './options';
 import { parseSVG } from './svg';
 import { attributesToString, mergeAttributes } from './utils';
 
-export default function (eleventyConfig: any, opts: Options) {
+export default function (
+	eleventyConfig: any,
+	opts: Prettify<DeepPartialObject<Options>>,
+) {
 	const usedIcons: Icon[] = [];
 
 	if (opts === null || typeof opts !== 'object')
 		throw new Error(`options: expected an object but received ${typeof opts}`);
-	const options = mergeOptions(opts);
+	const options = mergeOptions(opts as Options);
 	validateOptions(options);
 
 	eleventyConfig.addAsyncShortcode(
