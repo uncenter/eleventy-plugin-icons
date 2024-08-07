@@ -1,5 +1,5 @@
 import type { Options } from './options';
-import type { Attributes, DeepPartialObject, Prettify } from './types';
+import type { Attributes, DeepPartial, Prettify } from './types';
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -13,7 +13,7 @@ import { attributesToString, mergeAttributes } from './utils';
 
 export default function (
 	eleventyConfig: any,
-	opts: Prettify<DeepPartialObject<Options>>,
+	opts: Prettify<DeepPartial<Options>>,
 ) {
 	const usedIcons: Icon[] = [];
 
