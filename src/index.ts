@@ -25,8 +25,46 @@ export default function (
 	const options = mergeOptions(opts as Options);
 	validateOptions(options);
 
-	eleventyConfig.addAsyncShortcode(
+	eleventyConfig.addShortcode(
 		options.icon.shortcode,
+		memoize(function (
+			this: { page: { icons: Icon[] } },
+			input: any,
+			attrs: Attributes | string = {},
+		) {
+			const icon = new Icon(input, options);
+
+			// Keep track of used icons for generating sprite.
+			usedIcons.push(icon);
+
+			const content = icon.contentSync(options) as string;
+			if (!content) return '';
+
+			const attributes = handleShortcodeAttributes(attrs, options, icon);
+
+			if (options.mode === 'inline') {
+				return parseSVG(
+					content,
+					attributes,
+					options.icon.overwriteExistingAttributes,
+				);
+			} else if (options.mode === 'sprite') {
+				if (this.page) {
+					if (this.page?.icons === undefined) this.page.icons = [];
+					if (!this.page.icons.includes(icon)) this.page.icons.push(icon);
+				}
+				return `<svg ${attributesToString(
+					attributes,
+				)}><use href="#${options.icon.id(
+					icon.name,
+					icon.source,
+				)}"></use></svg>`;
+			}
+		}),
+	);
+
+	eleventyConfig.addAsyncShortcode(
+		options.icon.shortcodeAsync,
 		async function (
 			this: { page: { icons: Icon[] } },
 			input: any,
