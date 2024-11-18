@@ -1,6 +1,6 @@
 import type { Options } from './options';
 
-import fs from 'node:fs/promises';
+import fs, { promises as fsp } from 'node:fs';
 import path from 'node:path';
 
 import memoize from 'just-memoize';
@@ -56,7 +56,7 @@ export class Icon {
 	// eslint-disable-next-line unicorn/consistent-function-scoping
 	content = memoize(async (options: Options) => {
 		try {
-			let content = await fs.readFile(this.path, 'utf-8');
+			let content = await fsp.readFile(this.path, 'utf-8');
 			if (!content) {
 				log.warn(`Icon ${this.stringified()} appears to be empty.`);
 				content = '';
@@ -64,6 +64,21 @@ export class Icon {
 			return options.icon.transform
 				? await options.icon.transform(content)
 				: content;
+		} catch {
+			log[options.icon.errorNotFound ? 'error' : 'warn'](
+				`Icon ${this.stringified()} not found.`,
+			);
+		}
+	});
+	// eslint-disable-next-line unicorn/consistent-function-scoping
+	contentSync = memoize((options: Options) => {
+		try {
+			let content = fs.readFileSync(this.path, 'utf-8');
+			if (!content) {
+				log.warn(`Icon ${this.stringified()} appears to be empty.`);
+				content = '';
+			}
+			return options.icon.transform ? options.icon.transform(content) : content;
 		} catch {
 			log[options.icon.errorNotFound ? 'error' : 'warn'](
 				`Icon ${this.stringified()} not found.`,
@@ -134,7 +149,7 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 	}
 
 	for (const source of sources) {
-		for (const file of await fs.readdir(source.path)) {
+		for (const file of await fsp.readdir(source.path)) {
 			if (file.endsWith('.svg')) {
 				icons.push(
 					new Icon(
