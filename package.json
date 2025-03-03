@@ -41,7 +41,7 @@
 	},
 	"devDependencies": {
 		"@11ty/eleventy": "3.0.0-alpha.14",
-		"@types/node": "^20.12.2",
+		"@types/node": "^22.13.9",
 		"@typescript-eslint/eslint-plugin": "^8.0.1",
 		"@typescript-eslint/parser": "^8.0.1",
 		"eslint": "^8.57.0",
@@ -56,6 +56,6 @@
 		"vitest": "^3.0.7"
 	},
 	"engines": {
-		"node": ">=16.20.2"
+		"node": ">=22.14.0"
 	}
 }
