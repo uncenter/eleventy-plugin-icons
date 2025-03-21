@@ -1,0 +1,12 @@
+{
+	"type": "module",
+	"scripts": {
+		"build": "eleventy",
+		"serve": "eleventy --serve"
+	},
+	"dependencies": {
+		"@11ty/eleventy": "^3.0.0",
+		"eleventy-plugin-icons": "link:../../",
+		"lucide-static": "^0.483.0"
+	}
+}
