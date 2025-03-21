@@ -2,7 +2,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "eleventy",
-		"serve": "eleventy --serve"
+		"serve": "eleventy --serve",
+		"debug": "DEBUG=Eleventy* eleventy"
 	},
 	"dependencies": {
 		"@11ty/eleventy": "^3.0.0",
