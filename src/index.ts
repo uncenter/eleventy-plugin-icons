@@ -6,10 +6,15 @@ import path from 'node:path';
 
 import memoize from 'just-memoize';
 
-import { Icon, createSprite, getExtraIcons } from './icon';
+import {
+	Icon,
+	createSprite,
+	createSpriteReference,
+	getExtraIcons,
+} from './icon';
 import { mergeOptions, validateOptions } from './options';
 import { parseSVG } from './svg';
-import { attributesToString, mergeAttributes } from './utils';
+import { handleIconShortcodeAttributes } from './utils';
 
 export default function (
 	eleventyConfig: any,
@@ -37,29 +42,7 @@ export default function (
 			const content = await icon.content(options);
 			if (!content) return '';
 
-			switch (typeof attrs) {
-				case 'string': {
-					attrs = JSON.parse(attrs || '{}') as Attributes;
-					break;
-				}
-				case 'object': {
-					// Nunjucks inserts an __keywords key when kwargs are used (https://github.com/mozilla/nunjucks/blob/ea0d6d5396d39d9eed1b864febb36fbeca908f23/nunjucks/src/runtime.js#L123).
-					if (attrs['__keywords' as keyof typeof attrs]) {
-						delete attrs['__keywords' as keyof typeof attrs];
-					}
-					break;
-				}
-			}
-
-			const attributes = mergeAttributes(
-				['class', 'id'],
-				[
-					attrs,
-					{ class: options.icon.class(icon.name, icon.source) },
-					options.icon.attributes || {},
-					options.icon.attributesBySource[icon.source] || {},
-				],
-			);
+			const attributes = handleIconShortcodeAttributes(attrs, options, icon);
 
 			if (options.mode === 'inline') {
 				return parseSVG(
@@ -72,12 +55,10 @@ export default function (
 					if (this.page?.icons === undefined) this.page.icons = [];
 					if (!this.page.icons.includes(icon)) this.page.icons.push(icon);
 				}
-				return `<svg ${attributesToString(
+				return createSpriteReference(
 					attributes,
-				)}><use href="#${options.icon.id(
-					icon.name,
-					icon.source,
-				)}"></use></svg>`;
+					options.icon.id(icon.name, icon.source),
+				);
 			}
 		},
 	);

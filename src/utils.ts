@@ -1,3 +1,5 @@
+import type { Icon } from './icon';
+import type { Options } from './options';
 import type { Attributes } from './types';
 
 import kleur from 'kleur';
@@ -70,6 +72,36 @@ export function mergeAttributes(
 
 		return accumulator;
 	}, {});
+}
+
+export function handleIconShortcodeAttributes(
+	attrs: Attributes | string,
+	options: Options,
+	icon: Icon,
+): Attributes {
+	switch (typeof attrs) {
+		case 'string': {
+			attrs = JSON.parse(attrs || '{}') as Attributes;
+			break;
+		}
+		case 'object': {
+			// Nunjucks inserts an __keywords key when kwargs are used (https://github.com/mozilla/nunjucks/blob/ea0d6d5396d39d9eed1b864febb36fbeca908f23/nunjucks/src/runtime.js#L123).
+			if (attrs['__keywords' as keyof typeof attrs]) {
+				delete attrs['__keywords' as keyof typeof attrs];
+			}
+			break;
+		}
+	}
+
+	return mergeAttributes(
+		['class', 'id'],
+		[
+			attrs,
+			{ class: options.icon.class(icon.name, icon.source) },
+			options.icon.attributes || {},
+			options.icon.attributesBySource[icon.source] || {},
+		],
+	);
 }
 
 /**

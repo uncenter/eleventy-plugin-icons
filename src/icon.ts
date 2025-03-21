@@ -1,4 +1,5 @@
 import type { Options } from './options';
+import type { Attributes } from './types';
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -149,4 +150,13 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 		}
 	}
 	return icons;
+};
+
+export const createSpriteReference = (
+	attributes: Attributes,
+	id: string,
+): string => {
+	return `<svg ${attributesToString(
+		attributes,
+	)}><use href="#${id}"></use></svg>`;
 };
