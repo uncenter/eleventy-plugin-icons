@@ -1,6 +1,6 @@
 <h1>eleventy-plugin-icons</h1>
 
-[![Eleventy](https://img.shields.io/badge/Eleventy-2.0.1-333333.svg?style=flat-square)](https://11ty.dev)
+[![Eleventy](https://img.shields.io/badge/Eleventy-3.0.0-333333.svg?style=flat-square)](https://11ty.dev)
 [![](https://img.shields.io/npm/v/eleventy-plugin-icons?style=flat-square&color=red)](https://npmjs.com/package/eleventy-plugin-icons)
 
 Add icons to your Eleventy site, made easy.
@@ -66,11 +66,11 @@ bun add eleventy-plugin-icons
 To enable this plugin, add the following to your [11ty configuration file](https://www.11ty.dev/docs/config/#default-filenames).
 
 ```js
-const pluginIcons = require('eleventy-plugin-icons');
+import pluginIcons from 'eleventy-plugin-icons';
 
-module.exports = (eleventyConfig) => {
+export default function (eleventyConfig) {
   eleventyConfig.addPlugin(pluginIcons, {});
-};
+}
 ```
 
 To give you an idea of the level of customization this plugin offers, take a look at the default configuration below. To start configuring right now, skip to [Configuration](#configuration).
@@ -227,11 +227,11 @@ The `transform` option is an asynchronous function that allows you to modify the
 For example, you could optimize each icon with SVGO:
 
 ```js
-const { optimize, loadConfig } = require('svgo');
+import { optimize, loadConfig } from 'svgo';
 
-const pluginIcons = require('eleventy-plugin-icons');
+import pluginIcons from 'eleventy-plugin-icons';
 
-module.exports = (eleventyConfig) => {
+export default function (eleventyConfig) {
   eleventyConfig.addPlugin(pluginIcons, {
     // ...
     icon: {
@@ -249,7 +249,7 @@ module.exports = (eleventyConfig) => {
         }
     }
   });
-};
+}
 ```
 
 #### `class`
