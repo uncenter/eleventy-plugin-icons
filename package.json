@@ -43,6 +43,6 @@
 		"node": ">=16.20.2"
 	},
 	"pnpm": {
-		"onlyBuiltDependencies": ["esbuild"]
+		"onlyBuiltDependencies": ["@biomejs/biome", "esbuild"]
 	}
 }
