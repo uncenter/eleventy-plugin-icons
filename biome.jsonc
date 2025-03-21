@@ -121,11 +121,11 @@
 		}
 	},
 	"overrides": [
-		{
-			"include": ["**/*.{yml,yaml}"],
-			"javascript": { "formatter": { "quoteStyle": "double" } },
-			"formatter": { "indentStyle": "space", "indentWidth": 2 }
-		},
+		// {
+		// 	"include": ["**/*.{yml,yaml}"],
+		// 	"yaml": { "formatter": { "quoteStyle": "double" } },
+		// 	"formatter": { "indentStyle": "space", "indentWidth": 2 }
+		// },
 		{
 			"include": ["**/*.md"],
 			"formatter": { "indentStyle": "space", "indentWidth": 2 }
