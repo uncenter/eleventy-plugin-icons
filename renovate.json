@@ -4,5 +4,16 @@
 		"config:recommended",
 		":semanticCommitTypeAll(chore)"
 	],
-	"rangeStrategy": "bump"
+	"rangeStrategy": "bump",
+	"packageRules": [
+		{
+			"matchManagers": [
+				"npm"
+			],
+			"matchDepTypes": [
+				"devDependencies"
+			],
+			"enabled": false
+		}
+	]
 }
