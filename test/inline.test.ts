@@ -1,7 +1,7 @@
 import Eleventy from '@11ty/eleventy';
 import { expect, test } from 'vitest';
 
-import pluginIcons from '../';
+import pluginIcons from '../src/index';
 
 import { getFixtureFromURL, withFixture } from './utils';
 
