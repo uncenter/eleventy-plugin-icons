@@ -144,20 +144,13 @@ export function validateOptions(options: Options): options is Options {
 	validateOption('icon.class', ['function']);
 	validateOption('icon.id', ['function']);
 	validateOption('icon.attributes', ['object']);
-	for (let i = 0; i < Object.entries(options.icon.attributes).length; i++) {
-		const [key] = Object.entries(options.icon.attributes)[i];
+	for (const key in options.icon.attributes) {
 		validateOption(`icon.attributes['${key}']`, ['string']);
 	}
 	validateOption('icon.attributesBySource', ['object']);
-	for (
-		let i = 0;
-		i < Object.entries(options.icon.attributesBySource).length;
-		i++
-	) {
-		const [key, value] = Object.entries(options.icon.attributesBySource)[i];
+	for (const [key, value] of Object.entries(options.icon.attributesBySource)) {
 		validateOption(`icon.attributesBySource['${key}']`, ['object']);
-		for (let j = 0; j < Object.entries(value).length; j++) {
-			const [k] = Object.entries(value)[i];
+		for (const k in value) {
 			validateOption(`icon.attributesBySource['${key}']['${k}']`, ['string']);
 		}
 	}
