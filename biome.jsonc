@@ -1,7 +1,14 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-	"files": { "ignoreUnknown": false, "ignore": [] },
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"ignore": []
+	},
 	"formatter": {
 		"enabled": true,
 		"useEditorconfig": true,
@@ -12,9 +19,13 @@
 		"lineWidth": 80,
 		"attributePosition": "auto",
 		"bracketSpacing": true,
-		"ignore": ["**/pnpm-lock.yaml"]
+		"ignore": [
+			"**/pnpm-lock.yaml"
+		]
 	},
-	"organizeImports": { "enabled": true },
+	"organizeImports": {
+		"enabled": true
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -105,7 +116,9 @@
 				"useValidTypeof": "error"
 			}
 		},
-		"ignore": ["**/dist/"]
+		"ignore": [
+			"**/dist/"
+		]
 	},
 	"javascript": {
 		"formatter": {
@@ -120,6 +133,11 @@
 			"bracketSpacing": true
 		}
 	},
+	"json": {
+		"formatter": {
+			"lineWidth": 1
+		}
+	},
 	"overrides": [
 		// {
 		// 	"include": ["**/*.{yml,yaml}"],
@@ -127,8 +145,13 @@
 		// 	"formatter": { "indentStyle": "space", "indentWidth": 2 }
 		// },
 		{
-			"include": ["**/*.md"],
-			"formatter": { "indentStyle": "space", "indentWidth": 2 }
+			"include": [
+				"**/*.md"
+			],
+			"formatter": {
+				"indentStyle": "space",
+				"indentWidth": 2
+			}
 		}
 	]
 }

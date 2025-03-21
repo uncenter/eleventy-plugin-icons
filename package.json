@@ -5,7 +5,11 @@
 	"author": "uncenter <hi@uncenter.dev>",
 	"repository": "uncenter/eleventy-plugin-icons",
 	"license": "MIT",
-	"files": ["LICENSE", "README.md", "dist/"],
+	"files": [
+		"LICENSE",
+		"README.md",
+		"dist/"
+	],
 	"main": "./dist/index.cjs",
 	"types": "./dist/index.d.ts",
 	"exports": {
@@ -22,7 +26,11 @@
 		"lint": "biome lint .",
 		"format": "biome check --write ."
 	},
-	"keywords": ["11ty", "eleventy", "eleventy-plugin"],
+	"keywords": [
+		"11ty",
+		"eleventy",
+		"eleventy-plugin"
+	],
 	"dependencies": {
 		"fast-xml-parser": "^4.4.0",
 		"just-extend": "^6.2.0",
@@ -43,6 +51,9 @@
 		"node": ">=16.20.2"
 	},
 	"pnpm": {
-		"onlyBuiltDependencies": ["@biomejs/biome", "esbuild"]
+		"onlyBuiltDependencies": [
+			"@biomejs/biome",
+			"esbuild"
+		]
 	}
 }
