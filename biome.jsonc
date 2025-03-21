@@ -53,6 +53,7 @@
 				"noUnsafeOptionalChaining": "error",
 				"noUnusedLabels": "error",
 				"noUnusedVariables": "error",
+				"noUnusedImports": "error",
 				"useArrayLiterals": "off",
 				"useIsNan": "error",
 				"useValidForDirection": "error",
@@ -120,40 +121,6 @@
 		}
 	},
 	"overrides": [
-		{
-			"include": ["*.ts", "*.tsx", "*.mts", "*.cts"],
-			"linter": {
-				"rules": {
-					"correctness": {
-						"noConstAssign": "off",
-						"noGlobalObjectCalls": "off",
-						"noInvalidBuiltinInstantiation": "off",
-						"noInvalidConstructorSuper": "off",
-						"noNewSymbol": "off",
-						"noSetterReturn": "off",
-						"noUndeclaredVariables": "off",
-						"noUnreachable": "off",
-						"noUnreachableSuper": "off"
-					},
-					"style": {
-						"noArguments": "error",
-						"noVar": "error",
-						"useConst": "error"
-					},
-					"suspicious": {
-						"noClassAssign": "off",
-						"noDuplicateClassMembers": "off",
-						"noDuplicateObjectKeys": "off",
-						"noDuplicateParameters": "off",
-						"noFunctionAssign": "off",
-						"noImportAssign": "off",
-						"noRedeclare": "off",
-						"noUnsafeNegation": "off",
-						"useGetterReturn": "off"
-					}
-				}
-			}
-		},
 		{
 			"include": ["**/*.{yml,yaml}"],
 			"javascript": { "formatter": { "quoteStyle": "double" } },
