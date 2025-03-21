@@ -24,7 +24,7 @@ export default function (
 
 	eleventyConfig.addAsyncShortcode(
 		options.icon.shortcode,
-		memoize(async function (
+		async function (
 			this: { page: { icons: Icon[] } },
 			input: any,
 			attrs: Attributes | string = {},
@@ -79,7 +79,7 @@ export default function (
 					icon.source,
 				)}"></use></svg>`;
 			}
-		}),
+		},
 	);
 
 	eleventyConfig.addShortcode(
