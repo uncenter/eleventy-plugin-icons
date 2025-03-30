@@ -6,7 +6,7 @@ import pluginIcons from '../src/index';
 import { getFixtureFromURL, withFixture } from './utils';
 
 const elev = new Eleventy(withFixture('inline'), '_site', {
-	config: function (eleventyConfig: any) {
+	config: (eleventyConfig: any) => {
 		eleventyConfig.addPlugin(pluginIcons, {
 			mode: 'inline',
 			sources: [
@@ -14,7 +14,7 @@ const elev = new Eleventy(withFixture('inline'), '_site', {
 					name: 'custom',
 					path: 'test/fixtures/icons',
 					default: true,
-					getFileName: (icon: string) => 'icon-' + icon + '.svg',
+					getFileName: (icon: string) => `icon-${icon}.svg`,
 				},
 				{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
 			],
@@ -32,7 +32,7 @@ test('various attribute formats should be indentically used', () => {
 	const file = getFixtureFromURL(
 		results,
 		'/attribute-formats/',
-	)!.content.trim();
+	)?.content.trim();
 
 	expect(
 		file,
@@ -54,9 +54,9 @@ test('various attribute formats should be indentically used', () => {
 });
 
 test('icons with XML declarations and comments should be parsed correctly', () => {
-	const file = getFixtureFromURL(results, '/xml/')!.content.trim();
+	const file = getFixtureFromURL(results, '/xml/')?.content.trim();
 
-	expect(file.trim()).toBe(`This is an empty icon:
+	expect(file).toBe(`This is an empty icon:
 
 This one has a few comments that should be preserved in the output:
 

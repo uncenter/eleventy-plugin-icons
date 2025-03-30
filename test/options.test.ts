@@ -4,7 +4,7 @@ import { defaultOptions, validateOptions } from '../src/options';
 
 describe('validateOptions()', () => {
 	test('should validate default options', () => {
-		let valid;
+		let valid: boolean;
 		try {
 			validateOptions(defaultOptions);
 			valid = true;
@@ -15,7 +15,7 @@ describe('validateOptions()', () => {
 	});
 
 	test('should invalidate empty options', () => {
-		let valid;
+		let valid: boolean;
 		try {
 			// @ts-expect-error - {} is an invalid type for Options.
 			validateOptions({});
@@ -27,7 +27,7 @@ describe('validateOptions()', () => {
 	});
 
 	test('should throw error for invalid property type', () => {
-		let valid;
+		let valid: boolean;
 		try {
 			// @ts-expect-error - Options.mode cannot be a boolean.
 			validateOptions({ ...defaultOptions, mode: false });

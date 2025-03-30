@@ -42,21 +42,22 @@ export default function (
 
 			const attributes = handleIconShortcodeAttributes(attrs, options, icon);
 
-			if (options.mode === 'inline') {
-				return parseSVG(
-					content,
-					attributes,
-					options.icon.overwriteExistingAttributes,
-				);
-			} else if (options.mode === 'sprite') {
-				if (this.page) {
-					if (this.page?.icons === undefined) this.page.icons = [];
-					if (!this.page.icons.includes(icon)) this.page.icons.push(icon);
-				}
-				return createSpriteReference(
-					attributes,
-					options.icon.id(icon.name, icon.source),
-				);
+			switch (options.mode) {
+				case 'inline':
+					return parseSVG(
+						content,
+						attributes,
+						options.icon.overwriteExistingAttributes,
+					);
+				case 'sprite':
+					if (this.page) {
+						if (this.page?.icons === undefined) this.page.icons = [];
+						if (!this.page.icons.includes(icon)) this.page.icons.push(icon);
+					}
+					return createSpriteReference(
+						attributes,
+						options.icon.id(icon.name, icon.source),
+					);
 			}
 		},
 	);

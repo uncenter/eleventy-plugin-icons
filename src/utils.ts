@@ -153,7 +153,9 @@ export function stringify(input: unknown): string | undefined {
 	if (type === 'object') {
 		if (input === null) {
 			return 'null';
-		} else if (Array.isArray(input)) {
+		}
+
+		if (Array.isArray(input)) {
 			let children = '';
 
 			for (let i = 0, l = input.length; i < l; i++) {
@@ -166,21 +168,21 @@ export function stringify(input: unknown): string | undefined {
 			}
 
 			return `[${children}]`;
-		} else {
-			let children = '';
-
-			for (const property in input) {
-				const value = stringify(input[property as keyof typeof input]);
-
-				if (value === undefined) continue;
-
-				const key = stringify(property);
-
-				children += children ? `, ${key}: ${value}` : `${key}: ${value}`;
-			}
-
-			return children ? `{ ${children} }` : '{}';
 		}
+
+		let children = '';
+
+		for (const property in input) {
+			const value = stringify(input[property as keyof typeof input]);
+
+			if (value === undefined) continue;
+
+			const key = stringify(property);
+
+			children += children ? `, ${key}: ${value}` : `${key}: ${value}`;
+		}
+
+		return children ? `{ ${children} }` : '{}';
 	}
 }
 
@@ -198,6 +200,7 @@ export function get(input: unknown, path: string): unknown {
 	// Split the path using dot notation or square bracket notation.
 	const regex = /(\w+)|\['([^']+)']|\["([^"]+)"]/g;
 	let matches: RegExpExecArray | null;
+	// biome-ignore lint/suspicious/noAssignInExpressions: Makes sense for this case.
 	while ((matches = regex.exec(path))) {
 		const property = matches[1] || matches[2] || matches[3];
 		if (/\d+/.test(property)) {

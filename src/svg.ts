@@ -34,6 +34,7 @@ export function parseSVG(
 	overwrite: boolean,
 ) {
 	const parsed = parser.parse(raw);
+	// biome-ignore lint/suspicious/noImplicitAnyLet: fast-xml-parser's XMLParser#parse() is poorly typed.
 	let svg;
 	let existingAttributes: Attributes = {};
 	for (const node of parsed) {
@@ -70,7 +71,7 @@ export function parseSVG(
 
 			node[':@'] = Object.keys(newAttributes).reduce(
 				(accumulator: typeof newAttributes, key) => {
-					accumulator['@_' + key] = newAttributes[key];
+					accumulator[`@_${key}`] = newAttributes[key];
 					return accumulator;
 				},
 				{},

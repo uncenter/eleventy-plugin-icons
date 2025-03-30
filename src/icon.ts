@@ -10,9 +10,9 @@ import { parseSVG } from './svg';
 import { attributesToString, log, stringify } from './utils';
 
 export class Icon {
-	public name: string = '';
-	public source: string = '';
-	public path: string = '';
+	public name = '';
+	public source = '';
+	public path = '';
 
 	constructor(
 		input: { name: string; source: string } | string,
