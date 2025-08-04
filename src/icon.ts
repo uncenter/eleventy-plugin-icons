@@ -121,7 +121,8 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 					);
 				}
 			}
-		} else if (Array.isArray(options.sprite.extraIcons.icons)) {
+		}
+		if (Array.isArray(options.sprite.extraIcons.icons)) {
 			for (const icon of options.sprite.extraIcons.icons) {
 				if (!icon.name || !icon.source)
 					log.error(
