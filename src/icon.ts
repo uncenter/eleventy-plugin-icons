@@ -132,7 +132,7 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 					);
 				if (sources.some((source) => source.name === icon.source)) {
 					log.warn(
-						`options.sprite.extraIcons.icons: icon source is already included: ${JSON.stringify(
+						`options.sprite.extraIcons.icons: icons from source '${icon.source}' already included from options.sprite.extraIcons.sources: ${JSON.stringify(
 							icon,
 						)}.`,
 					);
