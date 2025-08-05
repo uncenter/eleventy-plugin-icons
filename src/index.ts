@@ -27,7 +27,7 @@ export default function (
 
 	eleventyConfig.addShortcode(
 		options.icon.shortcode,
-		memoize(function (
+		function (
 			this: { page: { icons: Icon[] } },
 			input: any,
 			attrs: Attributes | string = {},
@@ -40,27 +40,26 @@ export default function (
 			const content = icon.contentSync(options) as string;
 			if (!content) return '';
 
-			const attributes = handleShortcodeAttributes(attrs, options, icon);
+			const attributes = handleIconShortcodeAttributes(attrs, options, icon);
 
-			if (options.mode === 'inline') {
-				return parseSVG(
-					content,
-					attributes,
-					options.icon.overwriteExistingAttributes,
-				);
-			} else if (options.mode === 'sprite') {
-				if (this.page) {
-					if (this.page?.icons === undefined) this.page.icons = [];
-					if (!this.page.icons.includes(icon)) this.page.icons.push(icon);
-				}
-				return `<svg ${attributesToString(
-					attributes,
-				)}><use href="#${options.icon.id(
-					icon.name,
-					icon.source,
-				)}"></use></svg>`;
+			switch (options.mode) {
+				case 'inline':
+					return parseSVG(
+						content,
+						attributes,
+						options.icon.overwriteExistingAttributes,
+					);
+				case 'sprite':
+					if (this.page) {
+						if (this.page?.icons === undefined) this.page.icons = [];
+						if (!this.page.icons.includes(icon)) this.page.icons.push(icon);
+					}
+					return createSpriteReference(
+						attributes,
+						options.icon.id(icon.name, icon.source),
+					);
 			}
-		}),
+		},
 	);
 
 	eleventyConfig.addAsyncShortcode(
