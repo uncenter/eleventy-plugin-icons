@@ -54,7 +54,7 @@ export const defaultOptions: Options = {
 		shortcode: 'icon',
 		shortcodeAsync: 'iconAsync',
 		delimiter: ':',
-		transform: async (content: string) => content,
+		transform: (content: string) => content,
 		class: (name: string) => `icon icon-${name}`,
 		id: (name: string) => `icon-${name}`,
 		attributes: {},
