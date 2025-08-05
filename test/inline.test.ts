@@ -29,10 +29,7 @@ const elev = new Eleventy(withFixture('inline'), '_site', {
 const results = await elev.toJSON();
 
 test('various attribute formats should be indentically used', () => {
-	const file = getFixtureFromURL(
-		results,
-		'/attribute-formats/',
-	)?.content.trim();
+	const file = getFixtureFromURL(results, '/attribute-formats/').content.trim();
 
 	expect(
 		file,
@@ -54,7 +51,7 @@ test('various attribute formats should be indentically used', () => {
 });
 
 test('icons with XML declarations and comments should be parsed correctly', () => {
-	const file = getFixtureFromURL(results, '/xml/')?.content.trim();
+	const file = getFixtureFromURL(results, '/xml/').content.trim();
 
 	expect(file).toBe(`This is an empty icon:
 

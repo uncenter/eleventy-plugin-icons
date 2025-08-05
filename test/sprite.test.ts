@@ -29,7 +29,7 @@ const elev = new Eleventy(withFixture('sprite'), '_site', {
 const results = await elev.toJSON();
 
 test('a spritesheet should be created with at least one icon on the page', () => {
-	const file = getFixtureFromURL(results, '/spritesheet/')?.content;
+	const file = getFixtureFromURL(results, '/spritesheet/').content;
 
 	expect(file).toContain(
 		`<svg class="icon icon-star"><use href="#icon-star"></use></svg>`,
@@ -44,10 +44,7 @@ test('a spritesheet should be created with at least one icon on the page', () =>
 });
 
 test('a spritesheet should NOT be created with zero icons on the page', () => {
-	const file = getFixtureFromURL(
-		results,
-		'/empty-spritesheet/',
-	)?.content.trim();
+	const file = getFixtureFromURL(results, '/empty-spritesheet/').content.trim();
 
 	expect(file).toBe('');
 });
