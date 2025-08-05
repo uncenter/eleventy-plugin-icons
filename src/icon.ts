@@ -110,35 +110,32 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 	if (options.sprite.extraIcons.all === true) {
 		sources.push(...options.sources);
 	} else {
-		if (Array.isArray(options.sprite.extraIcons.sources)) {
-			for (const name of options.sprite.extraIcons.sources) {
-				const source = options.sources.find((source) => source.name === name);
-				if (source) {
-					sources.push(source);
-				} else {
-					log.error(
-						`options.sprite.extraIcons.sources: Source '${name}' is not defined in options.sources.`,
-					);
-				}
+		for (const name of options.sprite.extraIcons.sources) {
+			const source = options.sources.find((source) => source.name === name);
+			if (source) {
+				sources.push(source);
+			} else {
+				log.error(
+					`options.sprite.extraIcons.sources: Source '${name}' is not defined in options.sources.`,
+				);
 			}
 		}
-		if (Array.isArray(options.sprite.extraIcons.icons)) {
-			for (const icon of options.sprite.extraIcons.icons) {
-				if (!icon.name || !icon.source)
-					log.error(
-						`options.sprite.extraIcons.icons: Invalid icon: ${JSON.stringify(
-							icon,
-						)}.`,
-					);
-				if (sources.some((source) => source.name === icon.source)) {
-					log.warn(
-						`options.sprite.extraIcons.icons: icons from source '${icon.source}' already included from options.sprite.extraIcons.sources: ${JSON.stringify(
-							icon,
-						)}.`,
-					);
-				} else {
-					icons.push(new Icon(icon, options));
-				}
+
+		for (const icon of options.sprite.extraIcons.icons) {
+			if (!icon.name || !icon.source)
+				log.error(
+					`options.sprite.extraIcons.icons: Invalid icon: ${JSON.stringify(
+						icon,
+					)}.`,
+				);
+			if (sources.some((source) => source.name === icon.source)) {
+				log.warn(
+					`options.sprite.extraIcons.icons: icons from source '${icon.source}' already included from options.sprite.extraIcons.sources: ${JSON.stringify(
+						icon,
+					)}.`,
+				);
+			} else {
+				icons.push(new Icon(icon, options));
 			}
 		}
 	}
