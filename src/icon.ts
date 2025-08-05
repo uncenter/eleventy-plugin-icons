@@ -122,18 +122,13 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 		}
 
 		for (const icon of options.sprite.extraIcons.icons) {
-			if (!icon.name || !icon.source)
-				log.error(
-					`options.sprite.extraIcons.icons: Invalid icon: ${JSON.stringify(
-						icon,
-					)}.`,
-				);
 			if (sources.some((source) => source.name === icon.source)) {
 				log.warn(
 					`options.sprite.extraIcons.icons: icons from source '${icon.source}' already included from options.sprite.extraIcons.sources: ${JSON.stringify(
 						icon,
 					)}.`,
 				);
+				continue;
 			} else {
 				icons.push(new Icon(icon, options));
 			}
