@@ -14,8 +14,9 @@ export type Options = {
 	}[];
 	icon: {
 		shortcode: string;
+		shortcodeAsync: string;
 		delimiter: string;
-		transform: (content: string) => Promise<string>;
+		transform: (content: string) => Promise<string> | string;
 		class: (name: string, source: string) => string;
 		id: (name: string, source: string) => string;
 		attributes: {
@@ -51,8 +52,9 @@ export const defaultOptions: Options = {
 	sources: [],
 	icon: {
 		shortcode: 'icon',
+		shortcodeAsync: 'iconAsync',
 		delimiter: ':',
-		transform: async (content: string) => content,
+		transform: (content: string) => content,
 		class: (name: string) => `icon icon-${name}`,
 		id: (name: string) => `icon-${name}`,
 		attributes: {},
