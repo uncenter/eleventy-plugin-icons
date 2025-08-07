@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.4](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.5.3...v4.5.4) (2025-08-07)
+
+
+### Bug Fixes
+
+* allow `icons` and `sources` together with `sprite.extraIcons` ([#132](https://github.com/uncenter/eleventy-plugin-icons/issues/132)) ([8f4532c](https://github.com/uncenter/eleventy-plugin-icons/commit/8f4532c3d6d2ce642266dc47c6858100fbd7ad43))
+
 ## [4.5.3](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.5.2...v4.5.3) (2025-03-21)
 
 
