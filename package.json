@@ -48,7 +48,7 @@
 		"vitest": "^3.0.9"
 	},
 	"engines": {
-		"node": ">=16.20.2"
+		"node": ">=22.21.0"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
