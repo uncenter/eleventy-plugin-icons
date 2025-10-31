@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`icons with XML declarations and comments should be parsed correctly 1`] = `
+"This is an empty icon:
+
+This one has a few comments that should be preserved in the output:
+
+<!-- A comment!  -->
+<svg xmlns="http://www.w3.org/2000/svg" version="1" class="icon icon-xml-comment">
+  <!-- Another comment!  -->
+</svg>
+<!-- Last comment!  -->
+This one has an XML doctype that should be removed:
+
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-xml-doctype"/>"
+`;

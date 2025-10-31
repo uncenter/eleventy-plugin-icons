@@ -42,16 +42,5 @@ test('various attribute formats should be indentically used', () => {
 test('icons with XML declarations and comments should be parsed correctly', () => {
 	const file = getFixtureFromURL(results, '/xml/').content.trim();
 
-	expect(file).toBe(`This is an empty icon:
-
-This one has a few comments that should be preserved in the output:
-
-<!-- A comment!  -->
-<svg xmlns="http://www.w3.org/2000/svg" version="1" class="icon icon-xml-comment">
-  <!-- Another comment!  -->
-</svg>
-<!-- Last comment!  -->
-This one has an XML doctype that should be removed:
-
-<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-xml-doctype"/>`);
+	expect(file).toMatchSnapshot();
 });
