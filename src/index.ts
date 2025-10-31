@@ -1,6 +1,7 @@
 import type { Options } from './options';
 import type { Attributes, DeepPartial, Prettify } from './types';
 
+import assert from 'node:assert';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -57,6 +58,7 @@ export default function (
 					return createSpriteReference(
 						attributes,
 						options.icon.id(icon.name, icon.source),
+						await getSvgSpriteUrl(),
 					);
 			}
 		},
@@ -71,6 +73,16 @@ export default function (
 			);
 		},
 	);
+
+	const getSvgSpriteUrl = async (): Promise<string | undefined> => {
+		const filepath = await getFileRelativeUrl(options);
+
+		if (filepath === undefined) {
+			return undefined;
+		}
+
+		return `/${filepath}`;
+	};
 
 	if (typeof options.sprite.writeFile === 'string') {
 		eleventyConfig.on(
@@ -87,14 +99,19 @@ export default function (
 					[...usedIcons, ...(await getExtraIcons(options))],
 					options,
 				);
-				const file = path.join(dir.output, options.sprite.writeFile as string);
-				const fileDirectory = path.parse(file).dir;
+
+				const relFileUrl = await getFileRelativeUrl(options);
+				assert(typeof relFileUrl === 'string', 'Unexpected type of relFileUrl');
+
+				const outputFilepath = path.join(dir.output, relFileUrl);
+
+				const fileDirectory = path.parse(outputFilepath).dir;
 				try {
 					await fs.readdir(fileDirectory);
 				} catch {
 					await fs.mkdir(fileDirectory, { recursive: true });
 				}
-				await fs.writeFile(file, sprite);
+				await fs.writeFile(outputFilepath, sprite);
 			},
 		);
 	}
@@ -102,4 +119,16 @@ export default function (
 	for (const source of options.sources) {
 		eleventyConfig.addWatchTarget(source.path);
 	}
+
+	const getFileRelativeUrl = async (
+		opts: Options,
+	): Promise<string | undefined> => {
+		if (opts.sprite.writeFile !== false) {
+			return pathToUrl(path.join(opts.sprite.writeFile as string));
+		}
+
+		return undefined;
+	};
+
+	const pathToUrl = (pathStr: string) => pathStr.split(path.sep).join('/');
 }
