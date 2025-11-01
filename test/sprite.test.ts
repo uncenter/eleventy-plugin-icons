@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 
 import pluginIcons from '../src/index';
 
-import { getFixtureFromURL, withFixture } from './utils';
+import { getFixtureContentFromURL, withFixture } from './utils';
 
 const elev = new Eleventy(withFixture('sprite'), '_site', {
 	config: (eleventyConfig: any) => {
@@ -29,7 +29,7 @@ const elev = new Eleventy(withFixture('sprite'), '_site', {
 const results = await elev.toJSON();
 
 test('a spritesheet should be created with at least one icon on the page', () => {
-	const file = getFixtureFromURL(results, '/spritesheet/').content;
+	const file = getFixtureContentFromURL(results, '/spritesheet/');
 
 	expect(file).toContain(
 		`<svg class="icon icon-star"><use href="#icon-star"></use></svg>`,
@@ -44,7 +44,7 @@ test('a spritesheet should be created with at least one icon on the page', () =>
 });
 
 test('a spritesheet should NOT be created with zero icons on the page', () => {
-	const file = getFixtureFromURL(results, '/empty-spritesheet/').content.trim();
+	const file = getFixtureContentFromURL(results, '/empty-spritesheet/');
 
 	expect(file).toBe('');
 });
