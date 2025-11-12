@@ -23,7 +23,7 @@
 	"scripts": {
 		"build": "unbuild",
 		"test": "vitest",
-        "bench": "vitest bench",
+		"bench": "vitest bench",
 		"lint": "biome lint .",
 		"format": "biome check --write ."
 	},
