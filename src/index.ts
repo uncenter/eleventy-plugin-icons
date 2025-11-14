@@ -1,7 +1,6 @@
 import type { Options } from './options';
 import type { Attributes, DeepPartial, Prettify } from './types';
 
-import assert from 'node:assert';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -58,7 +57,7 @@ export default function (
 					return createSpriteReference(
 						attributes,
 						options.icon.id(icon.name, icon.source),
-						await getSvgSpriteUrl(),
+						getSvgSpriteUrl(),
 					);
 			}
 		},
@@ -74,14 +73,9 @@ export default function (
 		},
 	);
 
-	const getSvgSpriteUrl = async (): Promise<string | undefined> => {
-		const filepath = await getFileRelativeUrl(options);
-
-		if (filepath === undefined) {
-			return undefined;
-		}
-
-		return `/${filepath}`;
+	const getSvgSpriteUrl = (): string | undefined => {
+		const spriteUrl = pathToUrl(options.sprite.writeFile as string);
+		return spriteUrl ? `/${spriteUrl}` : undefined;
 	};
 
 	if (typeof options.sprite.writeFile === 'string') {
@@ -100,18 +94,18 @@ export default function (
 					options,
 				);
 
-				const relFileUrl = await getFileRelativeUrl(options);
-				assert(typeof relFileUrl === 'string', 'Unexpected type of relFileUrl');
+				const outputFilePath = path.join(
+					dir.output,
+					pathToUrl(options.sprite.writeFile as string),
+				);
+				const outputFileDirectory = path.parse(outputFilePath).dir;
 
-				const outputFilepath = path.join(dir.output, relFileUrl);
-
-				const fileDirectory = path.parse(outputFilepath).dir;
 				try {
-					await fs.readdir(fileDirectory);
+					await fs.readdir(outputFileDirectory);
 				} catch {
-					await fs.mkdir(fileDirectory, { recursive: true });
+					await fs.mkdir(outputFileDirectory, { recursive: true });
 				}
-				await fs.writeFile(outputFilepath, sprite);
+				await fs.writeFile(outputFilePath, sprite);
 			},
 		);
 	}
@@ -120,15 +114,6 @@ export default function (
 		eleventyConfig.addWatchTarget(source.path);
 	}
 
-	const getFileRelativeUrl = async (
-		opts: Options,
-	): Promise<string | undefined> => {
-		if (opts.sprite.writeFile !== false) {
-			return pathToUrl(path.join(opts.sprite.writeFile as string));
-		}
-
-		return undefined;
-	};
-
-	const pathToUrl = (pathStr: string) => pathStr.split(path.sep).join('/');
+	const pathToUrl = (p: string): string =>
+		path.normalize(p).split(path.sep).join('/');
 }
