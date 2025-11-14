@@ -74,8 +74,9 @@ export default function (
 	);
 
 	const getSvgSpriteUrl = (): string | undefined => {
-		const spriteUrl = pathToUrl(options.sprite.writeFile as string);
-		return spriteUrl ? `/${spriteUrl}` : undefined;
+		if (typeof options.sprite.writeFile === 'string') {
+			return `/${pathToUrl(options.sprite.writeFile)}`;
+		}
 	};
 
 	if (typeof options.sprite.writeFile === 'string') {
