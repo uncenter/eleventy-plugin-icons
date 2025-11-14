@@ -337,7 +337,7 @@ The `extraIcons` option lets you add additional icons to the sprite sheet, even 
 
 The `writeFile` option controls whether the generated sprite SVG is written to a specified path in the 11ty output directory. If you want to write the sprite SVG to a file, provide a string representing the file path. To disable writing the file, set `writeFile` to `false`.
 
-When the file path is defined, generated `<svg />` tags will reference this asset.
+When the file path is defined, icons inserted from the `icon` shortcode will reference this asset.
 
 ##### Example
 
