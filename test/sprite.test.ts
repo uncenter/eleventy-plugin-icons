@@ -1,35 +1,16 @@
-import Eleventy from '@11ty/eleventy';
 import { expect, test } from 'vitest';
 
-import pluginIcons from '../src/index';
+import { buildEleventy, buildOptions } from './sprite-helper';
+import { getFixtureContentFromURL } from './utils';
 
-import { getFixtureFromURL, withFixture } from './utils';
+const fixtureFolder = 'sprite';
 
-const elev = new Eleventy(withFixture('sprite'), '_site', {
-	config: (eleventyConfig: any) => {
-		eleventyConfig.addPlugin(pluginIcons, {
-			mode: 'sprite',
-			sources: [
-				{
-					name: 'custom',
-					path: 'test/fixtures/icons',
-					default: true,
-					getFileName: (icon: string) => `icon-${icon}.svg`,
-				},
-				{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
-			],
-			icon: {
-				shortcode: 'sprite',
-				errorNotFound: false,
-			},
-		});
-	},
-});
+const elev = buildEleventy(fixtureFolder, buildOptions());
 
 const results = await elev.toJSON();
 
 test('a spritesheet should be created with at least one icon on the page', () => {
-	const file = getFixtureFromURL(results, '/spritesheet/').content;
+	const file = getFixtureContentFromURL(results, '/spritesheet/');
 
 	expect(file).toContain(
 		`<svg class="icon icon-star"><use href="#icon-star"></use></svg>`,
@@ -44,7 +25,7 @@ test('a spritesheet should be created with at least one icon on the page', () =>
 });
 
 test('a spritesheet should NOT be created with zero icons on the page', () => {
-	const file = getFixtureFromURL(results, '/empty-spritesheet/').content.trim();
+	const file = getFixtureContentFromURL(results, '/empty-spritesheet/');
 
 	expect(file).toBe('');
 });

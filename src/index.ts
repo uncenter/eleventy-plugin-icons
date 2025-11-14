@@ -57,6 +57,7 @@ export default function (
 					return createSpriteReference(
 						attributes,
 						options.icon.id(icon.name, icon.source),
+						getSvgSpriteUrl(),
 					);
 			}
 		},
@@ -71,6 +72,12 @@ export default function (
 			);
 		},
 	);
+
+	const getSvgSpriteUrl = (): string | undefined => {
+		if (typeof options.sprite.writeFile === 'string') {
+			return `/${pathToUrl(options.sprite.writeFile)}`;
+		}
+	};
 
 	if (typeof options.sprite.writeFile === 'string') {
 		eleventyConfig.on(
@@ -87,14 +94,19 @@ export default function (
 					[...usedIcons, ...(await getExtraIcons(options))],
 					options,
 				);
-				const file = path.join(dir.output, options.sprite.writeFile as string);
-				const fileDirectory = path.parse(file).dir;
+
+				const outputFilePath = path.join(
+					dir.output,
+					pathToUrl(options.sprite.writeFile as string),
+				);
+				const outputFileDirectory = path.parse(outputFilePath).dir;
+
 				try {
-					await fs.readdir(fileDirectory);
+					await fs.readdir(outputFileDirectory);
 				} catch {
-					await fs.mkdir(fileDirectory, { recursive: true });
+					await fs.mkdir(outputFileDirectory, { recursive: true });
 				}
-				await fs.writeFile(file, sprite);
+				await fs.writeFile(outputFilePath, sprite);
 			},
 		);
 	}
@@ -102,4 +114,7 @@ export default function (
 	for (const source of options.sources) {
 		eleventyConfig.addWatchTarget(source.path);
 	}
+
+	const pathToUrl = (p: string): string =>
+		path.normalize(p).split(path.sep).join('/');
 }

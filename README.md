@@ -337,6 +337,30 @@ The `extraIcons` option lets you add additional icons to the sprite sheet, even 
 
 The `writeFile` option controls whether the generated sprite SVG is written to a specified path in the 11ty output directory. If you want to write the sprite SVG to a file, provide a string representing the file path. To disable writing the file, set `writeFile` to `false`.
 
+When the file path is defined, icons inserted from the `icon` shortcode will reference this asset.
+
+##### Example
+
+Given a configuration where `sprite.writeFile` is set to `assets/icons/sprites.svg`, the plugin will transform the following Nunjucks template...
+
+```twig
+{% icon "lucide:lock" %}
+```
+
+into...
+
+```html
+<svg class="icon icon-lock">
+  <use href="/assets/icons/sprites.svg#icon-lock"></use>
+</svg>
+```
+
+> [!NOTE]
+> For a more in-depth quickstart, refer to provided standalone [`sprite_writeFile` example](./examples/sprite_writeFile) in the repository.
+
+> [!TIP]
+> When persisting the spritesheet in an external file, it's recommended to provide the browser with a [`preload`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/preload) hint. This instructs the browser to load the image as early as possible and thus enhance the rendering performance of the page. The `sprite_writeFile` example showcases this as well in the [layout.njk](./examples/sprite_writeFile/_includes/layout.njk) file.
+
 ## License
 
 [MIT](LICENSE)
