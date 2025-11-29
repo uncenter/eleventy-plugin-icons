@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.5](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.5.4...v4.5.5) (2025-11-29)
+
+
+### Bug Fixes
+
+* reference external sprite sheet with icon shortcode ([#143](https://github.com/uncenter/eleventy-plugin-icons/issues/143)) ([f2afbae](https://github.com/uncenter/eleventy-plugin-icons/commit/f2afbaedf36a0a67a695bc3ac29849d9101dcd10))
+
 ## [4.5.4](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.5.3...v4.5.4) (2025-08-07)
 
 
