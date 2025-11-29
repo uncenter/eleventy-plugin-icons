@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.7](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.5.6...v4.5.7) (2025-11-29)
+
+
+### Miscellaneous Chores
+
+* manually trigger new release ([f4a4f8a](https://github.com/uncenter/eleventy-plugin-icons/commit/f4a4f8a7461532aa9766f10f8d0c63ab45c6ed6f))
+
 ## [4.5.6](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.5.5...v4.5.6) (2025-11-29)
 
 
