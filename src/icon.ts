@@ -155,8 +155,9 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 export const createSpriteReference = (
 	attributes: Attributes,
 	id: string,
+	spriteUrl: string | undefined,
 ): string => {
 	return `<svg ${attributesToString(
 		attributes,
-	)}><use href="#${id}"></use></svg>`;
+	)}><use href="${spriteUrl ?? ''}#${id}"></use></svg>`;
 };
