@@ -1,32 +1,23 @@
-import Eleventy from '@11ty/eleventy';
 import { expect, test } from 'vitest';
 
-import pluginIcons from '../src/index';
+import { getFixtureContentFromURL, getResultsWithOptions } from './setup';
 
-import { getFixtureContentFromURL, withFixture } from './utils';
-
-const elev = new Eleventy(withFixture('inline'), '_site', {
-	config: (eleventyConfig: any) => {
-		eleventyConfig.addPlugin(pluginIcons, {
-			mode: 'inline',
-			sources: [
-				{
-					name: 'custom',
-					path: 'test/fixtures/icons',
-					default: true,
-					getFileName: (icon: string) => `icon-${icon}.svg`,
-				},
-				{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
-			],
-			icon: {
-				shortcode: 'inline',
-				errorNotFound: false,
-			},
-		});
+const results = await getResultsWithOptions('inline', {
+	mode: 'inline',
+	sources: [
+		{
+			name: 'custom',
+			path: 'test/fixtures/icons',
+			default: true,
+			getFileName: (icon: string) => `icon-${icon}.svg`,
+		},
+		{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
+	],
+	icon: {
+		shortcode: 'inline',
+		errorNotFound: false,
 	},
 });
-
-const results = await elev.toJSON();
 
 test('various attribute formats should be indentically used', () => {
 	const file = getFixtureContentFromURL(results, '/attribute-formats/');
