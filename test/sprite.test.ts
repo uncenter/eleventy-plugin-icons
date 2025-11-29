@@ -1,29 +1,29 @@
-import extend from "just-extend";
-import { describe, expect, test } from "vitest";
+import extend from 'just-extend';
+import { describe, expect, test } from 'vitest';
 
-import { getFixtureContentFromURL, getResultsWithOptions } from "./setup";
+import { getFixtureContentFromURL, getResultsWithOptions } from './setup';
 
 const SPRITE_OPTIONS: any = {
-	mode: "sprite",
+	mode: 'sprite',
 	sources: [
 		{
-			name: "custom",
-			path: "test/fixtures/icons",
+			name: 'custom',
+			path: 'test/fixtures/icons',
 			default: true,
 			getFileName: (icon: string) => `icon-${icon}.svg`,
 		},
-		{ name: "lucide", path: "node_modules/lucide-static/icons" },
+		{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
 	],
 	icon: {
-		shortcode: "sprite",
+		shortcode: 'sprite',
 		errorNotFound: false,
 	},
 };
 
-const results = await getResultsWithOptions("sprite", SPRITE_OPTIONS);
+const results = await getResultsWithOptions('sprite', SPRITE_OPTIONS);
 
-test("a spritesheet should be created with at least one icon on the page", () => {
-	const file = getFixtureContentFromURL(results, "/spritesheet/");
+test('a spritesheet should be created with at least one icon on the page', () => {
+	const file = getFixtureContentFromURL(results, '/spritesheet/');
 
 	expect(file).toContain(
 		`<svg class="icon icon-star"><use href="#icon-star"></use></svg>`,
@@ -37,23 +37,23 @@ test("a spritesheet should be created with at least one icon on the page", () =>
 </symbol></defs></svg>`);
 });
 
-test("a spritesheet should NOT be created with zero icons on the page", () => {
-	const file = getFixtureContentFromURL(results, "/empty-spritesheet/");
+test('a spritesheet should NOT be created with zero icons on the page', () => {
+	const file = getFixtureContentFromURL(results, '/empty-spritesheet/');
 
-	expect(file).toBe("");
+	expect(file).toBe('');
 });
 
-describe("supports external svg reference", () => {
-	test("when writeFile is set", async () => {
+describe('supports external svg reference', () => {
+	test('when writeFile is set', async () => {
 		const results = await getResultsWithOptions(
-			"sprite-external",
+			'sprite-external',
 			extend(true, SPRITE_OPTIONS, {
 				sprite: {
-					writeFile: "assets/icons/sprites.svg",
+					writeFile: 'assets/icons/sprites.svg',
 				},
 			}),
 		);
-		const file = getFixtureContentFromURL(results, "/external-reference/");
+		const file = getFixtureContentFromURL(results, '/external-reference/');
 
 		expect(file).toBe(
 			'<svg class="icon icon-apple"><use href="/assets/icons/sprites.svg#icon-apple"></use></svg>',
