@@ -1,17 +1,16 @@
-import type { Options } from "../src/options";
-import type { DeepPartial } from "../src/types";
+import type { Options } from '../src/options';
+import type { DeepPartial } from '../src/types';
 
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import Eleventy from "@11ty/eleventy";
-import extend from "just-extend";
-import pluginIcons from "../src/index";
+import Eleventy from '@11ty/eleventy';
+import pluginIcons from '../src/index';
 
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export const TEST_DIR = __dirname;
-export const FIXTURE_DIR = join(__dirname, "fixtures/");
+export const FIXTURE_DIR = join(__dirname, 'fixtures/');
 
 export const withFixture = (name: string) => join(FIXTURE_DIR, name);
 
@@ -45,7 +44,7 @@ export const getResultsWithOptions = async (
 	fixture: string,
 	options: DeepPartial<Options>,
 ): Promise<EleventyPageResult[]> => {
-	const elev = new Eleventy(withFixture(fixture), "_site", {
+	const elev = new Eleventy(withFixture(fixture), '_site', {
 		config: (eleventyConfig: any) => {
 			eleventyConfig.addPlugin(pluginIcons, options);
 		},
