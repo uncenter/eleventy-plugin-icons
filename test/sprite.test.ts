@@ -1,13 +1,26 @@
-import { expect, test } from 'vitest';
+import extend from 'just-extend';
+import { describe, expect, test } from 'vitest';
 
-import { buildEleventy, buildOptions } from './sprite-helper';
-import { getFixtureContentFromURL } from './utils';
+import { getFixtureContentFromURL, getResultsWithOptions } from './setup';
 
-const fixtureFolder = 'sprite';
+const SPRITE_OPTIONS: any = {
+	mode: 'sprite',
+	sources: [
+		{
+			name: 'custom',
+			path: 'test/fixtures/icons',
+			default: true,
+			getFileName: (icon: string) => `icon-${icon}.svg`,
+		},
+		{ name: 'lucide', path: 'node_modules/lucide-static/icons' },
+	],
+	icon: {
+		shortcode: 'sprite',
+		errorNotFound: false,
+	},
+};
 
-const elev = buildEleventy(fixtureFolder, buildOptions());
-
-const results = await elev.toJSON();
+const results = await getResultsWithOptions('sprite', SPRITE_OPTIONS);
 
 test('a spritesheet should be created with at least one icon on the page', () => {
 	const file = getFixtureContentFromURL(results, '/spritesheet/');
@@ -28,4 +41,22 @@ test('a spritesheet should NOT be created with zero icons on the page', () => {
 	const file = getFixtureContentFromURL(results, '/empty-spritesheet/');
 
 	expect(file).toBe('');
+});
+
+describe('supports external svg reference', () => {
+	test('when writeFile is set', async () => {
+		const results = await getResultsWithOptions(
+			'sprite-external',
+			extend(true, SPRITE_OPTIONS, {
+				sprite: {
+					writeFile: 'assets/icons/sprites.svg',
+				},
+			}),
+		);
+		const file = getFixtureContentFromURL(results, '/external-reference/');
+
+		expect(file).toBe(
+			'<svg class="icon icon-apple"><use href="/assets/icons/sprites.svg#icon-apple"></use></svg>',
+		);
+	});
 });

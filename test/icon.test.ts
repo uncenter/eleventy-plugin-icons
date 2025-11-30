@@ -6,7 +6,7 @@ import { expect, test } from 'vitest';
 import { Icon } from '../src/icon';
 import { mergeOptions } from '../src/options';
 
-import { TEST_DIR } from './utils';
+import { TEST_DIR } from './setup';
 
 test('should match content from filesystem', async () => {
 	const icons = join(TEST_DIR, '../node_modules/lucide-static/icons');
