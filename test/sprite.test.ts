@@ -1,7 +1,10 @@
 import extend from 'just-extend';
 import { describe, expect, test } from 'vitest';
 
-import { getFixtureContentFromURL, getResultsWithOptions } from './setup';
+import {
+	getFixtureContentFromURL,
+	getFixtureResultsWithOptions,
+} from './setup';
 
 const SPRITE_OPTIONS: any = {
 	mode: 'sprite',
@@ -20,7 +23,7 @@ const SPRITE_OPTIONS: any = {
 	},
 };
 
-const results = await getResultsWithOptions('sprite', SPRITE_OPTIONS);
+const results = await getFixtureResultsWithOptions('sprite', SPRITE_OPTIONS);
 
 test('a spritesheet should be created with at least one icon on the page', () => {
 	const file = getFixtureContentFromURL(results, '/spritesheet/');
@@ -45,7 +48,7 @@ test('a spritesheet should NOT be created with zero icons on the page', () => {
 
 describe('supports external svg reference', () => {
 	test('when writeFile is set', async () => {
-		const results = await getResultsWithOptions(
+		const results = await getFixtureResultsWithOptions(
 			'sprite-external',
 			extend(true, SPRITE_OPTIONS, {
 				sprite: {
