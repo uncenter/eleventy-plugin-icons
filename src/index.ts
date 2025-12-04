@@ -1,7 +1,6 @@
 import type { Options } from './options';
 import type { Attributes, DeepPartial, Prettify } from './types';
 
-import assert from 'node:assert';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -83,18 +82,16 @@ export default function (
 	eleventyConfig.addShortcode('getSvgSpriteUrl', (): string => {
 		if (options.mode === 'inline') {
 			throw new Error(
-				"Incorrect usage of 'getSvgSpriteUrl' shortcode has been detected. This can only be used in 'sprite' mode.",
-			);
-		}
-
-		if (options.sprite.writeFile === false) {
-			throw new Error(
-				"Incorrect usage of 'getSvgSpriteUrl' shortcode has been detected. This can only be used when 'sprite.writeFile' is defined.",
+				"The 'getSvgSpriteUrl' shortcode can only be used in 'sprite' mode.",
 			);
 		}
 
 		const url = getSvgSpriteUrl();
-		assert(typeof url === 'string', 'Invalid url type');
+		if (url === undefined) {
+			throw new Error(
+				"The 'getSvgSpriteUrl' shortcode can only be used when 'sprite.writeFile' is defined.",
+			);
+		}
 
 		return url;
 	});
