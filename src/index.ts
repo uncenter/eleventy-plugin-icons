@@ -79,6 +79,23 @@ export default function (
 		}
 	};
 
+	eleventyConfig.addShortcode('getSvgSpriteUrl', (): string => {
+		if (options.mode === 'inline') {
+			throw new Error(
+				"The 'getSvgSpriteUrl' shortcode can only be used in 'sprite' mode.",
+			);
+		}
+
+		const url = getSvgSpriteUrl();
+		if (url === undefined) {
+			throw new Error(
+				"The 'getSvgSpriteUrl' shortcode can only be used when 'sprite.writeFile' is defined.",
+			);
+		}
+
+		return url;
+	});
+
 	if (typeof options.sprite.writeFile === 'string') {
 		eleventyConfig.on(
 			'eleventy.after',

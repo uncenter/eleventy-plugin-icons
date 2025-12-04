@@ -356,10 +356,26 @@ into...
 ```
 
 > [!NOTE]
-> For a more in-depth quickstart, refer to provided standalone [`sprite_writeFile` example](./examples/sprite_writeFile) in the repository.
+> For a more in-depth quickstart, refer to provided standalone [`sprite_writeFile` example](./examples/sprite_writeFile).
 
-> [!TIP]
-> When persisting the spritesheet in an external file, it's recommended to provide the browser with a [`preload`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/preload) hint. This instructs the browser to load the image as early as possible and thus enhance the rendering performance of the page. The `sprite_writeFile` example showcases this as well in the [layout.njk](./examples/sprite_writeFile/_includes/layout.njk) file.
+When persisting the spritesheet in an external file, it's recommended to provide the browser with a [`preload`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/preload) hint. 
+This instructs the browser to load the image as early as possible and thus enhance the rendering performance of the page. 
+
+The library exposes a shortcode dedicated to this usage: `getSvgSpriteUrl`.
+
+And, given the same setup as above, the following template...
+
+```twig
+<link rel="preload" href="{% getSvgSpriteUrl %}" as="image">
+```
+
+will be rendered as...
+
+```html
+<link rel="preload" href="/assets/icons/sprites.svg" as="image">
+```
+
+The `sprite_writeFile` example showcases this in the [`layout.njk`](./examples/sprite_writeFile/_includes/layout.njk) file.
 
 ## License
 
