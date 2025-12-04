@@ -1,8 +1,11 @@
 import { expect, test } from 'vitest';
 
-import { getFixtureContentFromURL, getResultsWithOptions } from './setup';
+import {
+	getFixtureContentFromURL,
+	getFixtureResultsWithOptions,
+} from './setup';
 
-const results = await getResultsWithOptions('inline', {
+const results = await getFixtureResultsWithOptions('inline', {
 	mode: 'inline',
 	sources: [
 		{
