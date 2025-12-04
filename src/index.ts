@@ -37,18 +37,20 @@ export default function (
 			// Keep track of used icons for generating sprite.
 			usedIcons.push(icon);
 
-			const content = await icon.content(options);
-			if (!content) return '';
-
 			const attributes = handleIconShortcodeAttributes(attrs, options, icon);
 
 			switch (options.mode) {
-				case 'inline':
-					return parseSVG(
-						content,
-						attributes,
-						options.icon.overwriteExistingAttributes,
-					);
+				case 'inline': {
+					const content = await icon.content(options);
+					if (content) {
+						return parseSVG(
+							content,
+							attributes,
+							options.icon.overwriteExistingAttributes,
+						);
+					}
+					return '';
+				}
 				case 'sprite':
 					if (this.page) {
 						if (this.page?.icons === undefined) this.page.icons = [];
