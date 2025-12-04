@@ -1,39 +1,41 @@
-import { bench } from 'vitest';
+import { bench, describe } from 'vitest';
 
 import { getExampleResultsWithOptions } from '../setup';
 
-bench('inline example', async () => {
+bench('inline mode', async () => {
 	await getExampleResultsWithOptions('inline', {
 		mode: 'inline',
 		sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
 	});
 });
 
-bench('sprite example', async () => {
+bench('sprite mode', async () => {
 	await getExampleResultsWithOptions('sprite', {
 		mode: 'sprite',
 		sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
 	});
 });
 
-bench('sprite example (all icons)', async () => {
-	await getExampleResultsWithOptions('sprite', {
-		mode: 'sprite',
-		sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
-		sprite: {
-			extraIcons: {
-				all: true,
+describe('sprite mode options', () => {
+	bench('including all (lucide) icons', async () => {
+		await getExampleResultsWithOptions('sprite', {
+			mode: 'sprite',
+			sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
+			sprite: {
+				extraIcons: {
+					all: true,
+				},
 			},
-		},
+		});
 	});
-});
 
-bench('sprite example (writeFile)', async () => {
-	await getExampleResultsWithOptions('sprite_writeFile', {
-		mode: 'sprite',
-		sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
-		sprite: {
-			writeFile: 'assets/icons/sprites.svg',
-		},
+	bench('with writeFile defined', async () => {
+		await getExampleResultsWithOptions('sprite_writeFile', {
+			mode: 'sprite',
+			sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
+			sprite: {
+				writeFile: 'assets/icons/sprites.svg',
+			},
+		});
 	});
 });
