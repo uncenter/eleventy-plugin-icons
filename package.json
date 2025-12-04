@@ -42,6 +42,7 @@
 	"devDependencies": {
 		"@11ty/eleventy": "3.0.0",
 		"@biomejs/biome": "1.9.4",
+		"@codspeed/vitest-plugin": "^5.0.1",
 		"@types/node": "^22.13.11",
 		"lucide-static": "^0.483.0",
 		"typescript": "^5.8.2",
