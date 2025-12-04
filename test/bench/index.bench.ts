@@ -2,31 +2,22 @@ import { bench, describe } from 'vitest';
 
 import { getExampleResultsWithOptions } from '../setup';
 
-describe('mode comparison', () => {
-	bench('inline', async () => {
-		await getExampleResultsWithOptions('inline', {
-			mode: 'inline',
-			sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
-		});
-	});
-
-	bench('sprite', async () => {
-		await getExampleResultsWithOptions('sprite', {
-			mode: 'sprite',
-			sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
-		});
+bench('inline mode', async () => {
+	await getExampleResultsWithOptions('inline', {
+		mode: 'inline',
+		sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
 	});
 });
 
-describe('sprite mode', () => {
-	bench('default', async () => {
-		await getExampleResultsWithOptions('sprite', {
-			mode: 'sprite',
-			sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
-		});
+bench('sprite mode', async () => {
+	await getExampleResultsWithOptions('sprite', {
+		mode: 'sprite',
+		sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
 	});
+});
 
-	bench('including all lucide icons', async () => {
+describe('sprite mode options', () => {
+	bench('including all (lucide) icons', async () => {
 		await getExampleResultsWithOptions('sprite', {
 			mode: 'sprite',
 			sources: [{ name: 'lucide', path: 'node_modules/lucide-static/icons' }],
