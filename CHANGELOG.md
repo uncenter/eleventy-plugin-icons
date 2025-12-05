@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.0](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.5.7...v4.6.0) (2025-12-05)
+
+
+### Features
+
+* add shortcode to get sprite url ([#152](https://github.com/uncenter/eleventy-plugin-icons/issues/152)) ([5370985](https://github.com/uncenter/eleventy-plugin-icons/commit/5370985e35d0d0efe28046df3ab931f5ecae6c0e))
+
 ## [4.5.7](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.5.6...v4.5.7) (2025-11-29)
 
 
