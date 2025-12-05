@@ -1,6 +1,7 @@
 import type { Options } from './options';
 import type { Attributes, DeepPartial, Prettify } from './types';
 
+import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -45,10 +46,15 @@ export default function (
 			this: { page: { icons: Map<string, Icon> } },
 			content: string,
 		) {
-			const svgSpriteUrl =
-				gm.mode === GenerationMode.NamedFileSprite
-					? `/${pathToUrl(path.join(gm.writeFile))}`
-					: '';
+			let svgSpriteUrl = '';
+			switch (gm.mode) {
+				case GenerationMode.NamedFileSprite:
+					svgSpriteUrl = `/${pathToUrl(path.join(gm.writeFile))}`;
+					break;
+				case GenerationMode.HashedBundleSprite:
+					svgSpriteUrl = `/${pathToUrl(path.join(gm.writeToDirectory as string, await buildSpriteUrlFilename(usedIcons)))}`;
+					break;
+			}
 
 			// Replace the placeholders in the file with either inline icons or sprite references.
 			for (const icon of usedIcons.values()) {
@@ -181,7 +187,18 @@ export default function (
 		return await createSprite(icons.concat(extraIcons), options);
 	};
 
+	const buildSpriteUrlFilename = async (icons: Map<string, Icon>) => {
+		return `${hash(await createSpriteWithExtraIcons([...icons.values()]))}.svg`;
+	};
+
 	const pathToUrl = (p: string) => p.split(path.sep).join('/');
+
+	const hash = (content: string): string => {
+		const sha256Hash = createHash('sha256').update(content).digest('base64url');
+
+		const hashed = sha256Hash.substring(0, 10);
+		return hashed;
+	};
 
 	const addIconIfMissing = (map: Map<string, Icon>, icon: Icon) => {
 		if (!map.has(icon.instanceId)) {
