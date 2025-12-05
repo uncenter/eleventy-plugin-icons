@@ -49,6 +49,9 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Bench
+        run: pnpm bench
+
   lint:
     runs-on: ubuntu-latest
     steps:
