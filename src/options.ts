@@ -175,3 +175,21 @@ export function validateOptions(options: Options): options is Options {
 
 	return true;
 }
+
+export enum GenerationMode {
+	Inlined = 0,
+	EmbeddedSprite = 1,
+	NamedFileSprite = 2,
+}
+
+export const inferGenerationMode = (opts: Options): GenerationMode => {
+	if (opts.mode === 'inline') {
+		return GenerationMode.Inlined;
+	}
+
+	if (opts.sprite.writeFile !== false) {
+		return GenerationMode.NamedFileSprite;
+	}
+
+	return GenerationMode.EmbeddedSprite;
+};
