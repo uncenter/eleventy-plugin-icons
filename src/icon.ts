@@ -1,6 +1,7 @@
 import type { Options } from './options';
 import type { Attributes } from './types';
 
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -13,11 +14,16 @@ export class Icon {
 	public name = '';
 	public source = '';
 	public path = '';
+	public attributes: Attributes | string = {};
+	public id = randomUUID();
 
 	constructor(
 		input: { name: string; source: string } | string,
 		options: Options,
+		attributes: Attributes | string,
 	) {
+		this.attributes = attributes;
+
 		if (typeof input === 'object') {
 			this.name = input.name;
 			this.source = input.source;
@@ -75,9 +81,17 @@ export class Icon {
 
 export const createSprite = memoize(
 	async (icons: Icon[], options: Options): Promise<string> => {
+		// Sort icons by name for consistent ordering and stable hashing output.
+		const sortedIcons = (icons || []).sort((a, b) => {
+			if (a.name === b.name) {
+				return 0;
+			}
+			return a.name < b.name ? -1 : 1;
+		});
+
 		// Create an array of promises that generate symbol definitions for each icon.
 		const symbols = await Promise.all(
-			[...new Set(icons || [])].map(async (icon) => {
+			[...new Set(sortedIcons)].map(async (icon) => {
 				const content = await icon.content(options);
 				// If content exists, convert it to a symbol element and add attributes.
 				if (content) {
@@ -129,7 +143,7 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 					)}.`,
 				);
 			} else {
-				icons.push(new Icon(icon, options));
+				icons.push(new Icon(icon, options, {}));
 			}
 		}
 	}
@@ -144,11 +158,13 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 							source: source.name,
 						},
 						options,
+						{},
 					),
 				);
 			}
 		}
 	}
+
 	return icons;
 };
 

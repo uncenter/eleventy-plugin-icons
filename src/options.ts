@@ -1,5 +1,5 @@
-import extend from 'just-extend';
 import typeOf from 'just-typeof';
+import merge from 'merge';
 
 import { PluginError } from './error';
 import { get } from './utils';
@@ -43,6 +43,7 @@ export type Options = {
 			}[];
 		};
 		writeFile: false | string;
+		writeToDirectory: false | string;
 	};
 };
 
@@ -73,6 +74,7 @@ export const defaultOptions: Options = {
 			icons: [],
 		},
 		writeFile: false,
+		writeToDirectory: false,
 	},
 };
 
@@ -82,7 +84,7 @@ export const defaultOptions: Options = {
  * @returns Merged options object.
  */
 export function mergeOptions(options: Partial<Options>): Options {
-	return extend(true, defaultOptions, options) as Options;
+	return merge.recursive(true, defaultOptions, options) as Options;
 }
 
 class OptionsError extends PluginError {
@@ -171,7 +173,18 @@ export function validateOptions(options: Options): options is Options {
 		validateOption(`sprite.extraIcons.icons[${i}].name`, ['string']);
 		validateOption(`sprite.extraIcons.icons[${i}].source`, ['string']);
 	}
-	validateOption('sprite.writeFile', ['boolean', 'string']);
 
+	validateOption('sprite.writeFile', ['boolean', 'string']);
+	validateOption('sprite.writeToDirectory', ['boolean', 'string']);
+
+	if (
+		options.sprite.writeFile !== false &&
+		options.sprite.writeToDirectory !== false
+	) {
+		throw new CustomOptionsError(
+			'sprite',
+			"Either 'writeFile' or 'writeToDirectory' can be set, but not both.",
+		);
+	}
 	return true;
 }

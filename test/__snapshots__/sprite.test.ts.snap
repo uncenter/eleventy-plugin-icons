@@ -9,8 +9,43 @@ exports[`supports external svg reference > when writeFile is set 1`] = `
         <link rel="preload" href="/assets/icons/sprites.svg" as="image">
     </head>
     <body>
-        <svg class="icon icon-apple"><use href="/assets/icons/sprites.svg#icon-apple"></use></svg>
+        <svg class="icon icon-lock"><use href="/assets/icons/sprites.svg#icon-lock"></use></svg>
+        <svg class="scary-night icon icon-lock" stroke="#b1000d"><use href="/assets/icons/sprites.svg#icon-lock"></use></svg>
+<svg class="icon icon-apple"><use href="/assets/icons/sprites.svg#icon-apple"></use></svg>
+<svg class="starry-night icon icon-lock" stroke="#ed8a19"><use href="/assets/icons/sprites.svg#icon-lock"></use></svg>
 
     </body>
 </html>"
+`;
+
+exports[`supports external svg reference > when writeToDirectory is set 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preload" href="/assets/icons/ieV1V-ezXX.svg" as="image">
+    </head>
+    <body>
+        <svg class="icon icon-lock"><use href="/assets/icons/ieV1V-ezXX.svg#icon-lock"></use></svg>
+        <svg class="scary-night icon icon-lock" stroke="#b1000d"><use href="/assets/icons/ieV1V-ezXX.svg#icon-lock"></use></svg>
+<svg class="icon icon-apple"><use href="/assets/icons/ieV1V-ezXX.svg#icon-apple"></use></svg>
+<svg class="starry-night icon icon-lock" stroke="#ed8a19"><use href="/assets/icons/ieV1V-ezXX.svg#icon-lock"></use></svg>
+
+    </body>
+</html>"
+`;
+
+exports[`supports external svg reference > when writeToDirectory is set 2`] = `
+"<svg class="sprite-sheet" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+<!-- @license lucide-static v0.483.0 - ISC -->
+<symbol class="lucide lucide-apple" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-apple">
+  <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/>
+  <path d="M10 2c1 .5 2 2 2 5"/>
+</symbol>
+<!-- @license lucide-static v0.483.0 - ISC -->
+<symbol class="lucide lucide-lock" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-lock">
+  <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+</symbol></defs></svg>"
 `;
