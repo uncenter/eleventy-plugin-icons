@@ -11,9 +11,6 @@ importers:
       fast-xml-parser:
         specifier: ^4.4.0
         version: 4.4.0
-      just-extend:
-        specifier: ^6.2.0
-        version: 6.2.0
       just-memoize:
         specifier: ^2.2.0
         version: 2.2.0
@@ -23,6 +20,9 @@ importers:
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
+      merge:
+        specifier: ^2.1.1
+        version: 2.1.1
     devDependencies:
       '@11ty/eleventy':
         specifier: 3.0.0
@@ -1551,9 +1551,6 @@ packages:
     resolution: {integrity: sha512-3KF80UaaSSxo8jVnRYtMKNGFOoVPBdkkVPsw+Ad0y4oxKXPduS6G6iHkrf69yJVff/VAaYXkV42rtZ7daJxU3w==}
     engines: {node: '>=0.10.0'}
 
-  just-extend@6.2.0:
-    resolution: {integrity: sha512-cYofQu2Xpom82S6qD778jBDpwvvy39s1l/hrYij2u9AMdQcGRpaBu6kY4mVhuno5kJVi1DAz4aiphA2WI1/OAw==}
-
   just-memoize@2.2.0:
     resolution: {integrity: sha512-zriv+MY+61RXT0QsrO1ZJtL5umouqqSWmCGBkp2wJm35kniunBAA4qhUKx8Lvg/QcwrF9xuw9E6PkevKFf4boQ==}
 
@@ -1595,6 +1592,7 @@ packages:
   loupe@3.1.3:
     resolution: {integrity: sha512-kkIp7XSkP78ZxJEsSxW3712C6teJVoeHHwgo9zJ380de7IYyJ2ISlxojcH2pC5OFLewESmnRi/+XCDIEEVyoug==}
 
+
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
 
@@ -1628,6 +1626,9 @@ packages:
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
+
+  merge@2.1.1:
+    resolution: {integrity: sha512-jz+Cfrg9GWOZbQAnDQ4hlVnQky+341Yk5ru8bZSe6sIDTCIg8n9i/u7hSQGSVOF3C7lH6mGtqjkiT9G4wFLL0w==}
 
   micromatch@4.0.7:
     resolution: {integrity: sha512-LPP/3KorzCwBxfeUuZmaR6bG2kdeHSbe0P2tY3FLRU4vYrjYz5hI4QZwV0njUx3jeuKe67YukQ1LSPZBKDqO/Q==}
@@ -3688,8 +3689,6 @@ snapshots:
 
   junk@1.0.3: {}
 
-  just-extend@6.2.0: {}
-
   just-memoize@2.2.0: {}
 
   just-typeof@3.2.0: {}
@@ -3717,6 +3716,7 @@ snapshots:
   lodash.uniq@4.5.0: {}
 
   loupe@3.1.3: {}
+
 
   lru-cache@10.4.3: {}
 
@@ -3751,6 +3751,8 @@ snapshots:
   mdurl@2.0.0: {}
 
   merge2@1.4.1: {}
+
+  merge@2.1.1: {}
 
   micromatch@4.0.7:
     dependencies:

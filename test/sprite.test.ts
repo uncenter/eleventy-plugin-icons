@@ -1,4 +1,7 @@
-import extend from 'just-extend';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+import merge from 'merge';
 import { describe, expect, test } from 'vitest';
 
 import {
@@ -47,17 +50,43 @@ test('a spritesheet should NOT be created with zero icons on the page', () => {
 });
 
 describe('supports external svg reference', () => {
+	const outputSpriteDirectory = path.join(import.meta.dirname, '_site_sprite');
+
 	test('when writeFile is set', async () => {
 		const results = await getFixtureResultsWithOptions(
 			'sprite-external',
-			extend(true, SPRITE_OPTIONS, {
+			merge.recursive(true, SPRITE_OPTIONS, {
 				sprite: {
 					writeFile: 'assets/icons/sprites.svg',
 				},
 			}),
+			outputSpriteDirectory,
 		);
 		const file = getFixtureContentFromURL(results, '/external-reference/');
 
 		expect(file).toMatchSnapshot();
+	});
+
+	test('when writeToDirectory is set', async () => {
+		const results = await getFixtureResultsWithOptions(
+			'sprite-external',
+			merge.recursive(true, SPRITE_OPTIONS, {
+				sprite: {
+					writeToDirectory: 'assets/icons',
+				},
+			}),
+			outputSpriteDirectory,
+		);
+
+		const file = getFixtureContentFromURL(results, '/external-reference/');
+
+		expect(file).toMatchSnapshot();
+
+		expect(
+			await fs.readFile(
+				path.join(outputSpriteDirectory, 'assets/icons/ieV1V-ezXX.svg'),
+				'utf-8',
+			),
+		).toMatchSnapshot();
 	});
 });
