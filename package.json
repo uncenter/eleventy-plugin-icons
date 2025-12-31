@@ -33,7 +33,7 @@
 		"eleventy-plugin"
 	],
 	"dependencies": {
-		"fast-xml-parser": "^4.4.0",
+		"fast-xml-parser": "^5.3.3",
 		"just-extend": "^6.2.0",
 		"just-memoize": "^2.2.0",
 		"just-typeof": "^3.2.0",
