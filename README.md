@@ -5,20 +5,20 @@
 
 Add icons to your Eleventy site, made easy.
 
-Turn an [11ty shortcode](https://www.11ty.dev/docs/shortcodes/) like this:
+Use an [11ty shortcode](https://www.11ty.dev/docs/shortcodes/) like this:
 
 ```twig
 {% icon "star" %}
 ```
 
-Into an SVG like this, right in your templates:
+To output an SVG like this:
 
 <!-- prettier-ignore -->
 ```html
 <svg class="icon icon-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
 ```
 
-You can change/set attributes for an icon right in the shortcode:
+You can set attributes for an icon right in the shortcode:
 
 ```twig
 {% icon "star", stroke="#ed8a19", class="starry-night" %}
@@ -136,6 +136,11 @@ As you can see, the icon "identifier" or name must be prefixed by the name of th
 {
   sources: [{ name: 'custom', path: './src/icons', default: true }];
 }
+```
+
+```diff
+-{% icon "custom:my-icon" %}
++{% icon "my-icon" %}
 ```
 
 You can add as many sources as you want, but you can only have one default source.
