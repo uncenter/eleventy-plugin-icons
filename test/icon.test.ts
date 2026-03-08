@@ -19,7 +19,7 @@ test('should match content from filesystem', async () => {
 			},
 		],
 	});
-	expect(await new Icon('lucide:star', options).content(options)).toEqual(
+	expect(await new Icon('lucide:star', options, {}).content(options)).toEqual(
 		await readFile(join(icons, 'star.svg'), 'utf-8'),
 	);
 });
@@ -38,7 +38,7 @@ test('should accept and parse various attribute types', async () => {
 			},
 		],
 	});
-	expect(await new Icon('lucide:star', options).content(options)).toEqual(
+	expect(await new Icon('lucide:star', options, {}).content(options)).toEqual(
 		await readFile(join(icons, 'star.svg'), 'utf-8'),
 	);
 });

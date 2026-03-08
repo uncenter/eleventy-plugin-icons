@@ -2,6 +2,7 @@ import type { Attributes } from './types';
 
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
+import { cache } from './cache';
 import { log, mergeAttributes } from './utils';
 
 const parser = new XMLParser({
@@ -33,6 +34,21 @@ export function parseSVG(
 	attributes: Attributes,
 	overwrite: boolean,
 ) {
+	const rawSvgkey = `rawSvg-${raw}-${JSON.stringify(attributes)}-${overwrite}`;
+
+	const maybe = cache.get(rawSvgkey);
+	if (maybe !== undefined) return maybe;
+
+	const parsed = parseSVG_internal(raw, attributes, overwrite);
+	cache.set(rawSvgkey, parsed);
+	return parsed;
+}
+
+const parseSVG_internal = (
+	raw: string,
+	attributes: Attributes,
+	overwrite: boolean,
+): string => {
 	const parsed = parser.parse(raw);
 	// biome-ignore lint/suspicious/noImplicitAnyLet: fast-xml-parser's XMLParser#parse() is poorly typed.
 	let svg;
@@ -83,4 +99,4 @@ export function parseSVG(
 	if (!svg) log.error('No SVG element found.');
 
 	return builder.build(parsed);
-}
+};

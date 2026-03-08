@@ -19,6 +19,7 @@ export default function (
 	opts: Prettify<DeepPartial<Options>>,
 ) {
 	const usedIcons: Icon[] = [];
+	let extraIcons: Icon[] | undefined = undefined;
 
 	if (opts === null || typeof opts !== 'object')
 		throw new Error(`options: expected an object but received ${typeof opts}`);
@@ -32,7 +33,7 @@ export default function (
 			input: any,
 			attrs: Attributes | string = {},
 		) {
-			const icon = new Icon(input, options);
+			const icon = new Icon(input, options, {});
 
 			// Keep track of used icons for generating sprite.
 			usedIcons.push(icon);
@@ -66,10 +67,7 @@ export default function (
 	eleventyConfig.addShortcode(
 		options.sprite.shortcode,
 		async function (this: { page: { icons: Icon[] } }) {
-			return await createSprite(
-				[...(this?.page?.icons || []), ...(await getExtraIcons(options))],
-				options,
-			);
+			return await createSpriteWithExtraIcons(this?.page?.icons || []);
 		},
 	);
 
@@ -107,10 +105,7 @@ export default function (
 					output: string;
 				};
 			}) => {
-				const sprite = await createSprite(
-					[...usedIcons, ...(await getExtraIcons(options))],
-					options,
-				);
+				const sprite = await createSpriteWithExtraIcons(usedIcons);
 
 				const outputFilePath = path.join(
 					dir.output,
@@ -131,6 +126,12 @@ export default function (
 	for (const source of options.sources) {
 		eleventyConfig.addWatchTarget(source.path);
 	}
+
+	const createSpriteWithExtraIcons = async (icons: Icon[]) => {
+		extraIcons ??= await getExtraIcons(options);
+
+		return await createSprite(icons.concat(extraIcons), options);
+	};
 
 	const pathToUrl = (p: string): string =>
 		path.normalize(p).split(path.sep).join('/');

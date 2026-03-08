@@ -4,8 +4,7 @@ import type { Attributes } from './types';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import memoize from 'just-memoize';
-
+import { cache } from './cache';
 import { parseSVG } from './svg';
 import { attributesToString, log, stringify } from './utils';
 
@@ -13,11 +12,16 @@ export class Icon {
 	public name = '';
 	public source = '';
 	public path = '';
+	public attributes: Attributes | string = {};
+	public id = '';
 
 	constructor(
 		input: { name: string; source: string } | string,
 		options: Options,
+		attributes: Attributes | string,
 	) {
+		this.attributes = attributes;
+
 		if (typeof input === 'object') {
 			this.name = input.name;
 			this.source = input.source;
@@ -39,6 +43,8 @@ export class Icon {
 			log.error(`Invalid input type for Icon constructor: '${typeof input}'.`);
 		}
 
+		this.id = `${this.source}-${this.name}-${JSON.stringify(attributes)}`;
+
 		const sourceObject = options.sources.find(
 			(source) => source.name === this.source,
 		);
@@ -55,53 +61,85 @@ export class Icon {
 	stringified = () => stringify(this);
 
 	// eslint-disable-next-line unicorn/consistent-function-scoping
-	content = memoize(async (options: Options) => {
+	content = async (options: Options): Promise<string> => {
+		const iconContentKey = `iconContent-${this.id}`;
+
+		const maybe = cache.get(iconContentKey);
+		if (maybe !== undefined) return maybe;
+
+		let content: string;
+
 		try {
-			let content = await fs.readFile(this.path, 'utf-8');
-			if (!content) {
+			let fromFile = await fs.readFile(this.path, 'utf-8');
+
+			if (!fromFile) {
 				log.warn(`Icon ${this.stringified()} appears to be empty.`);
-				content = '';
+				fromFile = '';
 			}
-			return options.icon.transform
-				? await options.icon.transform(content)
-				: content;
+
+			content = options.icon.transform
+				? await options.icon.transform(fromFile)
+				: fromFile;
 		} catch {
 			log[options.icon.errorNotFound ? 'error' : 'warn'](
 				`Icon ${this.stringified()} not found.`,
 			);
+
+			content = '';
 		}
-	});
+
+		cache.set(iconContentKey, content);
+		return content;
+	};
 }
 
-export const createSprite = memoize(
-	async (icons: Icon[], options: Options): Promise<string> => {
-		// Create an array of promises that generate symbol definitions for each icon.
-		const symbols = await Promise.all(
-			[...new Set(icons || [])].map(async (icon) => {
-				const content = await icon.content(options);
-				// If content exists, convert it to a symbol element and add attributes.
-				if (content) {
-					return parseSVG(
-						content,
-						{ id: options.icon.id(icon.name, icon.source) },
-						true,
-					)
-						.replace(/<svg/, '<symbol')
-						.replace(/<\/svg>/, '</symbol>');
-				}
-				return '';
-			}),
-		);
+export const createSprite = async (
+	icons: Icon[],
+	options: Options,
+): Promise<string> => {
+	// Sort icons for consistent ordering.
+	icons.sort((a, b) => (a.id < b.id ? -1 : 1));
 
-		// Combine the generated symbol strings and filter out empty ones.
-		const symbolsString = [...new Set(symbols.filter(Boolean))].join('');
-		return symbolsString
-			? `<svg ${attributesToString(
-					options.sprite.attributes,
-				)}><defs>${symbolsString}</defs></svg>`
-			: ''; // Return an empty string if no symbols were generated.
-	},
-);
+	const dedupedIcons = new Map(icons.map((item) => [item.id, item]));
+
+	const dedupedIds = [...dedupedIcons.keys()].join('/');
+
+	const spriteKey = `sprite-${dedupedIds}`;
+
+	const maybe = cache.get(spriteKey);
+	if (maybe !== undefined) return maybe;
+
+	const symbols: string[] = [];
+
+	for (const icon of dedupedIcons.values()) {
+		const content = await icon.content(options);
+
+		if (content === '') {
+			continue;
+		}
+
+		// If content exists, convert it to a symbol element and add attributes.
+		symbols.push(
+			parseSVG(content, { id: options.icon.id(icon.name, icon.source) }, true)
+				.replace(/<svg/, '<symbol')
+				.replace(/<\/svg>/, '</symbol>'),
+		);
+	}
+
+	// Return an empty string if no symbols were generated.
+	if (symbols.length === 0) {
+		return '';
+	}
+
+	// Combine the generated symbol strings
+	const content = `<svg ${attributesToString(
+		options.sprite.attributes,
+	)}><defs>${symbols.join('')}</defs></svg>`;
+
+	cache.set(spriteKey, content);
+
+	return content;
+};
 
 export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 	const icons = [];
@@ -129,7 +167,7 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 					)}.`,
 				);
 			} else {
-				icons.push(new Icon(icon, options));
+				icons.push(new Icon(icon, options, {}));
 			}
 		}
 	}
@@ -144,11 +182,13 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 							source: source.name,
 						},
 						options,
+						{},
 					),
 				);
 			}
 		}
 	}
+
 	return icons;
 };
 
