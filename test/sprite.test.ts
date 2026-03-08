@@ -1,4 +1,4 @@
-import extend from 'just-extend';
+import merge from 'merge';
 import { describe, expect, test } from 'vitest';
 
 import {
@@ -50,7 +50,7 @@ describe('supports external svg reference', () => {
 	test('when writeFile is set', async () => {
 		const results = await getFixtureResultsWithOptions(
 			'sprite-external',
-			extend(true, SPRITE_OPTIONS, {
+			merge.recursive(true, SPRITE_OPTIONS, {
 				sprite: {
 					writeFile: 'assets/icons/sprites.svg',
 				},
