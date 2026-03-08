@@ -1,5 +1,5 @@
-import extend from 'just-extend';
 import typeOf from 'just-typeof';
+import merge from 'merge';
 
 import { PluginError } from './error';
 import { get } from './utils';
@@ -82,7 +82,7 @@ export const defaultOptions: Options = {
  * @returns Merged options object.
  */
 export function mergeOptions(options: Partial<Options>): Options {
-	return extend(true, defaultOptions, options) as Options;
+	return merge.recursive(true, defaultOptions, options) as Options;
 }
 
 class OptionsError extends PluginError {
