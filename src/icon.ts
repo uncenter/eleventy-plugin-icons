@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { cache } from './cache';
-import { parseSVG } from './svg';
+import { processXMLIcon } from './svg';
 import {
 	attributesToString,
 	handleIconShortcodeAttributes,
@@ -106,10 +106,9 @@ export const createSprite = async (
 	icons.sort((a, b) => (a.path < b.path ? -1 : 1));
 
 	const dedupedIcons = new Map(icons.map((item) => [item.path, item]));
+	const dedupedIds = [...dedupedIcons.keys()];
 
-	const dedupedIds = [...dedupedIcons.keys()].join('/');
-
-	const combinedSpritesKey = `sprites-${dedupedIds}`;
+	const combinedSpritesKey = `sprites-${dedupedIds.join('/')}`;
 
 	const maybe = cache.get(combinedSpritesKey);
 	if (maybe !== undefined) return maybe;
@@ -132,17 +131,17 @@ export const createSprite = async (
 		}
 
 		// If content exists, convert it to a symbol element and add attributes.
-		const parsed = parseSVG(
+		const processed = processXMLIcon(
 			icon.path,
 			content,
 			{ id: options.icon.id(icon.name, icon.source) },
 			true,
 		)
-			.replace(/<svg/, '<symbol')
+			.replace(/<svg/, '<symbol') // TODO: Avoid regex for changing tags.
 			.replace(/<\/svg>/, '</symbol>');
 
-		cache.set(symbolKey, parsed);
-		symbols.push(parsed);
+		cache.set(symbolKey, processed);
+		symbols.push(processed);
 	}
 
 	// Return an empty string if no symbols were generated.
@@ -150,7 +149,7 @@ export const createSprite = async (
 		return '';
 	}
 
-	// Combine the generated symbol strings
+	// Combine the generated symbol strings.
 	const content = `<svg ${attributesToString(
 		options.sprite.attributes,
 	)}><defs>${symbols.join('')}</defs></svg>`;
@@ -167,13 +166,13 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 	if (options.sprite.extraIcons.all === true) {
 		sources.push(...options.sources);
 	} else {
-		for (const name of options.sprite.extraIcons.sources) {
-			const source = options.sources.find((source) => source.name === name);
-			if (source) {
-				sources.push(source);
+		for (const source of options.sprite.extraIcons.sources) {
+			const match = options.sources.find(({ name }) => name === source);
+			if (match) {
+				sources.push(match);
 			} else {
 				log.error(
-					`options.sprite.extraIcons.sources: Source '${name}' is not defined in options.sources.`,
+					`options.sprite.extraIcons.sources: Source '${source}' is not defined in options.sources.`,
 				);
 			}
 		}

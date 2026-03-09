@@ -24,28 +24,39 @@ const builder = new XMLBuilder({
 /**
  * Parses an SVG string and merges given attributes with existing ones.
  *
+ * @param path - The file system path for the icon, for caching.
  * @param raw - The raw SVG string.
  * @param attributes - The attributes to be merged.
  * @param overwrite - Flag indicating whether to overwrite existing attributes.
  * @returns The modified SVG string.
  */
-export function parseSVG(
+export function processXMLIcon(
 	path: string,
 	raw: string,
 	attributes: Attributes,
 	overwrite: boolean,
 ) {
-	const rawSvgkey = `rawSvg-${path}-${JSON.stringify(attributes)}-${overwrite}`;
+	const processedIconKey = `processedIcon-${path}-${JSON.stringify(attributes)}-${overwrite}`;
 
-	const maybe = cache.get(rawSvgkey);
+	const maybe = cache.get(processedIconKey);
 	if (maybe !== undefined) return maybe;
 
-	const parsed = _parseSVG_internal(raw, attributes, overwrite);
-	cache.set(rawSvgkey, parsed);
-	return parsed;
+	const processed = _processXMLIcon(raw, attributes, overwrite);
+	cache.set(processedIconKey, processed);
+	return processed;
 }
 
-export const _parseSVG_internal = (
+/**
+ * **INTERNAL: Uncached helper method.**
+ *
+ * Parses an SVG string and merges given attributes with existing ones.
+ *
+ * @param raw - The raw SVG string.
+ * @param attributes - The attributes to be merged.
+ * @param overwrite - Flag indicating whether to overwrite existing attributes.
+ * @returns The modified SVG string.
+ */
+export const _processXMLIcon = (
 	raw: string,
 	attributes: Attributes,
 	overwrite: boolean,
