@@ -15,7 +15,7 @@ describe('attributesToString()', () => {
 	});
 });
 
-describe('_parseSVG_internal()', () => {
+describe('processXMLIcon()', () => {
 	test('should add class attribute to SVG element', () => {
 		expect(_processXMLIcon('<svg/>', { class: 'abc' }, false)).toContain(
 			'<svg class="abc"/>',
