@@ -11,9 +11,6 @@ importers:
       fast-xml-parser:
         specifier: ^4.4.0
         version: 4.4.0
-      just-memoize:
-        specifier: ^2.2.0
-        version: 2.2.0
       just-typeof:
         specifier: ^3.2.0
         version: 3.2.0
@@ -1550,9 +1547,6 @@ packages:
   junk@1.0.3:
     resolution: {integrity: sha512-3KF80UaaSSxo8jVnRYtMKNGFOoVPBdkkVPsw+Ad0y4oxKXPduS6G6iHkrf69yJVff/VAaYXkV42rtZ7daJxU3w==}
     engines: {node: '>=0.10.0'}
-
-  just-memoize@2.2.0:
-    resolution: {integrity: sha512-zriv+MY+61RXT0QsrO1ZJtL5umouqqSWmCGBkp2wJm35kniunBAA4qhUKx8Lvg/QcwrF9xuw9E6PkevKFf4boQ==}
 
   just-typeof@3.2.0:
     resolution: {integrity: sha512-nOKazfzrQDEGNwXPfWEB64QD+ATZUnpOTJn0xMnCk41p297P9Emt3BlsRyWbu+CErMjopnFTGcYHJnvFX97ZIQ==}
@@ -3687,8 +3681,6 @@ snapshots:
       argparse: 2.0.1
 
   junk@1.0.3: {}
-
-  just-memoize@2.2.0: {}
 
   just-typeof@3.2.0: {}
 
