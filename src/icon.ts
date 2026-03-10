@@ -60,14 +60,14 @@ export class Icon {
 
 		this.attributes = handleIconShortcodeAttributes(attributes, options, this);
 
-		this.id = `${this.source}-${this.name}-${JSON.stringify(this.attributes)}`;
+		this.id = `${this.path}-${JSON.stringify(this.attributes)}`;
 	}
 
 	stringified = () => stringify(this);
 
 	// eslint-disable-next-line unicorn/consistent-function-scoping
 	content = async (options: Options): Promise<string> => {
-		const iconContentKey = `iconContent-${this.id}`;
+		const iconContentKey = `iconContent-${this.path}`;
 
 		const maybe = cache.get(iconContentKey);
 		if (maybe !== undefined) return maybe;
@@ -103,20 +103,28 @@ export const createSprite = async (
 	options: Options,
 ): Promise<string> => {
 	// Sort icons for consistent ordering.
-	icons.sort((a, b) => (a.id < b.id ? -1 : 1));
+	icons.sort((a, b) => (a.path < b.path ? -1 : 1));
 
-	const dedupedIcons = new Map(icons.map((item) => [item.id, item]));
+	const dedupedIcons = new Map(icons.map((item) => [item.path, item]));
 
 	const dedupedIds = [...dedupedIcons.keys()].join('/');
 
-	const spriteKey = `sprite-${dedupedIds}`;
+	const combinedSpritesKey = `sprites-${dedupedIds}`;
 
-	const maybe = cache.get(spriteKey);
+	const maybe = cache.get(combinedSpritesKey);
 	if (maybe !== undefined) return maybe;
 
 	const symbols: string[] = [];
 
-	for (const icon of dedupedIcons.values()) {
+	for (const [path, icon] of dedupedIcons.entries()) {
+		const symbolKey = `symbol-${path}`;
+
+		const maybe = cache.get(symbolKey);
+		if (maybe !== undefined) {
+			symbols.push(maybe);
+			continue;
+		}
+
 		const content = await icon.content(options);
 
 		if (content === '') {
@@ -124,11 +132,17 @@ export const createSprite = async (
 		}
 
 		// If content exists, convert it to a symbol element and add attributes.
-		symbols.push(
-			parseSVG(content, { id: options.icon.id(icon.name, icon.source) }, true)
-				.replace(/<svg/, '<symbol')
-				.replace(/<\/svg>/, '</symbol>'),
-		);
+		const parsed = parseSVG(
+			icon.path,
+			content,
+			{ id: options.icon.id(icon.name, icon.source) },
+			true,
+		)
+			.replace(/<svg/, '<symbol')
+			.replace(/<\/svg>/, '</symbol>');
+
+		cache.set(symbolKey, parsed);
+		symbols.push(parsed);
 	}
 
 	// Return an empty string if no symbols were generated.
@@ -141,7 +155,7 @@ export const createSprite = async (
 		options.sprite.attributes,
 	)}><defs>${symbols.join('')}</defs></svg>`;
 
-	cache.set(spriteKey, content);
+	cache.set(combinedSpritesKey, content);
 
 	return content;
 };
