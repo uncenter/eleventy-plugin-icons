@@ -6,13 +6,18 @@ import path from 'node:path';
 
 import { cache } from './cache';
 import { parseSVG } from './svg';
-import { attributesToString, log, stringify } from './utils';
+import {
+	attributesToString,
+	handleIconShortcodeAttributes,
+	log,
+	stringify,
+} from './utils';
 
 export class Icon {
 	public name = '';
 	public source = '';
 	public path = '';
-	public attributes: Attributes | string = {};
+	public attributes: Attributes = {};
 	public id = '';
 
 	constructor(
@@ -20,8 +25,6 @@ export class Icon {
 		options: Options,
 		attributes: Attributes | string,
 	) {
-		this.attributes = attributes;
-
 		if (typeof input === 'object') {
 			this.name = input.name;
 			this.source = input.source;
@@ -43,8 +46,6 @@ export class Icon {
 			log.error(`Invalid input type for Icon constructor: '${typeof input}'.`);
 		}
 
-		this.id = `${this.source}-${this.name}-${JSON.stringify(attributes)}`;
-
 		const sourceObject = options.sources.find(
 			(source) => source.name === this.source,
 		);
@@ -56,6 +57,10 @@ export class Icon {
 		} else {
 			log.error(`Source '${this.source}' is not defined in options.sources.`);
 		}
+
+		this.attributes = handleIconShortcodeAttributes(attributes, options, this);
+
+		this.id = `${this.source}-${this.name}-${JSON.stringify(this.attributes)}`;
 	}
 
 	stringified = () => stringify(this);

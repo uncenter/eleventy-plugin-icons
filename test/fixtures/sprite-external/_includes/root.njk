@@ -6,6 +6,8 @@
         <link rel="preload" href="{% getSvgSpriteUrl %}" as="image">
     </head>
     <body>
+        {% sprite "lucide:lock" %}
         {{ content | safe }}
+        {% sprite "lucide:lock", '{"stroke": "#ed8a19", "class": "starry-night"}' %}
     </body>
 </html>
