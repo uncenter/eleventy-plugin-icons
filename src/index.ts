@@ -12,7 +12,6 @@ import {
 } from './icon';
 import { mergeOptions, validateOptions } from './options';
 import { parseSVG } from './svg';
-import { handleIconShortcodeAttributes } from './utils';
 
 export default function (
 	eleventyConfig: any,
@@ -33,7 +32,7 @@ export default function (
 			input: any,
 			attrs: Attributes | string = {},
 		) {
-			const icon = new Icon(input, options, {});
+			const icon = new Icon(input, options, attrs);
 
 			// Keep track of used icons for generating sprite.
 			usedIcons.push(icon);
@@ -41,13 +40,12 @@ export default function (
 			const content = await icon.content(options);
 			if (!content) return '';
 
-			const attributes = handleIconShortcodeAttributes(attrs, options, icon);
-
 			switch (options.mode) {
 				case 'inline':
 					return parseSVG(
+						icon.path,
 						content,
-						attributes,
+						icon.attributes,
 						options.icon.overwriteExistingAttributes,
 					);
 				case 'sprite':
@@ -56,7 +54,7 @@ export default function (
 						if (!this.page.icons.includes(icon)) this.page.icons.push(icon);
 					}
 					return createSpriteReference(
-						attributes,
+						icon.attributes,
 						options.icon.id(icon.name, icon.source),
 						getSvgSpriteUrl(),
 					);

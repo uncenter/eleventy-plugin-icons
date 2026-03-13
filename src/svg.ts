@@ -30,21 +30,22 @@ const builder = new XMLBuilder({
  * @returns The modified SVG string.
  */
 export function parseSVG(
+	path: string,
 	raw: string,
 	attributes: Attributes,
 	overwrite: boolean,
 ) {
-	const rawSvgkey = `rawSvg-${raw}-${JSON.stringify(attributes)}-${overwrite}`;
+	const rawSvgkey = `rawSvg-${path}-${JSON.stringify(attributes)}-${overwrite}`;
 
 	const maybe = cache.get(rawSvgkey);
 	if (maybe !== undefined) return maybe;
 
-	const parsed = parseSVG_internal(raw, attributes, overwrite);
+	const parsed = _parseSVG_internal(raw, attributes, overwrite);
 	cache.set(rawSvgkey, parsed);
 	return parsed;
 }
 
-const parseSVG_internal = (
+export const _parseSVG_internal = (
 	raw: string,
 	attributes: Attributes,
 	overwrite: boolean,

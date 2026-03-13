@@ -9,8 +9,12 @@ exports[`supports external svg reference > when writeFile is set 1`] = `
         <link rel="preload" href="/assets/icons/sprites.svg" as="image">
     </head>
     <body>
-        <svg class="icon icon-apple"><use href="/assets/icons/sprites.svg#icon-apple"></use></svg>
+        <svg class="icon icon-lock"><use href="/assets/icons/sprites.svg#icon-lock"></use></svg>
+        <svg class="scary-night icon icon-lock" stroke="#b1000d"><use href="/assets/icons/sprites.svg#icon-lock"></use></svg>
+<svg class="icon icon-apple"><use href="/assets/icons/sprites.svg#icon-apple"></use></svg>
+<svg class="starry-night icon icon-lock" stroke="#ed8a19"><use href="/assets/icons/sprites.svg#icon-lock"></use></svg>
 
+        <svg class="starry-night icon icon-lock" stroke="#ed8a19"><use href="/assets/icons/sprites.svg#icon-lock"></use></svg>
     </body>
 </html>"
 `;
