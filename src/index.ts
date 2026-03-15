@@ -11,7 +11,7 @@ import {
 	getExtraIcons,
 } from './icon';
 import { mergeOptions, validateOptions } from './options';
-import { parseSVG } from './svg';
+import { processXMLIcon } from './svg';
 
 export default function (
 	eleventyConfig: any,
@@ -42,7 +42,7 @@ export default function (
 
 			switch (options.mode) {
 				case 'inline':
-					return parseSVG(
+					return processXMLIcon(
 						icon.path,
 						content,
 						icon.attributes,
