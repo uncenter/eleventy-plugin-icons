@@ -43,6 +43,7 @@ export type Options = {
 			}[];
 		};
 		writeFile: false | string;
+		writeToDirectory: false | string;
 	};
 };
 
@@ -73,6 +74,7 @@ export const defaultOptions: Options = {
 			icons: [],
 		},
 		writeFile: false,
+		writeToDirectory: false,
 	},
 };
 
@@ -171,7 +173,41 @@ export function validateOptions(options: Options): options is Options {
 		validateOption(`sprite.extraIcons.icons[${i}].name`, ['string']);
 		validateOption(`sprite.extraIcons.icons[${i}].source`, ['string']);
 	}
-	validateOption('sprite.writeFile', ['boolean', 'string']);
 
+	validateOption('sprite.writeFile', ['boolean', 'string']);
+	validateOption('sprite.writeToDirectory', ['boolean', 'string']);
+
+	if (
+		options.sprite.writeFile !== false &&
+		options.sprite.writeToDirectory !== false
+	) {
+		throw new CustomOptionsError(
+			'sprite',
+			"Either 'writeFile' or 'writeToDirectory' can be set, but not both.",
+		);
+	}
 	return true;
 }
+
+export enum GenerationMode {
+	Inlined = 0,
+	EmbeddedSprite = 1,
+	NamedFileSprite = 2,
+	HashedBundleSprite = 3,
+}
+
+export const inferGenerationMode = (opts: Options): GenerationMode => {
+	if (opts.mode === 'inline') {
+		return GenerationMode.Inlined;
+	}
+
+	if (opts.sprite.writeFile !== false) {
+		return GenerationMode.NamedFileSprite;
+	}
+
+	if (opts.sprite.writeToDirectory !== false) {
+		return GenerationMode.HashedBundleSprite;
+	}
+
+	return GenerationMode.EmbeddedSprite;
+};

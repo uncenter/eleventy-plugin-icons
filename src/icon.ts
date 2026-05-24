@@ -19,6 +19,7 @@ export class Icon {
 	public path = '';
 	public attributes: Attributes = {};
 	public id = '';
+	private originId = '';
 
 	constructor(
 		input: { name: string; source: string } | string,
@@ -45,6 +46,8 @@ export class Icon {
 		} else {
 			log.error(`Invalid input type for Icon constructor: '${typeof input}'.`);
 		}
+
+		this.originId = options.icon.id(this.name, this.source);
 
 		const sourceObject = options.sources.find(
 			(source) => source.name === this.source,
@@ -95,6 +98,12 @@ export class Icon {
 
 		cache.set(iconContentKey, content);
 		return content;
+	};
+
+	createSpriteReference = (spriteUrl: string): string => {
+		return `<svg ${attributesToString(
+			this.attributes,
+		)}><use href="${spriteUrl}#${this.originId}"></use></svg>`;
 	};
 }
 
@@ -208,14 +217,4 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 	}
 
 	return icons;
-};
-
-export const createSpriteReference = (
-	attributes: Attributes,
-	id: string,
-	spriteUrl: string | undefined,
-): string => {
-	return `<svg ${attributesToString(
-		attributes,
-	)}><use href="${spriteUrl ?? ''}#${id}"></use></svg>`;
 };

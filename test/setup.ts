@@ -45,8 +45,9 @@ type EleventyPageResult = {
 export const getFixtureResultsWithOptions = async (
 	fixture: string,
 	options: DeepPartial<Options>,
+	outputDirectory = '_site',
 ): Promise<EleventyPageResult[]> => {
-	const elev = new Eleventy(withFixture(fixture), '_site', {
+	const elev = new Eleventy(withFixture(fixture), outputDirectory, {
 		config: (eleventyConfig: any) => {
 			eleventyConfig.addPlugin(pluginIcons, options);
 		},
