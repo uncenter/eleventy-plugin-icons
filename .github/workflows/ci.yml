@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: [16.x, 18.x, 20.x, 22.x, 24.x]
+        node-version: [18.x, 20.x, 22.x, 24.x]
 
     runs-on: ${{ matrix.os }}
 
@@ -34,7 +34,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-            version: 8
+            version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
