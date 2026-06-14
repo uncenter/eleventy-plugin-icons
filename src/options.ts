@@ -193,7 +193,10 @@ export const inferGenerationMode = (options: Options): GenerationModeResult => {
 	}
 
 	if (options.sprite.writeFile !== false) {
-		return { mode: GenerationMode.NamedFileSprite, writeFile: options.sprite.writeFile };
+		return {
+			mode: GenerationMode.NamedFileSprite,
+			writeFile: options.sprite.writeFile,
+		};
 	}
 
 	return { mode: GenerationMode.EmbeddedSprite };
