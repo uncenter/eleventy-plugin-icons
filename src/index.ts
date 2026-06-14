@@ -1,7 +1,6 @@
 import type { Options } from './options';
 import type { Attributes, DeepPartial, Prettify } from './types';
 
-import assert from 'node:assert';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -28,8 +27,6 @@ export default function (
 ) {
 	const usedIcons: Map<string, Icon> = new Map<string, Icon>();
 	let extraIcons: Icon[] | undefined = undefined;
-	let relFileUrl: string | undefined = undefined;
-	let hrefPrefix: string | undefined = undefined;
 
 	if (opts === null || typeof opts !== 'object')
 		throw new PluginError(
@@ -39,8 +36,9 @@ export default function (
 	const options = mergeOptions(opts as Options);
 	validateOptions(options);
 
-	const generationMode = inferGenerationMode(options);
+	const gm = inferGenerationMode(options);
 
+	// Add icon replacement transform; runs after template compilation during which the placeholders are injected, replacing the placeholder comments with actual content.
 	eleventyConfig.addTransform(
 		'eleventy-plugin-icons/delayed',
 		async function (
@@ -53,21 +51,23 @@ export default function (
 				}
 			}
 
-			relFileUrl ??= await getWrittenSpriteRelativeUrl(options);
-			hrefPrefix ??= relFileUrl === undefined ? '' : `/${relFileUrl}`;
+			const svgSpriteUrl =
+				gm.mode === GenerationMode.NamedFileSprite
+					? `/${pathToUrl(path.join(gm.writeFile))}`
+					: '';
 
+			// Replace the placeholders in the file with either inline icons or sprite references.
 			for (const icon of usedIcons.values()) {
 				content = content.replaceAll(
 					PLACEHOLDER_ICON(icon.id),
-					await generateSVG(icon, hrefPrefix),
+					await createInlineOrSpriteIcon(icon, svgSpriteUrl),
 				);
 			}
 
-			if (generationMode === GenerationMode.Inlined) {
-				return content;
-			}
-
-			if (generationMode === GenerationMode.EmbeddedSprite) {
+			// Nothing else needs to be done if the icons have been inlined.
+			if (gm.mode === GenerationMode.Inlined) return content;
+			// Replace the sprite content placeholders if sprites are embedded.
+			if (gm.mode === GenerationMode.EmbeddedSprite) {
 				content = content.replaceAll(
 					PLACEHOLDER_SVG_SPRITE_CONTENT,
 					this.page.icons === undefined
@@ -77,20 +77,22 @@ export default function (
 							),
 				);
 			}
-
-			content = content.replaceAll(PLACEHOLDER_SVG_SPRITE_URL, hrefPrefix);
+			// Replace the sprite URL placeholders if the sprite is being written to an external file.
+			if (gm.mode === GenerationMode.NamedFileSprite)
+				content = content.replaceAll(PLACEHOLDER_SVG_SPRITE_URL, svgSpriteUrl);
 
 			return content;
 		},
 	);
 
-	const generateSVG = async (icon: Icon, hrefPrefix: string) => {
+	const createInlineOrSpriteIcon = async (
+		icon: Icon,
+		spriteUrlPrefix: string,
+	) => {
 		const content = await icon.content(options);
-		if (!content) {
-			return '';
-		}
+		if (!content) return '';
 
-		if (generationMode === GenerationMode.Inlined) {
+		if (gm.mode === GenerationMode.Inlined) {
 			return processXMLIcon(
 				icon.path,
 				content,
@@ -99,7 +101,7 @@ export default function (
 			);
 		}
 
-		return icon.createSpriteReference(hrefPrefix);
+		return icon.createSpriteReference(spriteUrlPrefix);
 	};
 
 	eleventyConfig.addShortcode(
@@ -122,7 +124,7 @@ export default function (
 	);
 
 	eleventyConfig.addShortcode(options.sprite.shortcode, () => {
-		if (generationMode !== GenerationMode.EmbeddedSprite) {
+		if (gm.mode !== GenerationMode.EmbeddedSprite) {
 			throw new PluginError(
 				`The '${options.sprite.shortcode}' shortcode can only be used in 'sprite' mode.`,
 			);
@@ -132,25 +134,16 @@ export default function (
 	});
 
 	eleventyConfig.addShortcode('getSvgSpriteUrl', (): string => {
-		if (generationMode === GenerationMode.Inlined) {
+		if (gm.mode !== GenerationMode.NamedFileSprite) {
 			throw new PluginError(
-				"The 'getSvgSpriteUrl' shortcode can only be used in 'sprite' mode.",
-			);
-		}
-
-		if (generationMode === GenerationMode.EmbeddedSprite) {
-			throw new PluginError(
-				"The 'getSvgSpriteUrl' shortcode can only be used when 'sprite.writeFile' or 'sprite.writeToDirectory' is defined.",
+				"The 'getSvgSpriteUrl' shortcode can only be used in 'sprite' mode when either 'sprite.writeFile' or 'sprite.writeToDirectory' is defined.",
 			);
 		}
 
 		return PLACEHOLDER_SVG_SPRITE_URL;
 	});
 
-	if (
-		generationMode !== GenerationMode.Inlined &&
-		generationMode !== GenerationMode.EmbeddedSprite
-	) {
+	if (gm.mode === GenerationMode.NamedFileSprite) {
 		eleventyConfig.on(
 			'eleventy.after',
 			async ({
@@ -169,12 +162,7 @@ export default function (
 					log.warn('Unexpected undefined sprite value.');
 				}
 
-				assert(
-					relFileUrl !== undefined,
-					'relFileUrl should be defined when the sprite should be persisted.',
-				);
-
-				const outputFilepath = path.join(directories.output, relFileUrl);
+				const outputFilepath = path.join(directories.output, gm.writeFile);
 
 				const fileDirectory = path.parse(outputFilepath).dir;
 
@@ -197,16 +185,6 @@ export default function (
 		extraIcons ??= await getExtraIcons(options);
 
 		return await createSprite(icons.concat(extraIcons), options);
-	};
-
-	const getWrittenSpriteRelativeUrl = async (
-		opts: Options,
-	): Promise<string | undefined> => {
-		if (generationMode === GenerationMode.NamedFileSprite) {
-			return pathToUrl(path.join(opts.sprite.writeFile as string));
-		}
-
-		return undefined;
 	};
 
 	const pathToUrl = (p: string) => p.split(path.sep).join('/');

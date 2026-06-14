@@ -182,14 +182,19 @@ export enum GenerationMode {
 	NamedFileSprite = 2,
 }
 
-export const inferGenerationMode = (opts: Options): GenerationMode => {
-	if (opts.mode === 'inline') {
-		return GenerationMode.Inlined;
+export type GenerationModeResult =
+	| { mode: GenerationMode.Inlined }
+	| { mode: GenerationMode.EmbeddedSprite }
+	| { mode: GenerationMode.NamedFileSprite; writeFile: string };
+
+export const inferGenerationMode = (options: Options): GenerationModeResult => {
+	if (options.mode === 'inline') {
+		return { mode: GenerationMode.Inlined };
 	}
 
-	if (opts.sprite.writeFile !== false) {
-		return GenerationMode.NamedFileSprite;
+	if (options.sprite.writeFile !== false) {
+		return { mode: GenerationMode.NamedFileSprite, writeFile: options.sprite.writeFile };
 	}
 
-	return GenerationMode.EmbeddedSprite;
+	return { mode: GenerationMode.EmbeddedSprite };
 };
