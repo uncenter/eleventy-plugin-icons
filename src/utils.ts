@@ -16,10 +16,6 @@ export const log = {
 	warn(msg: string) {
 		message(msg, 'warn', 'yellow');
 	},
-
-	error(msg: string) {
-		message(msg, 'error', 'red');
-	},
 };
 
 /**
@@ -30,7 +26,7 @@ export const log = {
  */
 function message(
 	message: string,
-	type: 'log' | 'warn' | 'error' = 'log',
+	type: 'log' | 'warn' = 'log',
 	color?: string,
 ) {
 	const prefix = '[eleventy-plugin-icons] ';
