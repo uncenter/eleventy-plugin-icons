@@ -3,7 +3,8 @@ import type { Attributes } from './types';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
 import { cache } from './cache';
-import { log, mergeAttributes } from './utils';
+import { mergeAttributes } from './utils';
+import { PluginError } from './error';
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
@@ -41,9 +42,17 @@ export function processXMLIcon(
 	const maybe = cache.get(processedIconKey);
 	if (maybe !== undefined) return maybe;
 
-	const processed = _processXMLIcon(raw, attributes, overwrite);
-	cache.set(processedIconKey, processed);
-	return processed;
+	try {
+		const processed = _processXMLIcon(raw, attributes, overwrite);
+		cache.set(processedIconKey, processed);
+		return processed;
+	} catch (err) {
+		if (err instanceof PluginError) {
+			throw new PluginError(`Unable to process icon at ${path}.`, err);
+		}
+
+		throw err;
+	}
 }
 
 /**
@@ -108,7 +117,7 @@ export const _processXMLIcon = (
 			break;
 		}
 	}
-	if (!svg) log.error('No SVG element found.');
+	if (!svg) throw new PluginError('No SVG element found.');
 
 	return builder.build(parsed);
 };

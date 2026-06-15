@@ -1,5 +1,5 @@
 export class PluginError extends Error {
-	constructor(message: string) {
-		super(`[eleventy-plugin-icons] ${message}`);
+	constructor(message: string, cause?: Error) {
+		super(`[eleventy-plugin-icons] ${message}`, { cause });
 	}
 }
