@@ -5,10 +5,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import {
-	Icon,
 	createSprite,
 	createSpriteReference,
 	getExtraIcons,
+	Icon,
 } from './icon';
 import { mergeOptions, validateOptions } from './options';
 import { processXMLIcon } from './svg';
@@ -18,7 +18,7 @@ export default function (
 	opts: Prettify<DeepPartial<Options>>,
 ) {
 	const usedIcons: Icon[] = [];
-	let extraIcons: Icon[] | undefined = undefined;
+	let extraIcons: Icon[] | undefined;
 
 	if (opts === null || typeof opts !== 'object')
 		throw new Error(`options: expected an object but received ${typeof opts}`);

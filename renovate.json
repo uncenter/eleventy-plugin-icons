@@ -8,12 +8,8 @@
 	"rangeStrategy": "bump",
 	"packageRules": [
 		{
-			"matchManagers": [
-				"npm"
-			],
-			"matchDepTypes": [
-				"devDependencies"
-			],
+			"matchManagers": ["npm"],
+			"matchDepTypes": ["devDependencies"],
 			"enabled": false
 		}
 	]
