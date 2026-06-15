@@ -2,9 +2,9 @@
 	"compilerOptions": {
 		"strict": true,
 		"esModuleInterop": true,
-		"target": "es2021",
-		"module": "esnext",
-		"moduleResolution": "node",
+		"lib": ["ES2022"],
+		"target": "ES2022",
+		"moduleResolution": "bundler",
 		"outDir": "dist"
 	}
 }

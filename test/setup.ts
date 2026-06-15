@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import Eleventy from '@11ty/eleventy';
+
 import pluginIcons from '../src/index';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));

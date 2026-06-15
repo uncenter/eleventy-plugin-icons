@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { PluginError } from './error';
-import { Icon, createSprite, getExtraIcons } from './icon';
+import { createSprite, getExtraIcons, Icon } from './icon';
 import {
 	GenerationMode,
 	inferGenerationMode,
