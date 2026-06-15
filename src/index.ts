@@ -4,6 +4,7 @@ import type { Attributes, DeepPartial, Prettify } from './types';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import { PluginError } from './error';
 import {
 	createSprite,
 	createSpriteReference,
@@ -12,7 +13,6 @@ import {
 } from './icon';
 import { mergeOptions, validateOptions } from './options';
 import { processXMLIcon } from './svg';
-import { PluginError } from './error';
 
 export default function (
 	eleventyConfig: any,
