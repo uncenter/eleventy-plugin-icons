@@ -45,12 +45,6 @@ export default function (
 			this: { page: { icons: Map<string, Icon> } },
 			content: string,
 		) {
-			if (this.page.icons !== undefined) {
-				for (const icon of this.page.icons.values()) {
-					addIconIfMissing(usedIcons, icon);
-				}
-			}
-
 			const svgSpriteUrl =
 				gm.mode === GenerationMode.NamedFileSprite
 					? `/${pathToUrl(path.join(gm.writeFile))}`
