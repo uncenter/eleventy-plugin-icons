@@ -36,14 +36,9 @@ export function processXMLIcon(
 	attributes: Attributes,
 	overwrite: boolean,
 ) {
-	const processedIconKey = `processedIcon-${path}-${JSON.stringify(attributes)}-${overwrite}`;
-
-	const maybe = cache.get(processedIconKey);
-	if (maybe !== undefined) return maybe;
-
-	const processed = _processXMLIcon(raw, attributes, overwrite);
-	cache.set(processedIconKey, processed);
-	return processed;
+	return cache.getOrSet(`processedIcon-${path}-${JSON.stringify(attributes)}-${overwrite}`, () => {
+		return _processXMLIcon(raw, attributes, overwrite);
+	});
 }
 
 /**
