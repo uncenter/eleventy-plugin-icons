@@ -18,8 +18,16 @@ export class Icon {
 	public source = '';
 	public path = '';
 	public attributes: Attributes = {};
-	public id = '';
-	private originId = '';
+	
+	/**
+	 * The loose origin identifier for this icon, referencing the name and source.
+	 * Used in the icon's `id` attribute and for sprite references.
+	 */
+	public originId: string;
+	/**
+	 * The specific instance identifier for this exact icon definition, including the attributes along with the name and source.
+	 */
+	public instanceId: string;
 
 	constructor(
 		input: { name: string; source: string } | string,
@@ -47,7 +55,6 @@ export class Icon {
 			log.error(`Invalid input type for Icon constructor: '${typeof input}'.`);
 		}
 
-		this.originId = options.icon.id(this.name, this.source);
 
 		const sourceObject = options.sources.find(
 			(source) => source.name === this.source,
@@ -63,7 +70,8 @@ export class Icon {
 
 		this.attributes = handleIconShortcodeAttributes(attributes, options, this);
 
-		this.id = `${this.path}-${JSON.stringify(this.attributes)}`;
+		this.originId = options.icon.id(this.name, this.source);
+		this.instanceId = `${this.path}-${JSON.stringify(this.attributes)}`;
 	}
 
 	stringified = () => stringify(this);
@@ -143,7 +151,7 @@ export const createSprite = async (
 		const processed = processXMLIcon(
 			icon.path,
 			content,
-			{ id: options.icon.id(icon.name, icon.source) },
+			{ id: icon.originId },
 			true,
 		)
 			.replace(/<svg/, '<symbol') // TODO: Avoid regex for changing tags.

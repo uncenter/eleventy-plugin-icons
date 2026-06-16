@@ -53,7 +53,7 @@ export default function (
 			// Replace the placeholders in the file with either inline icons or sprite references.
 			for (const icon of usedIcons.values()) {
 				content = content.replaceAll(
-					PLACEHOLDER_ICON(icon.id),
+					PLACEHOLDER_ICON(icon.instanceId),
 					await createInlineOrSpriteIcon(icon, svgSpriteUrl),
 				);
 			}
@@ -113,7 +113,7 @@ export default function (
 			// Keep track of used icons for generating sprite.
 			addIconIfMissing(usedIcons, icon);
 
-			return PLACEHOLDER_ICON(icon.id);
+			return PLACEHOLDER_ICON(icon.instanceId);
 		},
 	);
 
@@ -184,8 +184,8 @@ export default function (
 	const pathToUrl = (p: string) => p.split(path.sep).join('/');
 
 	const addIconIfMissing = (map: Map<string, Icon>, icon: Icon) => {
-		if (!map.has(icon.id)) {
-			map.set(icon.id, icon);
+		if (!map.has(icon.instanceId)) {
+			map.set(icon.instanceId, icon);
 		}
 	};
 }
