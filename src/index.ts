@@ -26,7 +26,7 @@ export default function (
 	opts: Prettify<DeepPartial<Options>>,
 ) {
 	const usedIcons: Map<string, Icon> = new Map<string, Icon>();
-	let extraIcons: Icon[] | undefined = undefined;
+	let extraIcons: Icon[] | undefined;
 
 	if (opts === null || typeof opts !== 'object')
 		throw new PluginError(

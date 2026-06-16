@@ -18,7 +18,7 @@ export class Icon {
 	public source = '';
 	public path = '';
 	public attributes: Attributes = {};
-	
+
 	/**
 	 * The loose origin identifier for this icon, referencing the name and source.
 	 * Used in the icon's `id` attribute and for sprite references.
@@ -54,7 +54,6 @@ export class Icon {
 		} else {
 			log.error(`Invalid input type for Icon constructor: '${typeof input}'.`);
 		}
-
 
 		const sourceObject = options.sources.find(
 			(source) => source.name === this.source,
