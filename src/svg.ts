@@ -36,9 +36,12 @@ export function processXMLIcon(
 	attributes: Attributes,
 	overwrite: boolean,
 ) {
-	return cache.getOrSet(`processedIcon-${path}-${JSON.stringify(attributes)}-${overwrite}`, () => {
-		return _processXMLIcon(raw, attributes, overwrite);
-	});
+	return cache.getOrSet(
+		`processedIcon-${path}-${JSON.stringify(attributes)}-${overwrite}`,
+		() => {
+			return _processXMLIcon(raw, attributes, overwrite);
+		},
+	);
 }
 
 /**
