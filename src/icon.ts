@@ -67,34 +67,23 @@ export class Icon {
 
 	// eslint-disable-next-line unicorn/consistent-function-scoping
 	content = async (options: Options): Promise<string> => {
-		const iconContentKey = `iconContent-${this.path}`;
-
-		const maybe = cache.get(iconContentKey);
-		if (maybe !== undefined) return maybe;
-
-		let content: string;
-
-		try {
-			let fromFile = await fs.readFile(this.path, 'utf-8');
-
-			if (!fromFile) {
-				log.warn(`Icon ${this.stringified()} appears to be empty.`);
-				fromFile = '';
+		return cache.getOrSet(`iconContent-${this.path}`, async () => {
+			try {
+				let fromFile = await fs.readFile(this.path, 'utf-8');
+				if (!fromFile) {
+					log.warn(`Icon ${this.stringified()} appears to be empty.`);
+					fromFile = '';
+				}
+				return options.icon.transform
+					? await options.icon.transform(fromFile)
+					: fromFile;
+			} catch {
+				log[options.icon.errorNotFound ? 'error' : 'warn'](
+					`Icon ${this.stringified()} not found.`,
+				);
+				return '';
 			}
-
-			content = options.icon.transform
-				? await options.icon.transform(fromFile)
-				: fromFile;
-		} catch {
-			log[options.icon.errorNotFound ? 'error' : 'warn'](
-				`Icon ${this.stringified()} not found.`,
-			);
-
-			content = '';
-		}
-
-		cache.set(iconContentKey, content);
-		return content;
+		});
 	};
 }
 
@@ -108,55 +97,29 @@ export const createSprite = async (
 	const dedupedIcons = new Map(icons.map((item) => [item.path, item]));
 	const dedupedIds = [...dedupedIcons.keys()];
 
-	const combinedSpritesKey = `sprites-${dedupedIds.join('/')}`;
+	return cache.getOrSet(`sprites-${dedupedIds.join('/')}`, async () => {
+		const symbols: string[] = [];
 
-	const maybe = cache.get(combinedSpritesKey);
-	if (maybe !== undefined) return maybe;
-
-	const symbols: string[] = [];
-
-	for (const [path, icon] of dedupedIcons.entries()) {
-		const symbolKey = `symbol-${path}`;
-
-		const maybe = cache.get(symbolKey);
-		if (maybe !== undefined) {
-			symbols.push(maybe);
-			continue;
+		for (const [iconPath, icon] of dedupedIcons.entries()) {
+			const symbol = await cache.getOrSet(`symbol-${iconPath}`, async () => {
+				const content = await icon.content(options);
+				if (content === '') return '';
+				// If content exists, convert it to a symbol element and add attributes.
+				return processXMLIcon(
+					icon.path,
+					content,
+					{ id: options.icon.id(icon.name, icon.source) },
+					true,
+				)
+					.replace(/<svg/, '<symbol') // TODO: Avoid regex for changing tags.
+					.replace(/<\/svg>/, '</symbol>');
+			});
+			if (symbol !== '') symbols.push(symbol);
 		}
 
-		const content = await icon.content(options);
-
-		if (content === '') {
-			continue;
-		}
-
-		// If content exists, convert it to a symbol element and add attributes.
-		const processed = processXMLIcon(
-			icon.path,
-			content,
-			{ id: options.icon.id(icon.name, icon.source) },
-			true,
-		)
-			.replace(/<svg/, '<symbol') // TODO: Avoid regex for changing tags.
-			.replace(/<\/svg>/, '</symbol>');
-
-		cache.set(symbolKey, processed);
-		symbols.push(processed);
-	}
-
-	// Return an empty string if no symbols were generated.
-	if (symbols.length === 0) {
-		return '';
-	}
-
-	// Combine the generated symbol strings.
-	const content = `<svg ${attributesToString(
-		options.sprite.attributes,
-	)}><defs>${symbols.join('')}</defs></svg>`;
-
-	cache.set(combinedSpritesKey, content);
-
-	return content;
+		if (symbols.length === 0) return '';
+		return `<svg ${attributesToString(options.sprite.attributes)}><defs>${symbols.join('')}</defs></svg>`;
+	});
 };
 
 export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
