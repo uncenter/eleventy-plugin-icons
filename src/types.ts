@@ -1,7 +1,7 @@
 /**
  * An object containing attribute-key pairs of strings.
  */
-export type Attributes = Record<string, string>;
+export type Attributes = Record<string, string | null>;
 
 // biome-ignore lint/complexity/noBannedTypes: Cleaner this way.
 export type DeepPartial<T> = T extends Function | Array<any>

@@ -207,9 +207,6 @@ importers:
 
   .:
     dependencies:
-      fast-xml-parser:
-        specifier: ^4.4.0
-        version: 4.4.0
       just-typeof:
         specifier: ^3.2.0
         version: 3.2.0
@@ -219,6 +216,9 @@ importers:
       merge:
         specifier: ^2.1.1
         version: 2.1.1
+      txml:
+        specifier: ^6.0.0
+        version: 6.0.0
     devDependencies:
       '@11ty/eleventy':
         specifier: 3.0.0
@@ -1139,10 +1139,6 @@ packages:
     resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
     engines: {node: '>=8.6.0'}
 
-  fast-xml-parser@4.4.0:
-    resolution: {integrity: sha512-kLY3jFlwIYwBNDojclKsNAC12sfD6NwW74QB2CoNGPvtVxjliYehVunB3HYyNi+n4Tt1dAcgwYvmKF/Z18flqg==}
-    hasBin: true
-
   fastq@1.15.0:
     resolution: {integrity: sha512-wBrocU2LCXXa+lWBt8RoIRD89Fi8OdABODa/kEnyeyjS5aZO5/GNvI5sEINADqP/h8M29UHTHUb53sUu5Ihqdw==}
 
@@ -1685,9 +1681,6 @@ packages:
     resolution: {integrity: sha512-uCC2VHvQRYu+lMh4My/sFNmF2klFymLX1wHJeXnbEJERpV/ZsVuonzerjfrGpIGF7LBVa1O7i9kjiWvJiFck8g==}
     engines: {node: '>=0.10.0'}
 
-  strnum@1.0.5:
-    resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
-
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
 
@@ -1762,6 +1755,10 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  txml@6.0.0:
+    resolution: {integrity: sha512-SJ1tLEiSsraRDvSxCHhwhvS5e3YALvRWxNDKR2vCX3gQG4MVepj6dWEclnbnMEOUZ2s690lWC4pgpRjKj6lhkw==}
+    engines: {node: '>=18.0.0'}
 
   typescript@5.8.2:
     resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
@@ -2664,10 +2661,6 @@ snapshots:
       merge2: 1.4.1
       micromatch: 4.0.7
 
-  fast-xml-parser@4.4.0:
-    dependencies:
-      strnum: 1.0.5
-
   fastq@1.15.0:
     dependencies:
       reusify: 1.0.4
@@ -3195,8 +3188,6 @@ snapshots:
 
   strip-bom-string@1.0.0: {}
 
-  strnum@1.0.5: {}
-
   tinybench@2.9.0: {}
 
   tinyexec@0.3.2: {}
@@ -3249,6 +3240,8 @@ snapshots:
 
   tslib@2.8.1:
     optional: true
+
+  txml@6.0.0: {}
 
   typescript@5.8.2: {}
 

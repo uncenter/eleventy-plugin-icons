@@ -1,25 +1,10 @@
 import type { Attributes } from './types';
 
-import { XMLBuilder, XMLParser } from 'fast-xml-parser';
+import { isElementNode } from 'txml';
+import { parse, stringify } from 'txml/txml';
 
 import { cache } from './cache';
 import { log, mergeAttributes } from './utils';
-
-const parser = new XMLParser({
-	ignoreAttributes: false,
-	ignoreDeclaration: true,
-	commentPropName: '#comment',
-	preserveOrder: true,
-});
-
-const builder = new XMLBuilder({
-	ignoreAttributes: false,
-	commentPropName: '#comment',
-	preserveOrder: true,
-	format: true,
-	suppressEmptyNode: true,
-	unpairedTags: ['hr', 'br', 'link', 'meta'],
-});
 
 /**
  * Parses an SVG string and merges given attributes with existing ones.
@@ -61,24 +46,14 @@ export const _processXMLIcon = (
 	attributes: Attributes,
 	overwrite: boolean,
 ): string => {
-	const parsed = parser.parse(raw);
-	// biome-ignore lint/suspicious/noImplicitAnyLet: fast-xml-parser's XMLParser#parse() is poorly typed.
-	let svg;
-	let existingAttributes: Attributes = {};
+	const parsed = parse(raw, {
+		keepComments: true,
+		keepWhitespace: true,
+	});
+	let foundSvgNode = false;
 	for (const node of parsed) {
-		if ('svg' in node) {
-			svg = node.svg;
-
-			if (':@' in node) {
-				existingAttributes = node[':@'];
-				existingAttributes = Object.keys(existingAttributes).reduce(
-					(accumulator: typeof existingAttributes, key) => {
-						accumulator[key.replace(/^@_/, '')] = existingAttributes[key];
-						return accumulator;
-					},
-					{},
-				);
-			}
+		if (isElementNode(node) && node.tagName === 'svg') {
+			const existingAttributes: Attributes = node.attributes;
 
 			const newAttributes = mergeAttributes(
 				// Combine given attributes with existing ones depending on `overwrite`.
@@ -86,29 +61,18 @@ export const _processXMLIcon = (
 					? // Overwrite all:
 						[]
 					: // Combine all:
-						[
-							...new Set(
-								[existingAttributes, attributes].flatMap((object) =>
-									Object.keys(object),
-								),
-							),
-						],
+						Object.keys({ ...existingAttributes, ...attributes }),
 				// Existing attributes will be overwritten by newer ones because `attributes` is after `existingAttributes`.
 				[existingAttributes, attributes],
 			);
 
-			node[':@'] = Object.keys(newAttributes).reduce(
-				(accumulator: typeof newAttributes, key) => {
-					accumulator[`@_${key}`] = newAttributes[key];
-					return accumulator;
-				},
-				{},
-			);
+			node.attributes = { ...newAttributes };
 
+			foundSvgNode = true;
 			break;
 		}
 	}
-	if (!svg) log.error('No SVG element found.');
+	if (!foundSvgNode) log.error('No SVG element found.');
 
-	return builder.build(parsed);
+	return stringify(parsed);
 };
