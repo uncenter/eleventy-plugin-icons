@@ -4,6 +4,7 @@ import type { Attributes, DeepPartial, Prettify } from './types';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import { PluginError } from './error';
 import {
 	createSprite,
 	createSpriteReference,
@@ -21,7 +22,9 @@ export default function (
 	let extraIcons: Icon[] | undefined;
 
 	if (opts === null || typeof opts !== 'object')
-		throw new Error(`options: expected an object but received ${typeof opts}`);
+		throw new PluginError(
+			`options: expected an object but received ${typeof opts}`,
+		);
 	const options = mergeOptions(opts as Options);
 	validateOptions(options);
 
@@ -77,14 +80,14 @@ export default function (
 
 	eleventyConfig.addShortcode('getSvgSpriteUrl', (): string => {
 		if (options.mode === 'inline') {
-			throw new Error(
+			throw new PluginError(
 				"The 'getSvgSpriteUrl' shortcode can only be used in 'sprite' mode.",
 			);
 		}
 
 		const url = getSvgSpriteUrl();
 		if (url === undefined) {
-			throw new Error(
+			throw new PluginError(
 				"The 'getSvgSpriteUrl' shortcode can only be used when 'sprite.writeFile' is defined.",
 			);
 		}
