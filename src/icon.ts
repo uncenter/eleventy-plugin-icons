@@ -18,7 +18,16 @@ export class Icon {
 	public source = '';
 	public path = '';
 	public attributes: Attributes = {};
-	public id = '';
+
+	/**
+	 * The loose origin identifier for this icon, referencing the name and source.
+	 * Used in the icon's `id` attribute and for sprite references.
+	 */
+	public originId: string;
+	/**
+	 * The specific instance identifier for this exact icon definition, including the attributes along with the name and source.
+	 */
+	public instanceId: string;
 
 	constructor(
 		input: { name: string; source: string } | string,
@@ -60,7 +69,8 @@ export class Icon {
 
 		this.attributes = handleIconShortcodeAttributes(attributes, options, this);
 
-		this.id = `${this.path}-${JSON.stringify(this.attributes)}`;
+		this.originId = options.icon.id(this.name, this.source);
+		this.instanceId = `${this.path}-${JSON.stringify(this.attributes)}`;
 	}
 
 	stringified = () => stringify(this);
@@ -95,6 +105,12 @@ export class Icon {
 
 		cache.set(iconContentKey, content);
 		return content;
+	};
+
+	createSpriteReference = (spriteUrl: string): string => {
+		return `<svg ${attributesToString(
+			this.attributes,
+		)}><use href="${spriteUrl}#${this.originId}"></use></svg>`;
 	};
 }
 
@@ -134,7 +150,7 @@ export const createSprite = async (
 		const processed = processXMLIcon(
 			icon.path,
 			content,
-			{ id: options.icon.id(icon.name, icon.source) },
+			{ id: icon.originId },
 			true,
 		)
 			.replace(/<svg/, '<symbol') // TODO: Avoid regex for changing tags.
@@ -208,14 +224,4 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 	}
 
 	return icons;
-};
-
-export const createSpriteReference = (
-	attributes: Attributes,
-	id: string,
-	spriteUrl: string | undefined,
-): string => {
-	return `<svg ${attributesToString(
-		attributes,
-	)}><use href="${spriteUrl ?? ''}#${id}"></use></svg>`;
 };
