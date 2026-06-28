@@ -175,3 +175,29 @@ export function validateOptions(options: Options): options is Options {
 
 	return true;
 }
+
+export enum GenerationMode {
+	Inlined = 0,
+	EmbeddedSprite = 1,
+	NamedFileSprite = 2,
+}
+
+export type GenerationModeResult =
+	| { mode: GenerationMode.Inlined }
+	| { mode: GenerationMode.EmbeddedSprite }
+	| { mode: GenerationMode.NamedFileSprite; writeFile: string };
+
+export const inferGenerationMode = (options: Options): GenerationModeResult => {
+	if (options.mode === 'inline') {
+		return { mode: GenerationMode.Inlined };
+	}
+
+	if (options.sprite.writeFile !== false) {
+		return {
+			mode: GenerationMode.NamedFileSprite,
+			writeFile: options.sprite.writeFile,
+		};
+	}
+
+	return { mode: GenerationMode.EmbeddedSprite };
+};
