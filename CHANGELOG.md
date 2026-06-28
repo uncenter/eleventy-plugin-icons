@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.0.0](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.6.0...v5.0.0) (2026-06-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* defer svg insertion to post-processing transform ([#162](https://github.com/uncenter/eleventy-plugin-icons/issues/162))
+
+### Features
+
+* defer svg insertion to post-processing transform ([#162](https://github.com/uncenter/eleventy-plugin-icons/issues/162)) ([5cf3be7](https://github.com/uncenter/eleventy-plugin-icons/commit/5cf3be7dc814fa8d6f1d8b189e90d118677ec728))
+
 ## [4.6.0](https://github.com/uncenter/eleventy-plugin-icons/compare/v4.5.7...v4.6.0) (2026-06-15)
 
 
