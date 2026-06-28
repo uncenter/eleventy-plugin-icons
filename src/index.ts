@@ -1,7 +1,7 @@
 import type { Options } from './options';
 import type { Attributes, DeepPartial, Prettify } from './types';
 
-import { createHash } from 'node:crypto';
+import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -202,23 +202,18 @@ export default function (
 			: pathToUrl(
 					path.join(
 						gm.writeToDirectory,
-						await buildSpriteUrlFilename(usedIcons),
+						await getHashedSpriteFilename(usedIcons),
 					),
 				);
 	};
 
-	const buildSpriteUrlFilename = async (icons: Map<string, Icon>) => {
-		return `${hash(await createSpriteWithExtraIcons([...icons.values()]))}.svg`;
+	const getHashedSpriteFilename = async (icons: Map<string, Icon>) => {
+		const sprite = await createSpriteWithExtraIcons([...icons.values()]);
+		const hash = crypto.hash('sha256', sprite, 'base64url').substring(0, 10);
+		return `${hash}.svg`;
 	};
 
 	const pathToUrl = (p: string) => p.split(path.sep).join('/');
-
-	const hash = (content: string): string => {
-		const sha256Hash = createHash('sha256').update(content).digest('base64url');
-
-		const hashed = sha256Hash.substring(0, 10);
-		return hashed;
-	};
 
 	const addIconIfMissing = (map: Map<string, Icon>, icon: Icon) => {
 		if (!map.has(icon.instanceId)) {
