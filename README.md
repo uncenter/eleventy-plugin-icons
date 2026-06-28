@@ -178,7 +178,9 @@ npm i lucide-static
 The `mode` option specifies how icons are handled. It can take one of two values:
 
 - `'inline'`: When set to `'inline'`, the `icon` shortcode will insert SVGs directly into the page. No "sprite sheet" is required in this mode.
-- `'sprite'`: When set to `'sprite'`, the `icon` shortcode will insert `<use>` references for each icon. This mode should be used in conjunction with the `sprite` shortcode, which inserts a sprite of all the icons used on a page; insert your icons normally but make sure you use the `sprite` shortcode on each page, like in a template. Alternatively, you can use the `sprite.writeFile` option to write the sprite to the output directory and include that file in each page instead.
+- `'sprite'`: When set to `'sprite'`, the `icon` shortcode will insert `<use>` references for each icon. This mode should be used in conjunction with the `sprite` shortcode, which inserts a sprite of all the icons used on a page; insert your icons normally but make sure you use the `sprite` shortcode on each page, like in a template.
+  - Alternatively, you can use the `sprite.writeFile` option to write the sprite to the output directory and include that file in each page instead
+  - Or use `sprite.writeToDirectory` to emit a hash-named sprite bundle into a directory for long-lived browser caching and cache busting.
 
 > [!IMPORTANT]
 > Adding attributes on a per-icon basis that affect the appearance of the icon (e.g. `fill` or `stroke`) in `sprite` mode will not function correctly due to the limitations of SVG sprites.
@@ -381,6 +383,17 @@ will be rendered as...
 ```
 
 The `sprite_writeFile` example showcases this in the [`layout.njk`](./examples/sprite_writeFile/_includes/layout.njk) file.
+
+#### `writeToDirectory`
+
+- **Type**: `string | false`
+- **Default**: `false`
+
+The `writeToDirectory` option controls whether the generated sprite sheet is written into a directory inside the 11ty output folder. When enabled, the plugin writes a hash-named SVG sprite bundle into the configured directory and updates sprite references to the cache-busted asset URL.
+
+This option is ideal for high traffic websites that want long-lived browser caching for their SVG bundle while still invalidating the sprite automatically when icon content changes.
+
+Use `getSvgSpriteUrl` to insert the generated sprite URL in templates, and see the standalone [`sprite_writeToDirectory` example](./examples/sprite_writeToDirectory) for a complete setup.
 
 ## License
 

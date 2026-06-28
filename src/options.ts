@@ -43,6 +43,7 @@ export type Options = {
 			}[];
 		};
 		writeFile: false | string;
+		writeToDirectory: false | string;
 	};
 };
 
@@ -73,6 +74,7 @@ export const defaultOptions: Options = {
 			icons: [],
 		},
 		writeFile: false,
+		writeToDirectory: false,
 	},
 };
 
@@ -171,21 +173,37 @@ export function validateOptions(options: Options): options is Options {
 		validateOption(`sprite.extraIcons.icons[${i}].name`, ['string']);
 		validateOption(`sprite.extraIcons.icons[${i}].source`, ['string']);
 	}
-	validateOption('sprite.writeFile', ['boolean', 'string']);
 
+	validateOption('sprite.writeFile', ['boolean', 'string']);
+	validateOption('sprite.writeToDirectory', ['boolean', 'string']);
+
+	if (
+		options.sprite.writeFile !== false &&
+		options.sprite.writeToDirectory !== false
+	) {
+		throw new CustomOptionsError(
+			'sprite',
+			"Either 'writeFile' or 'writeToDirectory' can be set, but not both.",
+		);
+	}
 	return true;
 }
 
 export enum GenerationMode {
 	Inlined = 0,
 	EmbeddedSprite = 1,
-	NamedFileSprite = 2,
+	FileSprite = 2,
 }
 
 export type GenerationModeResult =
 	| { mode: GenerationMode.Inlined }
 	| { mode: GenerationMode.EmbeddedSprite }
-	| { mode: GenerationMode.NamedFileSprite; writeFile: string };
+	| { mode: GenerationMode.FileSprite; kind: 'named'; writeFile: string }
+	| {
+			mode: GenerationMode.FileSprite;
+			kind: 'hashed';
+			writeToDirectory: string;
+	  };
 
 export const inferGenerationMode = (options: Options): GenerationModeResult => {
 	if (options.mode === 'inline') {
@@ -194,8 +212,17 @@ export const inferGenerationMode = (options: Options): GenerationModeResult => {
 
 	if (options.sprite.writeFile !== false) {
 		return {
-			mode: GenerationMode.NamedFileSprite,
+			mode: GenerationMode.FileSprite,
+			kind: 'named' as const,
 			writeFile: options.sprite.writeFile,
+		};
+	}
+
+	if (options.sprite.writeToDirectory !== false) {
+		return {
+			mode: GenerationMode.FileSprite,
+			kind: 'hashed' as const,
+			writeToDirectory: options.sprite.writeToDirectory,
 		};
 	}
 

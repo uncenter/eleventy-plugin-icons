@@ -1,3 +1,4 @@
+import merge from 'merge';
 import { describe, expect, test } from 'vitest';
 
 import { defaultOptions, validateOptions } from '../src/options';
@@ -31,6 +32,25 @@ describe('validateOptions()', () => {
 		try {
 			// @ts-expect-error - Options.mode cannot be a boolean.
 			validateOptions({ ...defaultOptions, mode: false });
+			valid = true;
+		} catch {
+			valid = false;
+		}
+		expect(valid).toBe(false);
+	});
+
+	test('should throw error when both "writeFile" and "writeToDirectory" are set', () => {
+		let valid: boolean;
+		try {
+			validateOptions(
+				merge.recursive(true, defaultOptions, {
+					mode: 'sprite',
+					sprite: {
+						writeFile: 'icons/sprite.svg',
+						writeToDirectory: 'icons/',
+					},
+				}),
+			);
 			valid = true;
 		} catch {
 			valid = false;
