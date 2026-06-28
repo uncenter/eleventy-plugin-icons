@@ -166,7 +166,14 @@ export default function (
 					await fs.mkdir(fileDirectory, { recursive: true });
 				}
 
-				await fs.writeFile(outputFilepath, sprite);
+				try {
+					await fs.writeFile(outputFilepath, sprite);
+				} catch (err) {
+					throw new PluginError(
+						`Unable to write sprite file to '${outputFilepath}'.`,
+						err,
+					);
+				}
 			},
 		);
 	}

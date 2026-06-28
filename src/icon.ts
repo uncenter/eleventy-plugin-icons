@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { cache } from './cache';
+import { PluginError } from './error';
 import { processXMLIcon } from './svg';
 import {
 	attributesToString,
@@ -44,15 +45,21 @@ export class Icon {
 				this.source = source;
 			} else {
 				this.name = input;
-				this.source =
-					options.sources.find((source) => source.default === true)?.name || '';
-				if (!this.source)
-					log.error(
+				const source = options.sources.find(
+					(source) => source.default === true,
+				)?.name;
+				if (source) {
+					this.source = source;
+				} else {
+					throw new PluginError(
 						`Icon '${input}' lacks a delimiter and no default source is set.`,
 					);
+				}
 			}
 		} else {
-			log.error(`Invalid input type for Icon constructor: '${typeof input}'.`);
+			throw new PluginError(
+				`Invalid input type for Icon constructor: '${typeof input}'.`,
+			);
 		}
 
 		const sourceObject = options.sources.find(
@@ -64,7 +71,9 @@ export class Icon {
 				: `${this.name}.svg`;
 			this.path = path.join(sourceObject.path, fileName);
 		} else {
-			log.error(`Source '${this.source}' is not defined in options.sources.`);
+			throw new PluginError(
+				`Source '${this.source}' is not defined in options.sources.`,
+			);
 		}
 
 		this.attributes = handleIconShortcodeAttributes(attributes, options, this);
@@ -85,21 +94,21 @@ export class Icon {
 		let content: string;
 
 		try {
-			let fromFile = await fs.readFile(this.path, 'utf-8');
+			const fromFile = await fs.readFile(this.path, 'utf-8');
 
-			if (!fromFile) {
+			if (fromFile.length === 0)
 				log.warn(`Icon ${this.stringified()} appears to be empty.`);
-				fromFile = '';
-			}
 
 			content = options.icon.transform
 				? await options.icon.transform(fromFile)
 				: fromFile;
-		} catch {
-			log[options.icon.errorNotFound ? 'error' : 'warn'](
-				`Icon ${this.stringified()} not found.`,
-			);
+		} catch (err) {
+			const message = `Icon ${this.stringified()} not found.`;
 
+			if (options.icon.errorNotFound)
+				throw new PluginError(message, err instanceof Error ? err : undefined);
+
+			log.warn(message);
 			content = '';
 		}
 
@@ -187,7 +196,7 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 			if (match) {
 				sources.push(match);
 			} else {
-				log.error(
+				throw new PluginError(
 					`options.sprite.extraIcons.sources: Source '${source}' is not defined in options.sources.`,
 				);
 			}
@@ -207,7 +216,16 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 	}
 
 	for (const source of sources) {
-		for (const file of await fs.readdir(source.path)) {
+		let files: string[];
+		try {
+			files = await fs.readdir(source.path);
+		} catch (err) {
+			throw new PluginError(
+				`Unable to read source directory '${source.path}' for source '${source.name}'.`,
+				err,
+			);
+		}
+		for (const file of files) {
 			if (file.endsWith('.svg')) {
 				icons.push(
 					new Icon(
