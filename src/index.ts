@@ -209,7 +209,12 @@ export default function (
 
 	const getHashedSpriteFilename = async (icons: Map<string, Icon>) => {
 		const sprite = await createSpriteWithExtraIcons([...icons.values()]);
-		const hash = crypto.hash('sha256', sprite, 'base64url').substring(0, 10);
+		// TODO: Refactor to crypto.hash() API when minimum Node >= 20.
+		const hash = crypto
+			.createHash('sha256')
+			.update(sprite)
+			.digest('base64url')
+			.substring(0, 10);
 		return `${hash}.svg`;
 	};
 
