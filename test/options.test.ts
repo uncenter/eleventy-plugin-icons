@@ -1,6 +1,5 @@
-import { describe, expect, test } from 'vitest';
-
 import merge from 'merge';
+import { describe, expect, test } from 'vitest';
 
 import { defaultOptions, validateOptions } from '../src/options';
 
