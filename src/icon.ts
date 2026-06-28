@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { cache } from './cache';
+import { PluginError } from './error';
 import { processXMLIcon } from './svg';
 import {
 	attributesToString,
@@ -12,7 +13,6 @@ import {
 	log,
 	stringify,
 } from './utils';
-import { PluginError } from './error';
 
 export class Icon {
 	public name = '';

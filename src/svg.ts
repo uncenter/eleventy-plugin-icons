@@ -3,8 +3,8 @@ import type { Attributes } from './types';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
 import { cache } from './cache';
-import { mergeAttributes } from './utils';
 import { PluginError } from './error';
+import { mergeAttributes } from './utils';
 
 const parser = new XMLParser({
 	ignoreAttributes: false,
