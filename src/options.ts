@@ -192,15 +192,18 @@ export function validateOptions(options: Options): options is Options {
 export enum GenerationMode {
 	Inlined = 0,
 	EmbeddedSprite = 1,
-	NamedFileSprite = 2,
-	HashedBundleSprite = 3,
+	FileSprite = 2,
 }
 
 export type GenerationModeResult =
 	| { mode: GenerationMode.Inlined }
 	| { mode: GenerationMode.EmbeddedSprite }
-	| { mode: GenerationMode.NamedFileSprite; writeFile: string }
-	| { mode: GenerationMode.HashedBundleSprite; writeToDirectory: string };
+	| { mode: GenerationMode.FileSprite; kind: 'named'; writeFile: string }
+	| {
+			mode: GenerationMode.FileSprite;
+			kind: 'hashed';
+			writeToDirectory: string;
+	  };
 
 export const inferGenerationMode = (options: Options): GenerationModeResult => {
 	if (options.mode === 'inline') {
@@ -209,14 +212,16 @@ export const inferGenerationMode = (options: Options): GenerationModeResult => {
 
 	if (options.sprite.writeFile !== false) {
 		return {
-			mode: GenerationMode.NamedFileSprite,
+			mode: GenerationMode.FileSprite,
+			kind: 'named' as const,
 			writeFile: options.sprite.writeFile,
 		};
 	}
 
 	if (options.sprite.writeToDirectory !== false) {
 		return {
-			mode: GenerationMode.HashedBundleSprite,
+			mode: GenerationMode.FileSprite,
+			kind: 'hashed' as const,
 			writeToDirectory: options.sprite.writeToDirectory,
 		};
 	}
