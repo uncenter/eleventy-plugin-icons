@@ -46,21 +46,22 @@ export default function (
 			this: { page: { icons: Map<string, Icon> } },
 			content: string,
 		) {
-			let svgSpriteUrl = '';
-			switch (gm.mode) {
-				case GenerationMode.NamedFileSprite:
-					svgSpriteUrl = `/${pathToUrl(path.join(gm.writeFile))}`;
-					break;
-				case GenerationMode.HashedBundleSprite:
-					svgSpriteUrl = `/${pathToUrl(path.join(gm.writeToDirectory as string, await buildSpriteUrlFilename(usedIcons)))}`;
-					break;
+			// TODO: Investigate why this is necessary for test: test/sprite.test.ts > supports external svg reference > when writeToDirectory is set.
+			if (this.page.icons !== undefined) {
+				for (const icon of this.page.icons.values()) {
+					addIconIfMissing(usedIcons, icon);
+				}
 			}
+
+			const svgSpriteUrl = await getSpriteFileUrl();
+			const prefixedSvgSpriteUrl =
+				svgSpriteUrl === '' ? '' : `/${svgSpriteUrl}`;
 
 			// Replace the placeholders in the file with either inline icons or sprite references.
 			for (const icon of usedIcons.values()) {
 				content = content.replaceAll(
 					PLACEHOLDER_ICON(icon.instanceId),
-					await createInlineOrSpriteIcon(icon, svgSpriteUrl),
+					await createInlineOrSpriteIcon(icon, prefixedSvgSpriteUrl),
 				);
 			}
 
@@ -78,8 +79,14 @@ export default function (
 				);
 			}
 			// Replace the sprite URL placeholders if the sprite is being written to an external file.
-			if (gm.mode === GenerationMode.NamedFileSprite)
-				content = content.replaceAll(PLACEHOLDER_SVG_SPRITE_URL, svgSpriteUrl);
+			if (
+				gm.mode === GenerationMode.NamedFileSprite ||
+				gm.mode === GenerationMode.HashedBundleSprite
+			)
+				content = content.replaceAll(
+					PLACEHOLDER_SVG_SPRITE_URL,
+					prefixedSvgSpriteUrl,
+				);
 
 			return content;
 		},
@@ -134,7 +141,10 @@ export default function (
 	});
 
 	eleventyConfig.addShortcode('getSvgSpriteUrl', (): string => {
-		if (gm.mode !== GenerationMode.NamedFileSprite) {
+		if (
+			gm.mode !== GenerationMode.NamedFileSprite &&
+			gm.mode !== GenerationMode.HashedBundleSprite
+		) {
 			throw new PluginError(
 				"The 'getSvgSpriteUrl' shortcode can only be used in 'sprite' mode when either 'sprite.writeFile' or 'sprite.writeToDirectory' is defined.",
 			);
@@ -143,7 +153,10 @@ export default function (
 		return PLACEHOLDER_SVG_SPRITE_URL;
 	});
 
-	if (gm.mode === GenerationMode.NamedFileSprite) {
+	if (
+		gm.mode === GenerationMode.NamedFileSprite ||
+		gm.mode === GenerationMode.HashedBundleSprite
+	) {
 		eleventyConfig.on(
 			'eleventy.after',
 			async ({
@@ -162,7 +175,10 @@ export default function (
 					log.warn('Unexpected undefined sprite value.');
 				}
 
-				const outputFilepath = path.join(directories.output, gm.writeFile);
+				const outputFilepath = path.join(
+					directories.output,
+					await getSpriteFileUrl(),
+				);
 
 				const fileDirectory = path.parse(outputFilepath).dir;
 
@@ -185,6 +201,22 @@ export default function (
 		extraIcons ??= await getExtraIcons(options);
 
 		return await createSprite(icons.concat(extraIcons), options);
+	};
+
+	const getSpriteFileUrl = async () => {
+		switch (gm.mode) {
+			case GenerationMode.NamedFileSprite:
+				return pathToUrl(path.join(gm.writeFile));
+			case GenerationMode.HashedBundleSprite:
+				return pathToUrl(
+					path.join(
+						gm.writeToDirectory,
+						await buildSpriteUrlFilename(usedIcons),
+					),
+				);
+			default:
+				return '';
+		}
 	};
 
 	const buildSpriteUrlFilename = async (icons: Map<string, Icon>) => {
