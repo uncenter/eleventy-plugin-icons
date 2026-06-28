@@ -216,7 +216,16 @@ export const getExtraIcons = async (options: Options): Promise<Icon[]> => {
 	}
 
 	for (const source of sources) {
-		for (const file of await fs.readdir(source.path)) {
+		let files: string[];
+		try {
+			files = await fs.readdir(source.path);
+		} catch (err) {
+			throw new PluginError(
+				`Unable to read source directory '${source.path}' for source '${source.name}'.`,
+				err,
+			);
+		}
+		for (const file of files) {
 			if (file.endsWith('.svg')) {
 				icons.push(
 					new Icon(

@@ -47,11 +47,7 @@ export function processXMLIcon(
 		cache.set(processedIconKey, processed);
 		return processed;
 	} catch (err) {
-		if (err instanceof PluginError) {
-			throw new PluginError(`Unable to process icon at ${path}.`, err);
-		}
-
-		throw err;
+		throw new PluginError(`Unable to process icon at ${path}.`, err);
 	}
 }
 
